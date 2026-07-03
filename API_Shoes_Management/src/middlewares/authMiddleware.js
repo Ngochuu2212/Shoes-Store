@@ -7,7 +7,8 @@ const registerLimiter = rateLimit({
     message: 'Bạn đã yêu cầu quá nhiều lần. Vui lòng thử lại sau 10 phút.'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false }
 })
 
 const validateRegister = (req, res, next) => {
@@ -61,7 +62,8 @@ const loginLimiter = rateLimit({
     message: 'Bạn đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 5 phút.'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false }
 })
 
 // Validate dữ liệu đăng nhập đầu vào
