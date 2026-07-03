@@ -41,7 +41,13 @@ const getPromotionsByStore = async (storeId) => {
   return await promotionModel.getActivePromotionsByStoreId(Number(storeId))
 }
 
+// Lấy danh sách mã giảm giá hệ thống đang hoạt động
+const getSystemPromotions = async () => {
+  return await promotionModel.getActiveSystemPromotions()
+}
+
 export const promotionService = {
   applyPromotion,
-  getPromotionsByStore
+  getPromotionsByStore,
+  getSystemPromotions
 }

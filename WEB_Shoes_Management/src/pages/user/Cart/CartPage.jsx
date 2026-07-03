@@ -20,6 +20,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CartItemList } from './CartItemList'
 import { CheckoutForm } from './CheckoutForm'
 import { CartSummary } from './CartSummary'
+import { CartSystemVoucherPicker } from './CartSystemVoucherPicker'
 import { ConfirmDeleteModal } from '~/components/common/ConfirmDeleteModal'
 import { RecommendedProducts } from '~/components/user/RecommendedProducts'
 import { usePageTitle } from '~/hooks/usePageTitle'
@@ -37,6 +38,7 @@ export const CartPage = () => {
 
   const [paymentMethod, setPaymentMethod] = useState('COD')
   const [storeVouchers, setStoreVouchers] = useState({})
+  const [systemVoucher, setSystemVoucher] = useState({ code: null, discountValue: 0 })
   const [loadingOrder, setLoadingOrder] = useState(false)
   const [isProcessingPaymentFailure, setIsProcessingPaymentFailure] = useState(false)
 
@@ -224,6 +226,7 @@ export const CartPage = () => {
     if (currentSelected.length === cartItems.length) {
       dispatch(setSelectedItems([]))
       setStoreVouchers({})
+      setSystemVoucher({ code: null, discountValue: 0 })
     } else {
       dispatch(setSelectedItems(cartItems.map(item => item.variant_id)))
     }
@@ -264,6 +267,10 @@ export const CartPage = () => {
     }))
   }
 
+  const handleSystemVoucherSelect = (code, discountValue) => {
+    setSystemVoucher({ code, discountValue })
+  }
+
   const safeSelectedItems = Array.isArray(selectedItems) ? selectedItems : []
   const safeCartItems = Array.isArray(cartItems) ? cartItems : []
 
@@ -275,7 +282,7 @@ export const CartPage = () => {
     return sum + (Number(item.base_price) * item.cart_quantity)
   }, 0)
 
-  const totalDiscountAmount = selectedCartObjects.reduce((sum, item) => {
+  const storeDiscountAmount = selectedCartObjects.reduce((sum, item) => {
     const itemRowPrice = Number(item.base_price) * item.cart_quantity
 
     const backendPromoPercent = Number(item.discount_percentage || 0)
@@ -286,6 +293,12 @@ export const CartPage = () => {
 
     return sum + productItemDiscount + voucherRowDiscount
   }, 0)
+
+  const systemVoucherDiscountAmount = systemVoucher.code
+    ? Math.round(subTotal * (systemVoucher.discountValue / 100))
+    : 0
+
+  const totalDiscountAmount = storeDiscountAmount + systemVoucherDiscountAmount
 
   const finalTotal = Math.max(0, subTotal - totalDiscountAmount)
 
@@ -326,7 +339,10 @@ export const CartPage = () => {
       shippingAddress: formData.shippingAddress,
       discountAmount: totalDiscountAmount,
       paymentMethod: paymentMethod,
-      storeDiscounts: storeDiscounts
+      storeDiscounts: storeDiscounts,
+      systemDiscount: systemVoucher.code
+        ? { code: systemVoucher.code, amount: systemVoucherDiscountAmount }
+        : null
     }
 
     try {
@@ -475,9 +491,18 @@ export const CartPage = () => {
                     setPaymentMethod={setPaymentMethod}
                   />
 
+                  {safeSelectedItems.length > 0 && (
+                    <CartSystemVoucherPicker
+                      orderTotal={subTotal}
+                      onSelectVoucher={handleSystemVoucherSelect}
+                      currentSelectedVoucher={systemVoucher.code}
+                    />
+                  )}
+
                   <CartSummary
                     subTotal={subTotal}
-                    discountAmount={totalDiscountAmount}
+                    discountAmount={storeDiscountAmount}
+                    systemDiscountAmount={systemVoucherDiscountAmount}
                     finalTotal={finalTotal}
                     hasSelectedItems={safeSelectedItems.length > 0}
                     onSubmitOrder={handleCheckoutProcess}

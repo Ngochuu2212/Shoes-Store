@@ -9,4 +9,7 @@ router.post('/apply', authGuard.isAuthorized, promotionValidation.validateApplyP
 
 router.get('/store/:storeId', authGuard.isAuthorized, promotionController.getPromotionsByStore)
 
+// Lấy danh sách mã giảm giá hệ thống (do Manager tạo)
+router.get('/system', authGuard.isAuthorized, promotionController.getSystemPromotions)
+
 export const promotionRouter = router

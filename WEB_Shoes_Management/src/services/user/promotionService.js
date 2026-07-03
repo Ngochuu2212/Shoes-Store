@@ -15,5 +15,11 @@ export const promotionApiService = {
   getPromotionsByStore: async (storeId) => {
     const response = await authorizedAxiosInstance.get(`${DEV_API_URL}/api/promotions/store/${storeId}`)
     return response.data
+  },
+
+  // Lấy danh sách mã giảm giá hệ thống do Manager tạo
+  getSystemPromotions: async () => {
+    const response = await authorizedAxiosInstance.get(`${DEV_API_URL}/api/promotions/system`)
+    return response.data
   }
 }

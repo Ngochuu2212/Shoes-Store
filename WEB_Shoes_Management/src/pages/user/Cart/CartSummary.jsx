@@ -4,6 +4,7 @@ import { FiAlertCircle, FiShield } from 'react-icons/fi'
 export const CartSummary = ({
   subTotal,
   discountAmount,
+  systemDiscountAmount,
   finalTotal,
   hasSelectedItems,
   onSubmitOrder,
@@ -16,7 +17,6 @@ export const CartSummary = ({
         <span>Tóm tắt đơn hàng</span>
       </h3>
 
-      {/* Dòng cảnh báo nhỏ tinh tế bằng icon-react nếu chưa tick chọn mua món nào */}
       {!hasSelectedItems && (
         <div className="flex gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl animate-fadeIn items-start">
           <FiAlertCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
@@ -26,26 +26,28 @@ export const CartSummary = ({
         </div>
       )}
 
-      {/* Khối hiển thị dòng tiền số liệu */}
-      {/* Nếu chưa có cái chọn thì mặc định hiển thị 0đ */}
       <div className="space-y-2.5 pt-1 text-sm text-gray-600">
         <div className="flex justify-between">
           <span>Tạm tính hàng chọn:</span>
-          <span className="font-semibold text-gray-800">
-            {hasSelectedItems ? formatPrice(subTotal) : '0đ'}
-          </span>
+          <span className="font-semibold text-gray-800">{hasSelectedItems ? formatPrice(subTotal) : '0đ'}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span>Giảm giá áp dụng:</span>
+          <span>Giảm giá cửa hàng:</span>
           <span className="font-semibold text-green-500">
             {hasSelectedItems && discountAmount > 0 ? `-${formatPrice(discountAmount)}` : '0đ'}
           </span>
         </div>
+        {hasSelectedItems && systemDiscountAmount > 0 && (
+          <div className="flex justify-between items-center">
+            <span className="flex items-center gap-1 text-blue-600 font-semibold">
+              <span className="text-[10px] bg-blue-100 px-1.5 py-0.5 rounded font-black">SÀN</span> Mã hệ thống:
+            </span>
+            <span className="font-semibold text-blue-600">-{formatPrice(systemDiscountAmount)}</span>
+          </div>
+        )}
         <div className="flex justify-between">
           <span>Phí vận chuyển:</span>
-          <span className="text-green-500 font-semibold">
-            Miễn phí
-          </span>
+          <span className="text-green-500 font-semibold">Miễn phí</span>
         </div>
 
         <div className="flex justify-between items-end pt-2.5 border-t border-gray-100">
@@ -56,7 +58,6 @@ export const CartSummary = ({
         </div>
       </div>
 
-      {/* Nút Đặt Hàng */}
       <button
         type="button"
         onClick={onSubmitOrder}

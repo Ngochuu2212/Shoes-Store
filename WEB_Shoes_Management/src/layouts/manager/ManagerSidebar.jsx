@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  FiHome, FiPackage, FiStar, FiLogOut, FiAlertCircle, FiMenu, FiX
+  FiHome, FiPackage, FiStar, FiLogOut, FiAlertCircle, FiMenu, FiX, FiGift
 } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { logoutSuccess } from '~/redux/user/userSlice'
@@ -32,6 +32,11 @@ export const ManagerSidebar = ({ isMobileOpen = false, onMobileClose = () => {} 
       name: 'Cứu xét cửa hàng',
       path: '/manager/appeals',
       icon: <FiAlertCircle size={20} />
+    },
+    {
+      name: 'Mã giảm giá hệ thống',
+      path: '/manager/promotions',
+      icon: <FiGift size={20} />
     }
   ]
 

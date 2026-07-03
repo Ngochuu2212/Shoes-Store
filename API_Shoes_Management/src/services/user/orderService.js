@@ -30,13 +30,33 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
     const createdOrderIds = []
     let totalAllShops = 0
 
+    // Tính tổng phụ (trước khi trừ giảm giá cửa hàng) để phân bổ mã hệ thống
+    const totalSubtotalAllStores = Object.values(itemsByStore).reduce((sum, items) => {
+      return sum + items.reduce((s, item) => s + (Number(item.price) * item.quantity), 0)
+    }, 0)
+
+    const systemDiscount = data.systemDiscount || null
+    const systemDiscountTotal = Number(systemDiscount?.amount) || 0
+    const systemVoucherCode = systemDiscount?.code || null
+
     for (const storeId in itemsByStore) {
       const storeItems = itemsByStore[storeId]
       const subTotal = storeItems.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0)
 
       const specificStoreDiscount = data.storeDiscounts ? data.storeDiscounts[storeId] : { amount: 0, code: null }
-      const discountAmount = Number(specificStoreDiscount?.amount) || 0
+      const storeDiscountAmount = Number(specificStoreDiscount?.amount) || 0
       const appliedVoucher = specificStoreDiscount?.code || null
+
+      // Phân bổ mã giảm giá hệ thống theo tỉ lệ subTotal của từng store
+      const systemDiscountShare = totalSubtotalAllStores > 0
+        ? Math.round((subTotal / totalSubtotalAllStores) * systemDiscountTotal)
+        : 0
+
+      const discountAmount = storeDiscountAmount + systemDiscountShare
+
+      // Nếu có cả mã hàng trình và mã hệ thống, ghép lại để lưu
+      const combinedVoucher = [appliedVoucher, systemDiscountShare > 0 ? systemVoucherCode : null]
+        .filter(Boolean).join('+') || null
 
       const totalAmount = Math.max(0, subTotal - discountAmount)
       totalAllShops += totalAmount
@@ -52,7 +72,7 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
         commission_rate_snapshot: commissionRateSnapshot,
         shippingAddress: data.shippingAddress,
         paymentMethod: data.paymentMethod,
-        appliedVoucher: appliedVoucher
+        appliedVoucher: combinedVoucher
       })
 
       createdOrderIds.push(orderId)

@@ -38,6 +38,7 @@ import { managerStoreRouter } from '~/routes/manager/managerStoreRoute'
 import { managerProductRouter } from '~/routes/manager/managerProductRoute'
 import { managerReviewRouter } from '~/routes/manager/managerReviewRoute'
 import { managerAppealRouter } from '~/routes/manager/managerAppealRoute'
+import { managerPromotionRouter } from '~/routes/manager/managerPromotionRoute'
 
 // Định tuyến hệ thống API cho ADMIN (Quản trị viên)
 import { adminUserRouter } from '~/routes/admin/adminUserRoute'
@@ -108,6 +109,7 @@ const START_SERVER = () => {
   app.use('/api/manager/products', managerProductRouter)
   app.use('/api/manager/reviews', managerReviewRouter)
   app.use('/api/manager/appeals', managerAppealRouter)
+  app.use('/api/manager/promotions', managerPromotionRouter)
 
   // Định tuyến hệ thống API cho ADMIN (Quản trị viên)
   app.use('/api/admin/users', adminUserRouter)

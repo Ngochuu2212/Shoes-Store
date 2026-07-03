@@ -26,7 +26,17 @@ const getPromotionsByStore = async (req, res) => {
   }
 }
 
+const getSystemPromotions = async (req, res) => {
+  try {
+    const result = await promotionService.getSystemPromotions()
+    return res.status(200).json(result)
+  } catch (error) {
+    return res.status(500).json({ message: `Lỗi tải mã giảm giá hệ thống: ${error.message}` })
+  }
+}
+
 export const promotionController = {
   applyPromotion,
-  getPromotionsByStore
+  getPromotionsByStore,
+  getSystemPromotions
 }

@@ -45,6 +45,9 @@ import { ManagerReviewDetailPage } from '~/pages/manager/Reviews/ReviewDetail/Ma
 import { ManagerAppealsPage } from '~/pages/manager/Appeals/ManagerAppealsPage'
 import { ManagerAppealDetailPage } from '~/pages/manager/Appeals/AppealDetail/ManagerAppealDetailPage'
 import { ManagerProfileAccount } from '~/pages/manager/Profile/ManagerProfileAccount'
+import { ManagerPromotionsPage } from '~/pages/manager/Promotions/ManagerPromotionsPage'
+import { ManagerPromotionFormPage } from '~/pages/manager/Promotions/PromotionForm/ManagerPromotionFormPage'
+import { ManagerPromotionDetailPage } from '~/pages/manager/Promotions/PromotionDetail/ManagerPromotionDetailPage'
 
 // ADMIN PAGES
 import { AdminLayout } from '~/layouts/admin/AdminLayout'
@@ -173,6 +176,12 @@ const App = () => {
           {/* Quản lý appeal */}
           <Route path="appeals" element={<ManagerAppealsPage />} />
           <Route path="appeals/:id" element={<ManagerAppealDetailPage />} />
+
+          {/* Quản lý mã giảm giá hệ thống */}
+          <Route path="promotions" element={<ManagerPromotionsPage />} />
+          <Route path="promotions/add" element={<ManagerPromotionFormPage />} />
+          <Route path="promotions/edit/:id" element={<ManagerPromotionFormPage />} />
+          <Route path="promotions/detail/:id" element={<ManagerPromotionDetailPage />} />
 
           {/* Thông báo */}
           <Route path="notifications" element={<AllNotificationsPage />} />
