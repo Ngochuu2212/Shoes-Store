@@ -1,0 +1,356 @@
+import { useState, useEffect } from 'react'
+import { FiSearch, FiChevronDown, FiRefreshCw, FiX, FiCalendar, FiStar, FiAlertCircle, FiCheck } from 'react-icons/fi'
+import { Input } from '~/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '~/components/ui/dropdown-menu'
+import { Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'
+import { motion, AnimatePresence } from 'framer-motion'
+
+export const ReviewFilters = ({ filters, onFilterChange, onReset, stores = [] }) => {
+  const [searchTxt, setSearchTxt] = useState(filters.search || '')
+  const [startDate, setStartDate] = useState(filters.startDate || '')
+  const [endDate, setEndDate] = useState(filters.endDate || '')
+  const [tempStartDate, setTempStartDate] = useState(filters.startDate || '')
+  const [tempEndDate, setTempEndDate] = useState(filters.endDate || '')
+  const [errors, setErrors] = useState({ startDate: '', endDate: '' })
+  const [isDateFilterApplied, setIsDateFilterApplied] = useState(!!(filters.startDate && filters.endDate))
+
+  // Helper: Lấy ngày hôm nay dạng YYYY-MM-DD
+  const getTodayString = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  // Format ngày hiển thị
+  const formatDisplayDate = (dateStr) => {
+    if (!dateStr) return ''
+    const parts = dateStr.split('-')
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+
+  // Validate ngày tháng
+  const validateDates = (start, end) => {
+    const newErrors = { startDate: '', endDate: '' }
+    let isValid = true
+    const today = getTodayString()
+
+    if (start && start > today) {
+      newErrors.startDate = 'Ngày bắt đầu không thể lớn hơn hôm nay'
+      isValid = false
+    }
+
+    if (end && end > today) {
+      newErrors.endDate = 'Ngày kết thúc không thể lớn hơn hôm nay'
+      isValid = false
+    }
+
+    if (start && end && start > end) {
+      newErrors.startDate = 'Ngày bắt đầu không thể lớn hơn ngày kết thúc'
+      newErrors.endDate = 'Ngày kết thúc phải lớn hơn ngày bắt đầu'
+      isValid = false
+    }
+
+    setErrors(newErrors)
+    return isValid
+  }
+
+  useEffect(() => {
+    if (!filters.search) setSearchTxt('')
+  }, [filters.search])
+
+  useEffect(() => {
+    setStartDate(filters.startDate || '')
+    setTempStartDate(filters.startDate || '')
+    if (!filters.startDate) {
+      setErrors(prev => ({ ...prev, startDate: '' }))
+    }
+  }, [filters.startDate])
+
+  useEffect(() => {
+    setEndDate(filters.endDate || '')
+    setTempEndDate(filters.endDate || '')
+    if (!filters.endDate) {
+      setErrors(prev => ({ ...prev, endDate: '' }))
+    }
+  }, [filters.endDate])
+
+  useEffect(() => {
+    setIsDateFilterApplied(!!(filters.startDate && filters.endDate))
+  }, [filters.startDate, filters.endDate])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFilterChange('search', searchTxt.trim() || null)
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [searchTxt])
+
+  // Xử lý khi thay đổi startDate (chỉ cập nhật temp)
+  const handleStartDateChange = (value) => {
+    setTempStartDate(value)
+    setErrors(prev => ({ ...prev, startDate: '' }))
+    validateDates(value, tempEndDate)
+  }
+
+  // Xử lý khi thay đổi endDate (chỉ cập nhật temp)
+  const handleEndDateChange = (value) => {
+    setTempEndDate(value)
+    setErrors(prev => ({ ...prev, endDate: '' }))
+    validateDates(tempStartDate, value)
+  }
+
+  // Áp dụng bộ lọc ngày
+  const handleApplyDateFilter = () => {
+    const isValid = validateDates(tempStartDate, tempEndDate)
+
+    if (!isValid) return
+
+    if (tempStartDate && tempEndDate) {
+      setStartDate(tempStartDate)
+      setEndDate(tempEndDate)
+      setIsDateFilterApplied(true)
+
+      // Cập nhật cả 2 filter cùng lúc
+      onFilterChange('dateRange', {
+        startDate: tempStartDate,
+        endDate: tempEndDate
+      })
+    } else {
+      if (!tempStartDate) {
+        setErrors(prev => ({ ...prev, startDate: 'Vui lòng chọn ngày bắt đầu' }))
+      }
+      if (!tempEndDate) {
+        setErrors(prev => ({ ...prev, endDate: 'Vui lòng chọn ngày kết thúc' }))
+      }
+    }
+  }
+
+  // Xóa bộ lọc ngày
+  const handleClearDateFilter = () => {
+    setTempStartDate('')
+    setTempEndDate('')
+    setStartDate('')
+    setEndDate('')
+    setIsDateFilterApplied(false)
+    setErrors({ startDate: '', endDate: '' })
+
+    onFilterChange('dateRange', null)
+  }
+
+  const ratingOptions = [
+    { value: '', label: 'Tất cả số sao' },
+    { value: 5, label: '★★★★★ (5 sao)' },
+    { value: 4, label: '★★★★☆ (4 sao)' },
+    { value: 3, label: '★★★☆☆ (3 sao)' },
+    { value: 2, label: '★★☆☆☆ (2 sao)' },
+    { value: 1, label: '★☆☆☆☆ (1 sao)' }
+  ]
+
+  const currentRatingLabel = ratingOptions.find(r => r.value === Number(filters.rating))?.label || 'Tất cả số sao'
+  const currentStoreLabel = stores.find(s => s.id === Number(filters.storeId))?.store_name || 'Tất cả cửa hàng'
+
+  const activeBadges = []
+  if (filters.search) activeBadges.push({ key: 'search', label: `Tìm: "${filters.search}"` })
+  if (filters.rating) activeBadges.push({ key: 'rating', label: `Số sao: ${filters.rating}` })
+  if (filters.storeId) activeBadges.push({ key: 'storeId', label: `Cửa hàng: ${currentStoreLabel}` })
+  if (filters.startDate && filters.endDate) {
+    activeBadges.push({
+      key: 'dateRange',
+      label: `${formatDisplayDate(filters.startDate)} → ${formatDisplayDate(filters.endDate)}`
+    })
+  }
+
+  const handleRemoveFilter = (key) => {
+    if (key === 'dateRange') {
+      handleClearDateFilter()
+    } else if (key === 'search') {
+      onFilterChange('search', null)
+      setSearchTxt('')
+    } else {
+      onFilterChange(key, null)
+    }
+  }
+
+  const maxDate = getTodayString()
+  const hasDateError = errors.startDate || errors.endDate
+  const isDateValid = tempStartDate && tempEndDate && !hasDateError
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+      {/* Hàng 1: Tìm kiếm + Bộ lọc số sao + Cửa hàng + Reset */}
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div className="relative w-full lg:max-w-md">
+          <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+          <Input
+            value={searchTxt}
+            onChange={(e) => setSearchTxt(e.target.value)}
+            placeholder="Tìm theo nội dung đánh giá..."
+            className="pl-10 rounded-xl border-gray-200 py-5 text-sm font-semibold focus-visible:ring-brand-primary/20"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+          {/* Bộ lọc số sao */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 outline-none cursor-pointer transition-colors min-w-[140px]">
+                <FiStar size={14} className="text-yellow-500" />
+                <span className="truncate">{currentRatingLabel}</span>
+                <FiChevronDown size={14} className="text-gray-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-gray-50 min-w-[180px]">
+              {ratingOptions.map(option => (
+                <DropdownMenuItem
+                  key={option.value || 'all'}
+                  onClick={() => onFilterChange('rating', option.value || null)}
+                  className="text-xs font-semibold cursor-pointer rounded-lg flex items-center gap-2"
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Bộ lọc cửa hàng */}
+          {stores.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 outline-none cursor-pointer transition-colors min-w-[160px]">
+                  <span className="truncate">{currentStoreLabel}</span>
+                  <FiChevronDown size={14} className="text-gray-400 shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-gray-50 max-h-64 overflow-y-auto min-w-[200px]">
+                <DropdownMenuItem onClick={() => onFilterChange('storeId', null)} className="text-xs font-bold cursor-pointer rounded-lg">
+                  Tất cả cửa hàng
+                </DropdownMenuItem>
+                {stores.map(store => (
+                  <DropdownMenuItem
+                    key={store.id}
+                    onClick={() => onFilterChange('storeId', store.id)}
+                    className="text-xs font-semibold cursor-pointer rounded-lg"
+                  >
+                    {store.store_name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button onClick={onReset} className="p-2.5 bg-gray-50 text-gray-500 hover:text-brand-primary border border-gray-200 rounded-xl cursor-pointer transition-colors hover:bg-brand-primary/5 shadow-sm">
+                <FiRefreshCw size={15} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="font-semibold">Làm mới bộ lọc</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+
+      {/* Hàng 2: Bộ lọc ngày tháng */}
+      <div className="mt-4 pt-4 border-t border-gray-50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2">
+            <FiCalendar size={14} className="text-gray-400" />
+            <span className="text-xs font-semibold text-gray-500">Lọc theo ngày:</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Input
+                type="date"
+                value={tempStartDate}
+                max={maxDate}
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                className={`rounded-xl border-gray-200 py-2 text-sm font-semibold focus-visible:ring-brand-primary/20 w-[160px] ${
+                  errors.startDate ? 'border-red-500 focus-visible:ring-red-500/20' : ''
+                }`}
+                placeholder="Từ ngày"
+              />
+            </div>
+
+            <span className="text-xs text-gray-400 font-bold">→</span>
+
+            <div className="relative">
+              <Input
+                type="date"
+                value={tempEndDate}
+                max={maxDate}
+                onChange={(e) => handleEndDateChange(e.target.value)}
+                className={`rounded-xl border-gray-200 py-2 text-sm font-semibold focus-visible:ring-brand-primary/20 w-[160px] ${
+                  errors.endDate ? 'border-red-500 focus-visible:ring-red-500/20' : ''
+                }`}
+                placeholder="Đến ngày"
+              />
+            </div>
+
+            {/* Nút Áp dụng */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleApplyDateFilter}
+                  disabled={!tempStartDate || !tempEndDate || !!hasDateError}
+                  className={`px-4 py-2 rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 ${
+                    isDateValid
+                      ? 'bg-brand-primary text-white hover:bg-brand-primary/90 shadow-sm shadow-brand-primary/20'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <FiCheck size={14} />
+                  <span className="text-sm font-bold">Áp dụng</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="font-semibold">
+                {isDateValid ? 'Áp dụng lọc theo ngày' : 'Chọn đầy đủ ngày hợp lệ'}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Hiển thị lỗi */}
+          {(errors.startDate || errors.endDate) && (
+            <div className="flex items-center gap-2 text-xs text-red-500">
+              <FiAlertCircle size={12} />
+              <span>{errors.startDate || errors.endDate}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Active Badges */}
+      <AnimatePresence>
+        {activeBadges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-50"
+          >
+            <span className="text-xs font-semibold text-gray-400 mr-1">Đang lọc theo:</span>
+            {activeBadges.map(badge => (
+              <motion.span
+                initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }}
+                key={badge.key}
+                className="flex items-center gap-1.5 px-3 py-1 bg-brand-primary/10 text-brand-primary border border-brand-primary/20 rounded-lg text-xs font-bold shadow-sm"
+              >
+                {badge.label}
+                <FiX className="cursor-pointer hover:bg-brand-primary hover:text-white rounded-full p-0.5 transition-all w-4 h-4" onClick={() => handleRemoveFilter(badge.key)} />
+              </motion.span>
+            ))}
+            <button onClick={onReset} className="text-xs font-semibold text-gray-500 hover:text-red-500 underline ml-3 transition-colors cursor-pointer">
+              Xóa tất cả bộ lọc
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}

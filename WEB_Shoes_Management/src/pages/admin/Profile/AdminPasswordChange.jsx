@@ -1,0 +1,133 @@
+import { useForm } from 'react-hook-form'
+import { useState } from 'react'
+import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
+import { InputField } from '~/components/common/InputField'
+
+export const AdminPasswordChange = ({ loading, onUpdateProfile }) => {
+  const [showOldPassword, setShowOldPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [serverError, setServerError] = useState('')
+
+  const { register, handleSubmit, watch, reset, setError, formState: { errors } } = useForm({
+    defaultValues: { oldPassword: '', password: '', confirmPassword: '' }
+  })
+
+  const onPasswordSubmit = async (data) => {
+    setServerError('')
+    try {
+      await onUpdateProfile(
+        {
+          oldPassword: data.oldPassword,
+          password: data.password
+        },
+        () => reset()
+      )
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra'
+
+      if (errorMessage.includes('Mật khẩu hiện tại không chính xác') ||
+          errorMessage.includes('mật khẩu hiện tại')) {
+        setError('oldPassword', {
+          type: 'manual',
+          message: 'Mật khẩu hiện tại không chính xác'
+        })
+      } else {
+        setServerError(errorMessage)
+      }
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onPasswordSubmit)} className="pt-2 space-y-6 w-full">
+      {/* Mật khẩu cũ */}
+      <div className="relative">
+        <InputField
+          label="Mật khẩu hiện tại"
+          type={showOldPassword ? 'text' : 'password'}
+          placeholder="••••••••"
+          icon={FiLock}
+          {...register('oldPassword', {
+            required: 'Vui lòng nhập mật khẩu hiện tại để xác minh.',
+            minLength: { value: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự.' }
+          })}
+          error={errors.oldPassword}
+        />
+        <button
+          type="button"
+          onClick={() => setShowOldPassword(!showOldPassword)}
+          className="absolute right-4 top-[50px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+        >
+          {showOldPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+        </button>
+      </div>
+
+      {/* Mật khẩu mới */}
+      <div className="relative">
+        <InputField
+          label="Mật khẩu mới"
+          type={showNewPassword ? 'text' : 'password'}
+          placeholder="Thiết lập mật khẩu mới"
+          icon={FiLock}
+          {...register('password', {
+            required: 'Vui lòng thiết lập mật khẩu mới.',
+            minLength: { value: 6, message: 'Mật khẩu mới phải chứa ít nhất 6 ký tự.' },
+            validate: (value) => {
+              if (value && watch('oldPassword') && value === watch('oldPassword')) {
+                return 'Mật khẩu mới không được trùng với mật khẩu hiện tại.'
+              }
+              return true
+            }
+          })}
+          error={errors.password}
+        />
+        <button
+          type="button"
+          onClick={() => setShowNewPassword(!showNewPassword)}
+          className="absolute right-4 top-[50px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+        >
+          {showNewPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+        </button>
+      </div>
+
+      {/* Xác nhận mật khẩu mới */}
+      <div className="relative">
+        <InputField
+          label="Xác nhận mật khẩu mới"
+          type={showConfirmPassword ? 'text' : 'password'}
+          placeholder="Nhập lại mật khẩu mới"
+          icon={FiLock}
+          {...register('confirmPassword', {
+            required: 'Vui lòng nhập lại mật khẩu mới để xác thực.',
+            validate: (value) => value === watch('password') || 'Mật khẩu xác nhận không trùng khớp.'
+          })}
+          error={errors.confirmPassword}
+        />
+        <button
+          type="button"
+          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          className="absolute right-4 top-[50px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+        >
+          {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+        </button>
+      </div>
+
+      {/* Hiển thị lỗi server chung */}
+      {serverError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+          <p className="text-sm text-red-600">{serverError}</p>
+        </div>
+      )}
+
+      <div className="flex justify-end pt-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {loading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+        </button>
+      </div>
+    </form>
+  )
+}
