@@ -242,9 +242,9 @@ FRONTEND_URL=http://localhost:5173
 
 | Role | Email mẫu | Mật khẩu | Quyền hạn |
 |------|-----------|----------|-----------|
-| **Admin** | `23110345@student.hcmute.edu.vn` | `123456` | Toàn quyền hệ thống |
-| **Manager** | `23521843@gm.uit.edu.vn` | `123456` | Kiểm duyệt nội dung |
-| **Vendor** | `caongocthien1902@gmail.com` | `123456` | Quản lý cửa hàng + sản phẩm |
+| **Admin** | `23110233@student.hcmute.edu.vn` | `123456` | Toàn quyền hệ thống |
+| **Manager** | `huu.pham.3101@gmail.com` | `123456` | Kiểm duyệt nội dung |
+| **Vendor** | `phamngochuu3101@gmail.com` | `123456` | Quản lý cửa hàng + sản phẩm |
 | **User** | `23110332@student.hcmute.edu.vn` | `123456` | Mua sắm, đánh giá, chat |
 
 > ⚠️ Tài khoản mẫu được tạo sẵn từ file `mysql_init/shoes_data.sql`. Thay đổi mật khẩu sau khi deploy production.
