@@ -182,6 +182,46 @@ const refreshAccessToken = async (req, res) => {
   }
 }
 
+const googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body
+    if (!credential) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp Google credential' })
+    }
+
+    const result = await authService.googleLogin(credential)
+
+    const isProduction = process.env.NODE_ENV === 'production'
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/'
+    }
+
+    res.cookie('accessToken', result.accessToken, {
+      ...cookieOptions,
+      maxAge: ms(env.JWT_ACCESS_EXPIRE)
+    })
+    res.cookie('refreshToken', result.refreshToken, {
+      ...cookieOptions,
+      maxAge: ms(env.JWT_REFRESH_EXPIRE)
+    })
+
+    return res.status(200).json({
+      message: 'Đăng nhập bằng Google thành công!',
+      user: result.user,
+      redirectUrl: result.redirectUrl,
+      accessToken: result.accessToken
+    })
+  } catch (error) {
+    if (error.message.includes('bị khóa') || error.message.includes('không hợp lệ')) {
+      return res.status(400).json({ message: error.message })
+    }
+    return res.status(500).json({ message: `Lỗi đăng nhập Google: ${error.message}` })
+  }
+}
+
 export const authController = {
   register,
   verifyOtp,
@@ -189,5 +229,6 @@ export const authController = {
   forgotPassword,
   resetPassword,
   logout,
-  refreshAccessToken
+  refreshAccessToken,
+  googleLogin
 }

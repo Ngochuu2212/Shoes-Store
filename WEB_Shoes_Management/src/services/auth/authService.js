@@ -27,6 +27,11 @@ export const authService = {
     return response.data
   },
 
+  googleLogin: async (credential) => {
+    const response = await authorizedAxiosInstance.post(`${DEV_API_URL}/api/auth/google-login`, { credential })
+    return response.data
+  },
+
   logout: async () => {
     const response = await authorizedAxiosInstance.post(`${DEV_API_URL}/api/auth/logout`)
     return response.data

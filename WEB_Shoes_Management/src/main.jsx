@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { TooltipProvider } from '~/components/ui/tooltip'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 import App from './App.jsx'
 
@@ -17,14 +18,16 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <BrowserRouter>
-          <TooltipProvider>
-            <ChatProvider>
-              <ToastContainer position="top-right" />
-              <App />
-            </ChatProvider>
-          </TooltipProvider>
-        </BrowserRouter>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+          <BrowserRouter>
+            <TooltipProvider>
+              <ChatProvider>
+                <ToastContainer position="top-right" />
+                <App />
+              </ChatProvider>
+            </TooltipProvider>
+          </BrowserRouter>
+        </GoogleOAuthProvider>
       </PersistGate>
     </Provider>
   </StrictMode>

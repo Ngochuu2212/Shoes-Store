@@ -181,6 +181,29 @@ const verifyRefreshToken = async (userId, refreshToken) => {
   return rows[0].refresh_token === refreshToken
 }
 
+const findByGoogleId = async (googleId) => {
+  const [rows] = await pool.execute('SELECT id, fullname, email, phone, address, role_id, avatar, is_active, is_verified FROM users WHERE google_id = ?', [googleId])
+  return rows[0]
+}
+
+const createSocialUser = async (data) => {
+  const { fullname, email, phone, address, googleId, avatarUrl, roleId } = data
+  const avatarData = avatarUrl ? JSON.stringify({ url: avatarUrl, public_id: null }) : null
+  const query = `
+    INSERT INTO users (fullname, email, password, phone, address, google_id, avatar, role_id, is_active, is_verified) 
+    VALUES (?, ?, NULL, ?, ?, ?, ?, ?, 1, 1)
+  `
+  const [result] = await pool.execute(query, [
+    fullname, email, phone || null, address || null, googleId || null, avatarData, roleId
+  ])
+  return result
+}
+
+const linkGoogleId = async (userId, googleId) => {
+  const query = 'UPDATE users SET google_id = ? WHERE id = ?'
+  await pool.execute(query, [googleId, userId])
+}
+
 export const userModel = {
   findByEmail,
   createPendingUser,
@@ -201,5 +224,8 @@ export const userModel = {
   getUserById,
   getAllAdminIds,
   getRefreshTokenByUserId,
-  verifyRefreshToken
+  verifyRefreshToken,
+  findByGoogleId,
+  createSocialUser,
+  linkGoogleId
 }

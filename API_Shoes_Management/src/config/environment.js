@@ -13,6 +13,9 @@ export const env = {
   BREVO_SMTP_USER: process.env.BREVO_SMTP_USER,
   BREVO_API_KEY: process.env.BREVO_API_KEY,
 
+  // Cấu hình Google OAuth
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+
   // Cấu hình JWT
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
-import { FaFacebookF } from 'react-icons/fa'
+import { useGoogleLogin } from '@react-oauth/google'
 import { InputField } from '~/components/common/InputField'
 import { Checkbox } from '~/components/ui/checkbox'
 import { Field, FieldLabel } from '~/components/ui/field'
@@ -72,6 +72,48 @@ export const LoginPage = () => {
     }
   }
 
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true)
+      try {
+        const response = await authService.googleLogin(tokenResponse.access_token)
+
+        if (response) {
+          toast.success(response.message || 'Đăng nhập bằng Google thành công!')
+
+          dispatch(loginSuccess({
+            user: response.user,
+            accessToken: response.accessToken
+          }))
+
+          const [favoritesData, cartItems] = await Promise.all([
+            productService.getFavorites(),
+            cartApiService.getCart()
+          ])
+
+          if (Array.isArray(favoritesData)) {
+            const favoriteIds = favoritesData.map(item => item.product_id)
+            dispatch(setFavorites(favoriteIds))
+          }
+
+          if (Array.isArray(cartItems)) {
+            const totalItemsCount = cartItems.reduce((sum, item) => sum + item.cart_quantity, 0)
+            dispatch(setCartCount(totalItemsCount))
+          }
+
+          navigate(response.redirectUrl || '/')
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'Đăng nhập bằng Google thất bại!')
+      } finally {
+        setLoading(false)
+      }
+    },
+    onError: () => {
+      toast.error('Đăng nhập bằng Google thất bại!')
+    }
+  })
+
   const slideLeft = {
     hidden: { opacity: 0, x: -80 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } }
@@ -122,27 +164,18 @@ export const LoginPage = () => {
         </motion.div>
 
         <motion.div variants={slideUp} className="w-full max-w-md space-y-6">
-          {/* Nút đăng nhập mạng xã hội */}
-          <div className="grid grid-cols-2 gap-3">
-            <motion.button
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              type="button"
-              className="flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              <FcGoogle size={18} />
-              <span>Google</span>
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              type="button"
-              className="flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              <FaFacebookF size={16} className="text-[#1877F2]" />
-              <span>Facebook</span>
-            </motion.button>
-          </div>
+          {/* Nút đăng nhập bằng Google */}
+          <motion.button
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={() => handleGoogleLogin()}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FcGoogle size={18} />
+            <span>Đăng nhập với Google</span>
+          </motion.button>
 
           {/* Đường gạch ngang phân cách */}
           <div className="relative flex items-center justify-center">

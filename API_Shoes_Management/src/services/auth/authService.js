@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import axios from 'axios'
 import { userModel } from '~/models/user/userModel'
 import { EmailProvider } from '~/providers/EmailProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
@@ -264,6 +265,90 @@ const refreshAccessToken = async (refreshToken) => {
   }
 }
 
+const googleLogin = async (accessToken) => {
+  // 1. Xác minh access token bằng Google UserInfo API
+  let googleUser
+  try {
+    const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+    googleUser = response.data
+  } catch (error) {
+    throw new Error('Token Google không hợp lệ hoặc đã hết hạn')
+  }
+
+  const { sub: googleId, email, name, picture } = googleUser
+
+  if (!email) {
+    throw new Error('Không thể lấy email từ tài khoản Google của bạn')
+  }
+
+  // 2. Tìm user theo google_id
+  let user = await userModel.findByGoogleId(googleId)
+
+  if (!user) {
+    // 3. Tìm user theo email (có thể đã đăng ký bằng form trước đó)
+    const existingUser = await userModel.getLoginUser(email)
+
+    if (existingUser) {
+      // Liên kết Google ID vào tài khoản hiện có
+      await userModel.linkGoogleId(existingUser.id, googleId)
+      user = existingUser
+    } else {
+      // 4. Tạo tài khoản mới từ thông tin Google
+      const result = await userModel.createSocialUser({
+        fullname: name,
+        email: email,
+        phone: null,
+        address: null,
+        googleId: googleId,
+        avatarUrl: picture,
+        roleId: ROLE_ID.USER
+      })
+      user = await userModel.getLoginUserById(result.insertId)
+    }
+  } else {
+    // Lấy đầy đủ thông tin user
+    user = await userModel.getLoginUserById(user.id)
+  }
+
+  // 5. Kiểm tra tài khoản có bị khóa không
+  if (user.is_active === 0) {
+    throw new Error('Tài khoản của bạn đã bị khóa hoặc chưa được kích hoạt')
+  }
+
+  // 6. Tạo JWT tokens
+  const jwtPayload = { id: user.id, email: user.email, roleId: user.role_id }
+  const jwtAccessToken = JwtProvider.generateToken(jwtPayload, env.JWT_ACCESS_SECRET, env.JWT_ACCESS_EXPIRE)
+  const refreshToken = JwtProvider.generateToken(jwtPayload, env.JWT_REFRESH_SECRET, env.JWT_REFRESH_EXPIRE)
+
+  // 7. Lưu refresh token
+  await userModel.updateRefreshToken(user.id, refreshToken)
+
+  // 8. Xác định đường dẫn chuyển hướng theo vai trò
+  let redirectUrl = '/'
+  if (user.role_id === ROLE_ID.ADMIN) redirectUrl = '/admin/dashboard'
+  else if (user.role_id === ROLE_ID.MANAGER) redirectUrl = '/manager/stores'
+  else if (user.role_id === ROLE_ID.VENDOR) redirectUrl = '/vendor/dashboard'
+
+  return {
+    user: {
+      id: user.id,
+      fullname: user.fullname,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      roleId: user.role_id,
+      avatar: user.avatar,
+      isActive: user.is_active,
+      isVerified: user.is_verified
+    },
+    accessToken: jwtAccessToken,
+    refreshToken,
+    redirectUrl
+  }
+}
+
 export const authService = {
   register,
   verifyOtp,
@@ -271,5 +356,6 @@ export const authService = {
   forgotPassword,
   resetPassword,
   logout,
-  refreshAccessToken
+  refreshAccessToken,
+  googleLogin
 }
