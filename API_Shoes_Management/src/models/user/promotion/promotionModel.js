@@ -33,7 +33,7 @@ const getActivePromotionsByStoreId = async (storeId) => {
 // Lấy danh sách mã giảm giá hệ thống đang hoạt động (dành cho User chọn ở giỏ hàng)
 const getActiveSystemPromotions = async () => {
   const query = `
-    SELECT id, name, description, discount_value, min_order_value, max_discount_amount, start_date, end_date
+    SELECT id, code, name, description, discount_value, min_order_value, max_discount_amount, start_date, end_date
     FROM promotions
     WHERE store_id IS NULL 
       AND is_active = TRUE 

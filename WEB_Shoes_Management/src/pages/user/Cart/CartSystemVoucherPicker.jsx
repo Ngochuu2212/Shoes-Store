@@ -57,7 +57,7 @@ export const CartSystemVoucherPicker = ({ orderTotal, onSelectVoucher, currentSe
             {loading
               ? <><FiLoader size={12} className="animate-spin text-blue-600" /><span>Đang tải...</span></>
               : <><FiGift size={12} className={currentSelectedVoucher ? 'text-blue-600' : 'text-gray-400'} />
-                <span>{loading ? 'Đang tải...' : (currentSelectedVoucher || 'Chọn mã sàn')}</span></>
+                <span className="font-mono">{currentSelectedVoucher || 'Chọn mã sàn'}</span></>
             }
             <FiChevronDown size={10} className="text-gray-400 shrink-0" />
           </button>
@@ -87,9 +87,9 @@ export const CartSystemVoucherPicker = ({ orderTotal, onSelectVoucher, currentSe
                         <p className="text-[9px] font-black text-green-600 uppercase px-2.5 py-0.5">Đủ điều kiện áp dụng</p>
                         {eligibleVouchers.map((v) => (
                           <button key={v.id} type="button"
-                            onClick={() => { onSelectVoucher(v.name, Number(v.discount_value)); setOpen(false) }}
+                            onClick={() => { onSelectVoucher(v.code, Number(v.discount_value)); setOpen(false) }}
                             className={`w-full text-left px-2.5 py-2 text-[11px] rounded-lg transition-colors cursor-pointer flex flex-col gap-0.5
-                              ${currentSelectedVoucher === v.name ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}>
+                              ${currentSelectedVoucher === v.code ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}>
                             <span className="font-bold tracking-wide flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <span className="text-gray-800 truncate font-mono">{v.name}</span>
@@ -97,7 +97,7 @@ export const CartSystemVoucherPicker = ({ orderTotal, onSelectVoucher, currentSe
                                   -{Math.round(v.discount_value)}%
                                 </span>
                               </div>
-                              {currentSelectedVoucher === v.name && <FiCheck size={11} className="text-blue-600 shrink-0" />}
+                              {currentSelectedVoucher === v.code && <FiCheck size={11} className="text-blue-600 shrink-0" />}
                             </span>
                             <span className="text-[10px] text-gray-400 font-normal line-clamp-1">
                               {v.description || `Giảm ${Math.round(v.discount_value)}% cho đơn từ ${formatPrice(v.min_order_value)}`}

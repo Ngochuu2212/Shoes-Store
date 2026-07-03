@@ -1,10 +1,14 @@
 import { formatPrice } from '~/utils/formatters'
-import { FiDollarSign } from 'react-icons/fi'
+import { FiDollarSign, FiTag } from 'react-icons/fi'
 
 export const OrderPaymentSummary = ({ order }) => {
   const totalAmount = Number(order.total_amount) || 0
   const discountAmount = Number(order.discount_amount) || 0
   const subTotal = totalAmount + discountAmount
+
+  // Tách mã voucher: có thể là "SHOPCODE+SYSTEMCODE" hoặc đơn lẻ
+  const appliedVoucher = order.applied_voucher || null
+  const voucherCodes = appliedVoucher ? appliedVoucher.split('+').filter(Boolean) : []
 
   return (
     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg space-y-4">
@@ -22,8 +26,19 @@ export const OrderPaymentSummary = ({ order }) => {
         {/* Giảm giá */}
         {discountAmount > 0 && (
           <div className="flex justify-between text-green-600 font-medium">
-            <span>Giảm giá:</span>
+            <span>Giảm giá áp dụng:</span>
             <span>- {formatPrice(discountAmount)}</span>
+          </div>
+        )}
+
+        {/* Mã giảm giá đã áp dụng */}
+        {voucherCodes.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {voucherCodes.map((code) => (
+              <span key={code} className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border border-green-200 bg-green-50 text-green-700">
+                <FiTag size={9} />{code}
+              </span>
+            ))}
           </div>
         )}
 

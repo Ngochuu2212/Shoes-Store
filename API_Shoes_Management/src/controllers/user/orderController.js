@@ -4,14 +4,15 @@ import { env } from '~/config/environment'
 const createOrderCOD = async (req, res) => {
   try {
     const userId = req.jwtDecoded?.id
-    const { recipientName, recipientPhone, shippingAddress, discountAmount, paymentMethod, storeDiscounts } = req.body
+    const { recipientName, recipientPhone, shippingAddress, discountAmount, paymentMethod, storeDiscounts, systemDiscount } = req.body
     const result = await orderService.createOrderCOD(userId, {
       recipientName,
       recipientPhone,
       shippingAddress,
       discountAmount: Number(discountAmount) || 0,
       paymentMethod,
-      storeDiscounts
+      storeDiscounts,
+      systemDiscount: systemDiscount || null
     })
 
     return res.status(201).json(result)
@@ -23,7 +24,7 @@ const createOrderCOD = async (req, res) => {
 const createOrderOnline = async (req, res) => {
   try {
     const userId = req.jwtDecoded?.id
-    const { recipientName, recipientPhone, shippingAddress, discountAmount, paymentMethod, storeDiscounts } = req.body
+    const { recipientName, recipientPhone, shippingAddress, discountAmount, paymentMethod, storeDiscounts, systemDiscount } = req.body
     const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
     const result = await orderService.createOrderOnline(userId, {
@@ -32,7 +33,8 @@ const createOrderOnline = async (req, res) => {
       shippingAddress,
       discountAmount: Number(discountAmount) || 0,
       paymentMethod,
-      storeDiscounts
+      storeDiscounts,
+      systemDiscount: systemDiscount || null
     }, ipAddr)
 
     return res.status(201).json(result)
