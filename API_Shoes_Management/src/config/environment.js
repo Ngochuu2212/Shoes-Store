@@ -35,6 +35,9 @@ export const env = {
   VNP_URL: process.env.VNP_URL,
   VNP_BACKEND_RETURN_URL: process.env.VNP_BACKEND_RETURN_URL,
 
+  // URL gốc của Backend (dùng cho callback VNPAY / MoMo)
+  BACKEND_URL: process.env.BACKEND_URL || process.env.VNP_BACKEND_RETURN_URL?.replace('/api/orders/vnpay-return', '') || 'http://localhost:3000',
+
   // Cấu hình MOMO
   MOMO_PARTNER_CODE: process.env.MOMO_PARTNER_CODE,
   MOMO_ACCESS_KEY: process.env.MOMO_ACCESS_KEY,
