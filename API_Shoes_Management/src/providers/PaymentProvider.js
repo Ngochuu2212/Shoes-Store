@@ -19,7 +19,7 @@ const createVNPayUrl = (txnRef, amount, ipAddr) => {
     'vnp_OrderInfo': `Thanh toan don hang giay mã ${txnRef}`,
     'vnp_OrderType': 'other',
     'vnp_Amount': amount * 100,
-    'vnp_ReturnUrl': `${env.BACKEND_URL}/api/orders/vnpay-return`,
+    'vnp_ReturnUrl': `${env.VNP_BACKEND_RETURN_URL}/api/orders/vnpay-return`,
     'vnp_IpAddr': ipAddr,
     'vnp_CreateDate': createDate
   }
@@ -39,7 +39,7 @@ const createVNPayUrl = (txnRef, amount, ipAddr) => {
 
 const createMoMoUrl = async (txnRef, amount) => {
   try {
-    const validAmount = Math.round(Number(amount))
+    const validAmount = String(Math.round(amount))
 
     const orderInfo = `Thanh toan don hang ${txnRef}`
     const requestId = txnRef
@@ -47,8 +47,8 @@ const createMoMoUrl = async (txnRef, amount) => {
     const requestType = 'payWithMethod'
     const extraData = ''
 
-    const redirectUrl = `${env.BACKEND_URL}/api/orders/momo-return`
-    const ipnUrl = `${env.BACKEND_URL}/api/orders/momo-ipn`
+    const redirectUrl = `${env.MOMO_BACKEND_RETURN_URL}/api/orders/momo-return`
+    const ipnUrl = `${env.MOMO_BACKEND_RETURN_URL}/api/orders/momo-ipn`
 
     const rawSignature = `accessKey=${env.MOMO_ACCESS_KEY}&amount=${validAmount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${env.MOMO_PARTNER_CODE}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`
 
