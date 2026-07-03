@@ -39,7 +39,7 @@ const createVNPayUrl = (txnRef, amount, ipAddr) => {
 
 const createMoMoUrl = async (txnRef, amount) => {
   try {
-    const validAmount = String(Math.round(amount))
+    const validAmount = Math.round(amount) // MoMo yêu cầu kiểu Long (integer)
 
     const orderInfo = `Thanh toan don hang ${txnRef}`
     const requestId = txnRef
