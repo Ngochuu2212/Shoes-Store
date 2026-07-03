@@ -1,5 +1,6 @@
 import { orderTrackingModel } from '~/models/user/order/orderTrackingModel'
 import { orderModel } from '~/models/user/order/orderModel'
+import { walletModel } from '~/models/user/wallet/walletModel'
 import { ORDER_STATUS, NOTIFICATION_TYPES } from '~/utils/constants'
 import pool from '~/config/db'
 import { notificationService } from '~/services/notification/notificationService'
@@ -240,6 +241,22 @@ const cancelOrderByUser = async (userId, orderId, cancelReason) => {
         await orderModel.decreaseVariantStock(connection, item.variant_id, -item.quantity)
       }
 
+      // Hoàn tiền ví nếu đơn có sử dụng ví
+      // - Nếu đã PAID (thanh toán online) → hoàn toàn bộ total_amount vào ví (bao gồm cả phần gateway)
+      // - Nếu UNPAID (COD) → chỉ hoàn phần wallet_amount_used
+      const walletAmountUsed = Number(order.wallet_amount_used || 0)
+      const refundAmount = order.payment_status === 'paid'
+        ? Number(order.total_amount)
+        : walletAmountUsed
+
+      if (refundAmount > 0) {
+        await walletModel.addToWalletInTransaction(
+          connection, userId, refundAmount,
+          `Hoàn tiền đơn hàng #${orderId} đã hủy`,
+          orderId
+        )
+      }
+
       await connection.commit()
 
       // Gửi thông báo cho Vendor về việc đơn hàng đã bị hủy trực tiếp
@@ -376,8 +393,18 @@ const deletePendingOrders = async (userId, orderIds, sendNotification = true) =>
         deletedOrders.push({
           orderId: orderId,
           storeId: order.store_id,
-          totalAmount: order.total_amount
+          totalAmount: order.total_amount,
+          walletAmountUsed: Number(order.wallet_amount_used || 0)
         })
+
+        // Hoàn lại tiền ví trong transaction trước khi xóa đơn
+        if (Number(order.wallet_amount_used || 0) > 0) {
+          await walletModel.addToWalletInTransaction(
+            connection, userId, Number(order.wallet_amount_used),
+            `Hoàn tiền ví do thanh toán thất bại - đơn hàng #${orderId}`,
+            orderId
+          )
+        }
 
         await connection.execute('DELETE FROM order_items WHERE order_id = ?', [orderId])
         await connection.execute('DELETE FROM orders WHERE id = ? AND status = ?', [orderId, ORDER_STATUS.PENDING])

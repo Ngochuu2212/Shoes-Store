@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { TabProfile } from './Tabs/TabProfile'
 import { TabFavorites } from './Tabs/TabFavorites'
 import { TabPassword } from './Tabs/TabPassword'
+import { TabWallet } from './Tabs/TabWallet'
 import { Avatar } from '~/components/common/Avatar'
 
 export const ProfileTabsContent = ({
@@ -87,6 +88,18 @@ export const ProfileTabsContent = ({
               exit="exit"
             >
               <TabPassword loading={loading} onUpdateProfile={onUpdateProfile} />
+            </motion.div>
+          )}
+
+          {activeTab === 'wallet' && (
+            <motion.div
+              key="wallet"
+              variants={tabVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <TabWallet />
             </motion.div>
           )}
         </AnimatePresence>

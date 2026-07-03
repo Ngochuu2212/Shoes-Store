@@ -1,8 +1,23 @@
 import { FiTruck, FiCreditCard, FiUser, FiPhone, FiMapPin,
-  FiSmartphone, FiDollarSign
+  FiSmartphone, FiDollarSign, FiToggleLeft, FiToggleRight, FiAlertCircle
 } from 'react-icons/fi'
+import { formatPrice } from '~/utils/formatters'
 
-export const CheckoutForm = ({ register, errors, paymentMethod, setPaymentMethod }) => {
+export const CheckoutForm = ({
+  register, errors, paymentMethod, setPaymentMethod,
+  walletBalance, walletAmountToUse, onWalletAmountChange, maxWalletAmount
+}) => {
+  const canUseWallet = walletBalance > 0
+  const isUsingWallet = walletAmountToUse > 0
+
+  const handleToggleWallet = () => {
+    if (isUsingWallet) {
+      onWalletAmountChange(0)
+    } else {
+      onWalletAmountChange(Math.min(walletBalance, maxWalletAmount))
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Khối 1: Thông tin người nhận */}
@@ -125,6 +140,63 @@ export const CheckoutForm = ({ register, errors, paymentMethod, setPaymentMethod
             />
           </label>
         </div>
+      </div>
+
+      {/* Khối 3: Số dư ví */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3 text-left">
+        <h3 className="text-sm font-bold text-brand-secondary uppercase tracking-wider border-b border-gray-50 pb-2 flex items-center gap-2">
+          <FiCreditCard size={16} className="text-brand-primary" />
+          <span>Số dư ví</span>
+        </h3>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-gray-700">Số dư hiện tại</p>
+            <p className={`text-base font-extrabold mt-0.5 ${canUseWallet ? 'text-green-600' : 'text-gray-400'}`}>
+              {formatPrice(walletBalance)}
+            </p>
+          </div>
+          {canUseWallet && maxWalletAmount > 0 ? (
+            <button
+              type="button"
+              onClick={handleToggleWallet}
+              className="flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-colors"
+              style={{ color: isUsingWallet ? '#e94560' : '#6b7280' }}
+            >
+              {isUsingWallet
+                ? <><FiToggleRight size={22} className="text-brand-primary" /><span className="text-brand-primary">Đang dùng</span></>
+                : <><FiToggleLeft size={22} /><span>Dùng ví</span></>
+              }
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+              <FiAlertCircle size={13} />
+              <span>{walletBalance <= 0 ? 'Ví trống' : 'Không đủ điều kiện'}</span>
+            </div>
+          )}
+        </div>
+
+        {isUsingWallet && (
+          <div className="bg-green-50 border border-green-100 rounded-xl p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-green-700">Số tiền dùng từ ví:</label>
+              <span className="text-xs font-extrabold text-green-700">-{formatPrice(walletAmountToUse)}</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={Math.min(walletBalance, maxWalletAmount)}
+              step={1000}
+              value={walletAmountToUse}
+              onChange={(e) => onWalletAmountChange(Number(e.target.value))}
+              className="w-full accent-green-500 cursor-pointer"
+            />
+            <div className="flex justify-between text-[10px] text-gray-400">
+              <span>0đ</span>
+              <span>Tối đa: {formatPrice(Math.min(walletBalance, maxWalletAmount))}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -35,11 +35,16 @@ const validateCheckout = async (req, res, next) => {
       amount: Joi.number().min(0).required()
     }).optional().allow(null),
 
+    walletAmount: Joi.number().min(0).precision(2).optional().default(0).messages({
+      'number.base': 'Số tiền ví phải là định dạng số.',
+      'number.min': 'Số tiền ví không được âm.'
+    }),
+
     paymentMethod: Joi.string()
-      .valid(PAYMENT_METHODS.COD, PAYMENT_METHODS.VNPAY, PAYMENT_METHODS.MOMO)
+      .valid(PAYMENT_METHODS.COD, PAYMENT_METHODS.VNPAY, PAYMENT_METHODS.MOMO, PAYMENT_METHODS.WALLET)
       .required()
       .messages({
-        'any.only': 'Phương thức thanh toán không hợp lệ (Chỉ nhận COD, VNPAY, MOMO).',
+        'any.only': 'Phương thức thanh toán không hợp lệ (Chỉ nhận COD, VNPAY, MOMO, WALLET).',
         'string.empty': 'Phương thức thanh toán không được để trống.',
         'any.required': 'Vui lòng chọn phương thức thanh toán.'
       })

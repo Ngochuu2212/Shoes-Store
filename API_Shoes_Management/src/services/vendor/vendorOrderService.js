@@ -1,7 +1,9 @@
 import { vendorOrderModel } from '~/models/vendor/order/vendorOrderModel'
 import { orderModel } from '~/models/user/order/orderModel'
+import { walletModel } from '~/models/user/wallet/walletModel'
 import { notificationService } from '~/services/notification/notificationService'
 import { ORDER_STATUS, NOTIFICATION_TYPES } from '~/utils/constants'
+import pool from '~/config/db'
 
 const getVerifiedStoreId = async (userId) => {
   const store = await vendorOrderModel.getStoreByOwnerId(userId)
@@ -305,13 +307,29 @@ const handleCancelRequest = async (userId, orderId, { decision, reason }) => {
       const finalReason = reason ? reason : 'Người bán chấp nhận yêu cầu hủy từ khách hàng.'
       await vendorOrderModel.updateOrderStatus(orderId, ORDER_STATUS.CANCELLED, finalReason)
 
+      // Hoàn tiền vào ví
+      const [orderRows] = await pool.execute(
+        'SELECT user_id, payment_status, total_amount, wallet_amount_used FROM orders WHERE id = ?',
+        [orderId]
+      )
+      if (orderRows.length > 0) {
+        const { user_id, payment_status, total_amount, wallet_amount_used } = orderRows[0]
+        const refundAmount = payment_status === 'paid'
+          ? Number(total_amount)
+          : Number(wallet_amount_used || 0)
+        if (refundAmount > 0) {
+          await walletModel.refundToWallet(user_id, refundAmount,
+            `Hoàn tiền đơn hàng #${orderId} đã hủy (cửa hàng chấp nhận)`, orderId)
+        }
+      }
+
       // Gửi thông báo khi chấp nhận hủy đơn
       if (userOrderId) {
         await sendOrderNotification(
           orderId,
           userOrderId,
           'Đơn hàng đã hủy',
-          `Đơn hàng #${orderId} đã được hủy theo yêu cầu của bạn.`,
+          `Đơn hàng #${orderId} đã được hủy theo yêu cầu của bạn. Tiền đã được hoàn vào ví của bạn (nếu đã thanh toán).`,
           NOTIFICATION_TYPES.ORDER_CANCELLED
         )
       }

@@ -21,6 +21,7 @@ import { orderRouter } from '~/routes/user/orderRoute'
 import { promotionRouter } from '~/routes/user/promotionRoute'
 import { storeRouter } from '~/routes/user/storeRoute'
 import { attributeRouter } from '~/routes/user/attributeRoute'
+import { walletRouter } from '~/routes/user/walletRoute'
 
 // import VendorRoutes
 import { vendorStoreRouter } from '~/routes/vendor/vendorStoreRoute'
@@ -92,6 +93,7 @@ const START_SERVER = () => {
   app.use('/api/promotions', promotionRouter)
   app.use('/api/stores', storeRouter)
   app.use('/api/attributes', attributeRouter)
+  app.use('/api/wallet', walletRouter)
 
   // Định tuyến hệ thống API cho VENDOR (Cửa hàng)
   app.use('/api/vendor/stores', vendorStoreRouter)

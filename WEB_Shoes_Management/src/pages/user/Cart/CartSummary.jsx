@@ -1,10 +1,11 @@
 import { formatPrice } from '~/utils/formatters'
-import { FiAlertCircle, FiShield } from 'react-icons/fi'
+import { FiAlertCircle, FiShield, FiCreditCard } from 'react-icons/fi'
 
 export const CartSummary = ({
   subTotal,
   discountAmount,
   systemDiscountAmount,
+  walletAmount,
   finalTotal,
   hasSelectedItems,
   onSubmitOrder,
@@ -43,6 +44,14 @@ export const CartSummary = ({
               <span className="text-[10px] bg-blue-100 px-1.5 py-0.5 rounded font-black">SÀN</span> Mã hệ thống:
             </span>
             <span className="font-semibold text-blue-600">-{formatPrice(systemDiscountAmount)}</span>
+          </div>
+        )}
+        {hasSelectedItems && walletAmount > 0 && (
+          <div className="flex justify-between items-center">
+            <span className="flex items-center gap-1 text-green-600 font-semibold">
+              <FiCreditCard size={13} className="text-green-500" /> Số dư ví:
+            </span>
+            <span className="font-semibold text-green-600">-{formatPrice(walletAmount)}</span>
           </div>
         )}
         <div className="flex justify-between">

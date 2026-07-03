@@ -4,6 +4,7 @@ import qs from 'qs'
 import { env } from '~/config/environment'
 import { orderModel } from '~/models/user/order/orderModel'
 import { orderTrackingModel } from '~/models/user/order/orderTrackingModel'
+import { walletModel } from '~/models/user/wallet/walletModel'
 import { PaymentProvider } from '~/providers/PaymentProvider'
 import { PAYMENT_METHODS, PAYMENT_STATUS, ORDER_STATUS, NOTIFICATION_TYPES } from '~/utils/constants'
 import { notificationService } from '~/services/notification/notificationService'
@@ -30,7 +31,7 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
     const createdOrderIds = []
     let totalAllShops = 0
 
-    // Tính tổng phụ (trước khi trừ giảm giá cửa hàng) để phân bổ mã hệ thống
+    // Tính tổng phụ (trước khi trừ giảm giá cửa hàng) để phân bổ mã hệ thống và ví
     const totalSubtotalAllStores = Object.values(itemsByStore).reduce((sum, items) => {
       return sum + items.reduce((s, item) => s + (Number(item.price) * item.quantity), 0)
     }, 0)
@@ -38,6 +39,18 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
     const systemDiscount = data.systemDiscount || null
     const systemDiscountTotal = Number(systemDiscount?.amount) || 0
     const systemVoucherCode = systemDiscount?.code || null
+
+    // Xử lý số tiền ví
+    const walletAmountTotal = Number(data.walletAmount) || 0
+    if (walletAmountTotal > 0) {
+      const [walletRows] = await connection.execute('SELECT wallet_balance FROM users WHERE id = ?', [userId])
+      const currentBalance = Number(walletRows[0]?.wallet_balance || 0)
+      if (currentBalance < walletAmountTotal) {
+        throw new Error(`Số dư ví không đủ. Số dư hiện tại: ${currentBalance.toLocaleString('vi-VN')}đ`)
+      }
+    }
+
+    let totalWalletDeducted = 0
 
     for (const storeId in itemsByStore) {
       const storeItems = itemsByStore[storeId]
@@ -58,8 +71,17 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
       const combinedVoucher = [appliedVoucher, systemDiscountShare > 0 ? systemVoucherCode : null]
         .filter(Boolean).join('+') || null
 
-      const totalAmount = Math.max(0, subTotal - discountAmount)
+      const totalAmountBeforeWallet = Math.max(0, subTotal - discountAmount)
+
+      // Phân bổ ví theo tỉ lệ subTotal của từng store
+      const walletShare = totalSubtotalAllStores > 0 && walletAmountTotal > 0
+        ? Math.min(Math.round((subTotal / totalSubtotalAllStores) * walletAmountTotal), totalAmountBeforeWallet)
+        : 0
+      totalWalletDeducted += walletShare
+
+      const totalAmount = Math.max(0, totalAmountBeforeWallet - walletShare)
       totalAllShops += totalAmount
+
       const commissionRateSnapshot = storeItems[0].commission_rate || 10.00
 
       const orderId = await orderModel.createOrder(connection, {
@@ -67,12 +89,13 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
         recipientName: data.recipientName,
         recipientPhone: data.recipientPhone,
         storeId: Number(storeId),
-        totalAmount,
+        totalAmount: totalAmountBeforeWallet, // Lưu giá trị TRƯỚC khi trừ ví (dùng cho hoàn tiền)
         discount_amount: discountAmount,
         commission_rate_snapshot: commissionRateSnapshot,
         shippingAddress: data.shippingAddress,
         paymentMethod: data.paymentMethod,
-        appliedVoucher: combinedVoucher
+        appliedVoucher: combinedVoucher,
+        wallet_amount_used: walletShare
       })
 
       createdOrderIds.push(orderId)
@@ -92,12 +115,26 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
       }
     }
 
+    // Trừ ví trong cùng transaction
+    if (totalWalletDeducted > 0) {
+      await connection.execute(
+        'UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?',
+        [totalWalletDeducted, userId]
+      )
+      await connection.execute(
+        'INSERT INTO wallet_transactions (user_id, type, amount, description, order_id) VALUES (?, ?, ?, ?, ?)',
+        [userId, 'SPEND', totalWalletDeducted,
+          `Thanh toán ${createdOrderIds.length} đơn hàng bằng số dư ví`,
+          createdOrderIds[0]]
+      )
+    }
+
     if (!skipClearCart) {
       await orderModel.clearUserCart(connection, userId)
     }
 
     await connection.commit()
-    return { createdOrderIds, totalAllShops, itemsByStore }
+    return { createdOrderIds, totalAllShops, itemsByStore, walletAmountUsed: totalWalletDeducted }
   } catch (error) {
     await connection.rollback()
     throw error
@@ -161,7 +198,7 @@ const sendNotificationToUser = async (userId, orderId, title, message, type) => 
 
 // 1. Luồng thanh toán COD
 const createOrderCOD = async (userId, payload) => {
-  const { createdOrderIds, itemsByStore } = await coreCreateOrderTransaction(userId, { ...payload, paymentMethod: PAYMENT_METHODS.COD }, false, false )
+  const { createdOrderIds, itemsByStore } = await coreCreateOrderTransaction(userId, { ...payload, paymentMethod: PAYMENT_METHODS.COD }, false, false)
 
   // Lấy tên người đặt
   const [userRows] = await pool.execute('SELECT fullname FROM users WHERE id = ?', [userId])
@@ -192,17 +229,55 @@ const createOrderCOD = async (userId, payload) => {
   return { message: 'Đặt đơn hàng COD thành công!', orderIds: createdOrderIds }
 }
 
-// 2. Luồng thanh toán Online (VNPAY)
+// 2. Luồng thanh toán Online (VNPAY / MOMO) — Hỗ trợ thanh toán toàn bộ bằng ví
 const createOrderOnline = async (userId, payload, ipAddr) => {
-  const { createdOrderIds, totalAllShops, itemsByStore } = await coreCreateOrderTransaction(userId, payload, true, true)
-  const txnRef = createdOrderIds.join('_') + '_' + Date.now()
+  const { createdOrderIds, totalAllShops, walletAmountUsed } = await coreCreateOrderTransaction(userId, payload, true, true)
 
+  const [userRows] = await pool.execute('SELECT fullname FROM users WHERE id = ?', [userId])
+  const buyerName = userRows.length > 0 ? userRows[0].fullname : 'Khách hàng'
+
+  // Số tiền thực sự cần trả qua cổng thanh toán (sau khi trừ ví)
+  const gatewayAmount = Math.max(0, totalAllShops)
+
+  // Nếu ví đã trả toàn bộ (gateway amount = 0) → xử lý như COD
+  if (gatewayAmount <= 0) {
+    for (const orderId of createdOrderIds) {
+      const items = await orderTrackingModel.getOrderItemsByOrderId(orderId)
+      for (const item of items) {
+        if (item.variant_id && item.product_id) {
+          await orderModel.decreaseVariantStock(pool, item.variant_id, item.quantity)
+          await orderModel.increaseProductSold(pool, item.product_id, item.quantity)
+        }
+      }
+    }
+
+    await orderModel.updatePaymentStatusBulk(createdOrderIds, PAYMENT_STATUS.PAID, ORDER_STATUS.PROCESSING)
+    await orderModel.clearCartByOrderIds(createdOrderIds)
+
+    for (const orderId of createdOrderIds) {
+      const [orderRows] = await pool.execute('SELECT store_id, total_amount FROM orders WHERE id = ?', [orderId])
+      if (orderRows.length > 0) {
+        await sendNotificationToVendor(orderRows[0].store_id, orderId, buyerName, orderRows[0].total_amount, NOTIFICATION_TYPES.ORDER_PAID, 'Đơn hàng đã thanh toán')
+      }
+      await sendNotificationToUser(
+        userId, orderId,
+        'Đặt hàng thành công',
+        `Đơn hàng #${orderId} đã được thanh toán hoàn toàn bằng số dư ví. Cửa hàng sẽ sớm xác nhận và giao hàng.`,
+        NOTIFICATION_TYPES.ORDER_PAID
+      )
+    }
+
+    return { message: 'Đặt đơn hàng thành công! Đã thanh toán toàn bộ bằng số dư ví.', orderIds: createdOrderIds }
+  }
+
+  // Còn số tiền cần trả qua cổng
+  const txnRef = createdOrderIds.join('_') + '_' + Date.now()
   let paymentUrl = ''
 
   if (payload.paymentMethod === PAYMENT_METHODS.VNPAY) {
-    paymentUrl = PaymentProvider.createVNPayUrl(txnRef, totalAllShops, ipAddr)
+    paymentUrl = PaymentProvider.createVNPayUrl(txnRef, gatewayAmount, ipAddr)
   } else if (payload.paymentMethod === PAYMENT_METHODS.MOMO) {
-    paymentUrl = await PaymentProvider.createMoMoUrl(txnRef, totalAllShops)
+    paymentUrl = await PaymentProvider.createMoMoUrl(txnRef, gatewayAmount)
   }
 
   return { message: 'Tạo đơn chờ thanh toán thành công!', orderIds: createdOrderIds, paymentUrl }

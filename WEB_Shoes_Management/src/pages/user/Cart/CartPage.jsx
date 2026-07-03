@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cartApiService } from '~/services/user/cartService'
 import { orderApiService } from '~/services/user/orderService'
 import { orderTrackingApiService } from '~/services/user/orderTrackingApiService'
+import { walletApiService } from '~/services/user/walletApiService'
 import {
   setCart,
   setCartCount,
@@ -39,6 +40,8 @@ export const CartPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('COD')
   const [storeVouchers, setStoreVouchers] = useState({})
   const [systemVoucher, setSystemVoucher] = useState({ code: null, discountValue: 0 })
+  const [walletBalance, setWalletBalance] = useState(0)
+  const [walletAmountToUse, setWalletAmountToUse] = useState(0)
   const [loadingOrder, setLoadingOrder] = useState(false)
   const [isProcessingPaymentFailure, setIsProcessingPaymentFailure] = useState(false)
 
@@ -144,6 +147,9 @@ export const CartPage = () => {
 
   useEffect(() => {
     fetchCartData()
+    walletApiService.getWallet(1, 1).then(data => {
+      setWalletBalance(Number(data?.balance || 0))
+    }).catch(() => {})
   }, [])
 
   const handleReloadAndScrollTop = () => {
@@ -227,6 +233,7 @@ export const CartPage = () => {
       dispatch(setSelectedItems([]))
       setStoreVouchers({})
       setSystemVoucher({ code: null, discountValue: 0 })
+      setWalletAmountToUse(0)
     } else {
       dispatch(setSelectedItems(cartItems.map(item => item.variant_id)))
     }
@@ -298,9 +305,13 @@ export const CartPage = () => {
     ? Math.round(subTotal * (systemVoucher.discountValue / 100))
     : 0
 
+  // Cap wallet amount: can't exceed available balance or remaining payable amount
+  const preWalletTotal = Math.max(0, subTotal - storeDiscountAmount - systemVoucherDiscountAmount)
+  const effectiveWalletAmount = Math.min(walletAmountToUse, walletBalance, preWalletTotal)
+
   const totalDiscountAmount = storeDiscountAmount + systemVoucherDiscountAmount
 
-  const finalTotal = Math.max(0, subTotal - totalDiscountAmount)
+  const finalTotal = Math.max(0, preWalletTotal - effectiveWalletAmount)
 
   // XỬ LÝ ĐẶT HÀNG
   const handleCheckoutProcess = handleSubmit(async (formData) => {
@@ -338,11 +349,12 @@ export const CartPage = () => {
       recipientPhone: formData.recipientPhone,
       shippingAddress: formData.shippingAddress,
       discountAmount: totalDiscountAmount,
-      paymentMethod: paymentMethod,
+      paymentMethod: effectiveWalletAmount >= preWalletTotal && preWalletTotal > 0 ? 'WALLET' : paymentMethod,
       storeDiscounts: storeDiscounts,
       systemDiscount: systemVoucher.code
         ? { code: systemVoucher.code, amount: systemVoucherDiscountAmount }
-        : null
+        : null,
+      walletAmount: effectiveWalletAmount > 0 ? effectiveWalletAmount : 0
     }
 
     try {
@@ -489,6 +501,10 @@ export const CartPage = () => {
                     errors={errors}
                     paymentMethod={paymentMethod}
                     setPaymentMethod={setPaymentMethod}
+                    walletBalance={walletBalance}
+                    walletAmountToUse={effectiveWalletAmount}
+                    onWalletAmountChange={setWalletAmountToUse}
+                    maxWalletAmount={preWalletTotal}
                   />
 
                   {safeSelectedItems.length > 0 && (
@@ -503,6 +519,7 @@ export const CartPage = () => {
                     subTotal={subTotal}
                     discountAmount={storeDiscountAmount}
                     systemDiscountAmount={systemVoucherDiscountAmount}
+                    walletAmount={effectiveWalletAmount}
                     finalTotal={finalTotal}
                     hasSelectedItems={safeSelectedItems.length > 0}
                     onSubmitOrder={handleCheckoutProcess}

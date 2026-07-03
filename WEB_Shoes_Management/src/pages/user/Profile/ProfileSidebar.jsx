@@ -1,4 +1,4 @@
-import { FiUser, FiShoppingBag, FiHeart, FiLock, FiLogOut } from 'react-icons/fi'
+import { FiUser, FiShoppingBag, FiHeart, FiLock, FiLogOut, FiCreditCard } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { Avatar } from '~/components/common/Avatar'
 
@@ -58,6 +58,15 @@ export const ProfileSidebar = ({ user, activeTab, setActiveTab, onLogout, avatar
           ${activeTab === 'password' ? 'bg-[#e94560]/5 text-brand-primary border-r-4 border-brand-primary rounded-r-none' : 'text-gray-500 hover:bg-gray-50 hover:text-brand-primary'}`}
         >
           <FiLock size={18} /> <span>Đổi mật khẩu</span>
+        </button>
+
+        {/* Tab Ví của tôi */}
+        <button
+          onClick={() => setActiveTab('wallet')}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer
+          ${activeTab === 'wallet' ? 'bg-[#e94560]/5 text-brand-primary border-r-4 border-brand-primary rounded-r-none' : 'text-gray-500 hover:bg-gray-50 hover:text-brand-primary'}`}
+        >
+          <FiCreditCard size={18} /> <span>Ví của tôi</span>
         </button>
 
         <div className="h-[1px] bg-gray-100 my-2" />

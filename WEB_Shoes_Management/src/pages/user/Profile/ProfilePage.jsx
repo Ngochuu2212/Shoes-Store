@@ -23,7 +23,7 @@ export const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState(() => {
     const tabFromUrl = searchParams.get('tab')
     // Kiểm tra tab hợp lệ
-    const validTabs = ['profile', 'favorites', 'password']
+    const validTabs = ['profile', 'favorites', 'password', 'wallet']
     return tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'profile'
   })
 
@@ -32,6 +32,7 @@ export const ProfilePage = () => {
     case 'profile': return 'Thông tin cá nhân'
     case 'favorites': return 'Sản phẩm yêu thích'
     case 'password': return 'Đổi mật khẩu'
+    case 'wallet': return 'Ví của tôi'
     default: return 'Hồ sơ cá nhân'
     }
   }
