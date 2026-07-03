@@ -2,14 +2,13 @@ import nodemailer from 'nodemailer'
 import { env } from '~/config/environment'
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: 'smtp-relay.brevo.com',
   port: 587,
-  secure: false, // Sử dụng STARTTLS ở cổng 587
+  secure: false,
   auth: {
-    user: env.BREVO_SMTP_USER,
+    user: 'b0c064001@smtp-brevo.com',
     pass: env.BREVO_API_KEY
-  },
-  family: 4 // Bắt buộc sử dụng kết nối IPv4 để tránh lỗi mạng IPv6 ENETUNREACH trên Render
+  }
 })
 
 const sendEmail = async (to, subject, htmlContent) => {
