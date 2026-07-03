@@ -30,6 +30,11 @@ const validateCheckout = async (req, res, next) => {
 
     storeDiscounts: Joi.object().optional(),
 
+    systemDiscount: Joi.object({
+      code: Joi.string().trim().required(),
+      amount: Joi.number().min(0).required()
+    }).optional().allow(null),
+
     paymentMethod: Joi.string()
       .valid(PAYMENT_METHODS.COD, PAYMENT_METHODS.VNPAY, PAYMENT_METHODS.MOMO)
       .required()
