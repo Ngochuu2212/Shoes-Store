@@ -6,7 +6,7 @@ const getOrderHistoryPaginated = async (userId, page, limit, status) => {
   const offset = (page - 1) * limit
   let queryData = `
     SELECT o.id AS order_id, o.store_id, o.recipient_name, o.recipient_phone, 
-           o.total_amount, o.discount_amount, o.shipping_address, 
+           o.total_amount, o.discount_amount, o.wallet_amount_used, o.shipping_address, 
            o.status, o.payment_status, o.payment_method, o.created_at,
            o.applied_voucher, o.cancel_reason, s.name AS store_name, s.logo AS store_logo,
            (EXISTS (SELECT 1 FROM product_reviews pr WHERE pr.order_id = o.id)) AS is_reviewed

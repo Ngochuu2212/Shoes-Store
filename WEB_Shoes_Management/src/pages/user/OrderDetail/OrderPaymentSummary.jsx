@@ -1,10 +1,13 @@
 import { formatPrice } from '~/utils/formatters'
 import { FiDollarSign, FiTag } from 'react-icons/fi'
+import { IoWalletOutline } from 'react-icons/io5'
 
 export const OrderPaymentSummary = ({ order }) => {
   const totalAmount = Number(order.total_amount) || 0
   const discountAmount = Number(order.discount_amount) || 0
+  const walletAmountUsed = Number(order.wallet_amount_used) || 0
   const subTotal = totalAmount + discountAmount
+  const finalTotal = Math.max(0, totalAmount - walletAmountUsed)
 
   // Tách mã voucher: có thể là "SHOPCODE+SYSTEMCODE" hoặc đơn lẻ
   const appliedVoucher = order.applied_voucher || null
@@ -42,6 +45,16 @@ export const OrderPaymentSummary = ({ order }) => {
           </div>
         )}
 
+        {/* Thanh toán bằng ví */}
+        {walletAmountUsed > 0 && (
+          <div className="flex justify-between text-blue-600 font-medium">
+            <span className="flex items-center gap-1">
+              <IoWalletOutline size={14} /> Thanh toán bằng ví:
+            </span>
+            <span>- {formatPrice(walletAmountUsed)}</span>
+          </div>
+        )}
+
         {/* Phí vận chuyển */}
         <div className="flex justify-between text-gray-500">
           <span>Phí vận chuyển:</span>
@@ -52,7 +65,7 @@ export const OrderPaymentSummary = ({ order }) => {
         <div className="border-t pt-4 flex justify-between items-center">
           <span className="font-bold text-gray-800">Tổng thanh toán:</span>
           <span className="text-xl font-extrabold text-brand-primary">
-            {formatPrice(totalAmount)}
+            {formatPrice(finalTotal)}
           </span>
         </div>
       </div>

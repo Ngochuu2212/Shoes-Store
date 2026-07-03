@@ -39,6 +39,8 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
 
   const totalAmount = Number(order.total_amount) || 0
   const discountAmount = Number(order.discount_amount) || 0
+  const walletAmountUsed = Number(order.wallet_amount_used) || 0
+  const finalTotal = Math.max(0, totalAmount - walletAmountUsed)
 
   return (
     <motion.div
@@ -156,8 +158,13 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
               <span className="text-sm font-bold text-gray-500 mb-1">Tổng cộng:</span>
 
               <div className="flex flex-col items-end">
+                {walletAmountUsed > 0 && (
+                  <span className="text-[10px] font-bold text-blue-500 mb-0.5">
+                    (Đã dùng ví: {formatPrice(walletAmountUsed)})
+                  </span>
+                )}
                 <span className="text-xl font-extrabold text-brand-primary">
-                  {formatPrice(totalAmount)}
+                  {formatPrice(finalTotal)}
                 </span>
               </div>
             </div>
