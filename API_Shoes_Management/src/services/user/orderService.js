@@ -40,6 +40,10 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
     const systemDiscountTotal = Number(systemDiscount?.amount) || 0
     const systemVoucherCode = systemDiscount?.code || null
 
+    // Lấy phí vận chuyển
+    const shippingFeePerOrder = Number(data.shippingFee) || 20000
+    const shippingMethod = data.shippingMethod || 'standard'
+
     // Xử lý số tiền ví
     const walletAmountTotal = Number(data.walletAmount) || 0
     if (walletAmountTotal > 0) {
@@ -71,7 +75,7 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
       const combinedVoucher = [appliedVoucher, systemDiscountShare > 0 ? systemVoucherCode : null]
         .filter(Boolean).join('+') || null
 
-      const totalAmountBeforeWallet = Math.max(0, subTotal - discountAmount)
+      const totalAmountBeforeWallet = Math.max(0, subTotal - discountAmount + shippingFeePerOrder)
 
       // Phân bổ ví theo tỉ lệ subTotal của từng store
       const walletShare = totalSubtotalAllStores > 0 && walletAmountTotal > 0
@@ -95,7 +99,9 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
         shippingAddress: data.shippingAddress,
         paymentMethod: data.paymentMethod,
         appliedVoucher: combinedVoucher,
-        wallet_amount_used: walletShare
+        wallet_amount_used: walletShare,
+        shipping_method: shippingMethod,
+        shipping_fee: shippingFeePerOrder
       })
 
       createdOrderIds.push(orderId)

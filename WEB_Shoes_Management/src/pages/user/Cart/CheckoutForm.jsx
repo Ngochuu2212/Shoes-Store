@@ -1,11 +1,45 @@
 import { FiTruck, FiCreditCard, FiUser, FiPhone, FiMapPin,
-  FiSmartphone, FiDollarSign, FiToggleLeft, FiToggleRight, FiAlertCircle
+  FiSmartphone, FiDollarSign, FiToggleLeft, FiToggleRight, FiAlertCircle, FiZap, FiClock
 } from 'react-icons/fi'
 import { formatPrice } from '~/utils/formatters'
 
+const SHIPPING_OPTIONS = [
+  {
+    value: 'standard',
+    label: 'Tiêu chuẩn',
+    time: '3 - 5 ngày',
+    fee: 20000,
+    icon: FiTruck,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-100'
+  },
+  {
+    value: 'express',
+    label: 'Nhanh',
+    time: '1 - 2 ngày',
+    fee: 40000,
+    icon: FiZap,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-50',
+    borderColor: 'border-orange-100'
+  },
+  {
+    value: 'same_day',
+    label: 'Hỏa tốc',
+    time: 'Trong ngày',
+    fee: 60000,
+    icon: FiClock,
+    color: 'text-red-600',
+    bgColor: 'bg-red-50',
+    borderColor: 'border-red-100'
+  }
+]
+
 export const CheckoutForm = ({
   register, errors, paymentMethod, setPaymentMethod,
-  walletBalance, walletAmountToUse, onWalletAmountChange, maxWalletAmount
+  walletBalance, walletAmountToUse, onWalletAmountChange, maxWalletAmount,
+  shippingMethod, onShippingMethodChange
 }) => {
   const canUseWallet = walletBalance > 0
   const isUsingWallet = walletAmountToUse > 0
@@ -78,7 +112,46 @@ export const CheckoutForm = ({
         </div>
       </div>
 
-      {/* Khối 2: Phương thức thanh toán rẽ nhánh */}
+      {/* Khối 2: Đơn vị vận chuyển */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3 text-left">
+        <h3 className="text-sm font-bold text-brand-secondary uppercase tracking-wider border-b border-gray-50 pb-2 flex items-center gap-2">
+          <FiTruck size={16} className="text-brand-primary" />
+          <span>Đơn vị vận chuyển</span>
+        </h3>
+
+        <div className="space-y-2">
+          {SHIPPING_OPTIONS.map((option) => {
+            const Icon = option.icon
+            const isSelected = shippingMethod === option.value
+            return (
+              <label
+                key={option.value}
+                className={`flex items-center justify-between p-3.5 border rounded-xl cursor-pointer transition-all ${isSelected ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:bg-gray-50'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-7 h-7 flex items-center justify-center ${option.bgColor} ${option.color} rounded-lg border ${option.borderColor} shrink-0`}>
+                    <Icon size={14} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">{option.label}</p>
+                    <p className="text-[11px] text-gray-400">{option.time} &nbsp;•&nbsp; <span className="font-bold text-brand-primary">{formatPrice(option.fee)}</span></p>
+                  </div>
+                </div>
+                <input
+                  type="radio"
+                  name="shippingMethod"
+                  value={option.value}
+                  checked={isSelected}
+                  onChange={() => onShippingMethodChange(option.value)}
+                  className="w-4 h-4 accent-brand-primary cursor-pointer shrink-0"
+                />
+              </label>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Khối 3: Phương thức thanh toán rẽ nhánh */}
       <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3 text-left">
         <h3 className="text-sm font-bold text-brand-secondary uppercase tracking-wider border-b border-gray-50 pb-2 flex items-center gap-2">
           <FiCreditCard size={16} className="text-brand-primary" />
@@ -142,7 +215,7 @@ export const CheckoutForm = ({
         </div>
       </div>
 
-      {/* Khối 3: Số dư ví */}
+      {/* Khối 4: Số dư ví */}
       <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-3 text-left">
         <h3 className="text-sm font-bold text-brand-secondary uppercase tracking-wider border-b border-gray-50 pb-2 flex items-center gap-2">
           <FiCreditCard size={16} className="text-brand-primary" />

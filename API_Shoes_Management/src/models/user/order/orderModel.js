@@ -16,15 +16,16 @@ const getCartItemsForCheckout = async (userId) => {
 
 // 2. Tạo một đơn hàng mới lưu vết Khuyến mãi, Người nhận và Snapshot hoa hồng
 const createOrder = async (connection, {
-  userId, recipientName, recipientPhone, storeId, totalAmount, discount_amount, commission_rate_snapshot, shippingAddress, paymentMethod, appliedVoucher, wallet_amount_used
+  userId, recipientName, recipientPhone, storeId, totalAmount, discount_amount, commission_rate_snapshot, shippingAddress, paymentMethod, appliedVoucher, wallet_amount_used, shipping_method, shipping_fee
 }) => {
   const query = `
     INSERT INTO orders (
       user_id, recipient_name, recipient_phone, store_id, 
       total_amount, discount_amount, commission_rate_snapshot, 
-      shipping_address, status, payment_status, payment_method, applied_voucher, wallet_amount_used
+      shipping_address, status, payment_status, payment_method, applied_voucher, wallet_amount_used,
+      shipping_method, shipping_fee
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'unpaid', ?, ?, ?) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'unpaid', ?, ?, ?, ?, ?) 
   `
   const [result] = await connection.execute(query, [
     userId,
@@ -37,7 +38,9 @@ const createOrder = async (connection, {
     shippingAddress,
     paymentMethod || 'COD',
     appliedVoucher || null,
-    wallet_amount_used || 0.00
+    wallet_amount_used || 0.00,
+    shipping_method || 'standard',
+    shipping_fee || 0.00
   ])
   return result.insertId
 }

@@ -109,6 +109,16 @@ export const VendorOrdersPage = () => {
     }
   }
 
+  const handleAssignShipper = async (id) => {
+    try {
+      const res = await vendorOrderApiService.assignToShipper(id)
+      toast.success(res.message || 'Đã bàn giao cho Shipper!')
+      fetchOrders()
+    } catch (error) {
+      toast.error(error.message || 'Bàn giao thất bại.')
+    }
+  }
+
   const handleBulkUpdate = async (targetStatus) => {
     if (selectedIds.length === 0) {
       toast.warning('Vui lòng chọn đơn hàng cần xử lý.')
@@ -191,6 +201,7 @@ export const VendorOrdersPage = () => {
               onSelectRow={handleSelectRow}
               onSelectAll={handleSelectAll}
               onUpdateStatus={handleUpdateStatus}
+              onAssignShipper={handleAssignShipper}
               onCancelRequest={handleCancelRequest}
               onUpdateStatusBulk={handleBulkUpdate}
             />

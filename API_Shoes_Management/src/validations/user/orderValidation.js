@@ -40,6 +40,15 @@ const validateCheckout = async (req, res, next) => {
       'number.min': 'Số tiền ví không được âm.'
     }),
 
+    shippingMethod: Joi.string().valid('standard', 'express', 'same_day').optional().default('standard').messages({
+      'any.only': 'Phương thức vận chuyển không hợp lệ (standard / express / same_day).'
+    }),
+
+    shippingFee: Joi.number().min(0).precision(2).optional().default(20000).messages({
+      'number.base': 'Phí vận chuyển phải là định dạng số.',
+      'number.min': 'Phí vận chuyển không được âm.'
+    }),
+
     paymentMethod: Joi.string()
       .valid(PAYMENT_METHODS.COD, PAYMENT_METHODS.VNPAY, PAYMENT_METHODS.MOMO, PAYMENT_METHODS.WALLET)
       .required()

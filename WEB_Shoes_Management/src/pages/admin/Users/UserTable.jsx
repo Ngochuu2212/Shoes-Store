@@ -1,7 +1,7 @@
 import { formatDateTime, getImageUrl } from '~/utils/formatters'
 import {
   FiEye, FiCheckCircle, FiXCircle, FiMoreVertical,
-  FiUser, FiShield, FiStar, FiEdit2
+  FiUser, FiShield, FiStar, FiEdit2, FiTruck
 } from 'react-icons/fi'
 import { FaBan } from 'react-icons/fa'
 import { Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'
@@ -30,8 +30,9 @@ export const UserTable = ({
     const config = {
       [ROLE_ID.ADMIN]: { label: 'QUẢN TRỊ', className: 'bg-red-50 text-red-600 border-red-100' },
       [ROLE_ID.MANAGER]: { label: 'ĐIỀU HÀNH', className: 'bg-purple-50 text-purple-600 border-purple-100' },
-      [ROLE_ID.VENDOR]: { label: 'NGƯỜI BÁN', className: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-      [ROLE_ID.USER]: { label: 'NGƯỜI DÙNG', className: 'bg-blue-50 text-blue-600 border-blue-100' }
+      [ROLE_ID.VENDOR]: { label: 'NGƯỚI BÁN', className: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+      [ROLE_ID.USER]: { label: 'NGƯỚI DÙNG', className: 'bg-blue-50 text-blue-600 border-blue-100' },
+      [ROLE_ID.SHIPPER]: { label: 'SHIPPER', className: 'bg-orange-50 text-orange-600 border-orange-100' }
     }
     const c = config[roleId] || { label: 'KHÔNG XÁC ĐỊNH', className: 'bg-gray-50 text-gray-600 border-gray-100' }
     return <span className={`${c.className} border px-2.5 py-1 rounded-full text-[10px] font-black`}>{c.label}</span>
@@ -54,6 +55,7 @@ export const UserTable = ({
     case ROLE_ID.ADMIN: return <FiShield size={14} className="text-red-500" />
     case ROLE_ID.MANAGER: return <FiStar size={14} className="text-purple-500" />
     case ROLE_ID.VENDOR: return <FiCheckCircle size={14} className="text-emerald-500" />
+    case ROLE_ID.SHIPPER: return <FiTruck size={14} className="text-orange-500" />
     default: return <FiUser size={14} className="text-blue-500" />
     }
   }

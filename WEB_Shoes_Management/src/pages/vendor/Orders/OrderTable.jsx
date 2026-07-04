@@ -7,7 +7,7 @@ import { ORDER_STATUS, PAYMENT_METHODS } from '~/utils/constant'
 import { CancelRequestModal } from './CancelRequestModal'
 import { Link } from 'react-router-dom'
 
-export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUpdateStatus, onCancelRequest, onUpdateStatusBulk }) => {
+export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUpdateStatus, onAssignShipper, onCancelRequest, onUpdateStatusBulk }) => {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
@@ -75,7 +75,9 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
       actions.push({ value: ORDER_STATUS.PROCESSING, label: 'Xác nhận đơn hàng', icon: FiCheckCircle, color: 'text-blue-600' })
       actions.push({ value: ORDER_STATUS.CANCELLED, label: 'Từ chối đơn hàng', icon: FiXCircle, color: 'text-red-500' })
     }
-    // Vendor chỉ xác nhận và bàn giao cho Shipper qua trang chi tiết
+    if (currentStatus === ORDER_STATUS.PROCESSING) {
+      actions.push({ value: 'assign_shipper', label: 'Bàn giao cho Shipper', icon: FiTruck, color: 'text-orange-600' })
+    }
     return actions
   }
 
@@ -258,7 +260,10 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
                                 {actions.map((action) => (
                                   <DropdownMenuItem
                                     key={action.value}
-                                    onClick={() => onUpdateStatus(order.id, action.value)}
+                                    onClick={() => action.value === 'assign_shipper'
+                                      ? onAssignShipper(order.id)
+                                      : onUpdateStatus(order.id, action.value)
+                                    }
                                     className="text-xs font-bold cursor-pointer py-2.5 gap-2"
                                   >
                                     <action.icon size={14} className={action.color} />

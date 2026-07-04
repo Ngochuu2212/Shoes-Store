@@ -17,7 +17,8 @@ export const UserFormFields = ({ isEditMode }) => {
     { value: ROLE_ID.ADMIN, label: 'Quản trị viên', icon: FiShield, color: 'text-red-600' },
     { value: ROLE_ID.MANAGER, label: 'Điều hành viên', icon: FiShield, color: 'text-purple-600' },
     { value: ROLE_ID.VENDOR, label: 'Người bán', icon: FiShield, color: 'text-emerald-600' },
-    { value: ROLE_ID.USER, label: 'Người dùng', icon: FiShield, color: 'text-blue-600' }
+    { value: ROLE_ID.USER, label: 'Người dùng', icon: FiShield, color: 'text-blue-600' },
+    { value: ROLE_ID.SHIPPER, label: 'Shipper', icon: FiShield, color: 'text-orange-600' }
   ]
 
   const selectedRole = watch('roleId')

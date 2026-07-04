@@ -38,6 +38,7 @@ export const CartPage = () => {
   const pendingOrderIds = useSelector((state) => state.cart?.pendingOrderIds) || []
 
   const [paymentMethod, setPaymentMethod] = useState('COD')
+  const [shippingMethod, setShippingMethod] = useState('standard')
   const [storeVouchers, setStoreVouchers] = useState({})
   const [systemVoucher, setSystemVoucher] = useState({ code: null, discountValue: 0 })
   const [walletBalance, setWalletBalance] = useState(0)
@@ -305,8 +306,14 @@ export const CartPage = () => {
     ? Math.round(subTotal * (systemVoucher.discountValue / 100))
     : 0
 
+  // Phí vận chuyển theo số cửa hàng khác nhau
+  const SHIPPING_FEES = { standard: 20000, express: 40000, same_day: 60000 }
+  const uniqueStoreCount = new Set(selectedCartObjects.map(item => item.store_id)).size
+  const shippingFeePerOrder = SHIPPING_FEES[shippingMethod] || 20000
+  const totalShippingFee = uniqueStoreCount > 0 ? shippingFeePerOrder * uniqueStoreCount : 0
+
   // Cap wallet amount: can't exceed available balance or remaining payable amount
-  const preWalletTotal = Math.max(0, subTotal - storeDiscountAmount - systemVoucherDiscountAmount)
+  const preWalletTotal = Math.max(0, subTotal - storeDiscountAmount - systemVoucherDiscountAmount + totalShippingFee)
   const effectiveWalletAmount = Math.min(walletAmountToUse, walletBalance, preWalletTotal)
 
   const totalDiscountAmount = storeDiscountAmount + systemVoucherDiscountAmount
@@ -354,7 +361,9 @@ export const CartPage = () => {
       systemDiscount: systemVoucher.code
         ? { code: systemVoucher.code, amount: systemVoucherDiscountAmount }
         : null,
-      walletAmount: effectiveWalletAmount > 0 ? effectiveWalletAmount : 0
+      walletAmount: effectiveWalletAmount > 0 ? effectiveWalletAmount : 0,
+      shippingMethod: shippingMethod,
+      shippingFee: shippingFeePerOrder
     }
 
     try {
@@ -505,6 +514,8 @@ export const CartPage = () => {
                     walletAmountToUse={effectiveWalletAmount}
                     onWalletAmountChange={setWalletAmountToUse}
                     maxWalletAmount={preWalletTotal}
+                    shippingMethod={shippingMethod}
+                    onShippingMethodChange={setShippingMethod}
                   />
 
                   {safeSelectedItems.length > 0 && (
@@ -520,6 +531,7 @@ export const CartPage = () => {
                     discountAmount={storeDiscountAmount}
                     systemDiscountAmount={systemVoucherDiscountAmount}
                     walletAmount={effectiveWalletAmount}
+                    shippingFee={totalShippingFee}
                     finalTotal={finalTotal}
                     hasSelectedItems={safeSelectedItems.length > 0}
                     onSubmitOrder={handleCheckoutProcess}

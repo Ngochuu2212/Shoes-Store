@@ -6,6 +6,7 @@ export const CartSummary = ({
   discountAmount,
   systemDiscountAmount,
   walletAmount,
+  shippingFee,
   finalTotal,
   hasSelectedItems,
   onSubmitOrder,
@@ -56,7 +57,10 @@ export const CartSummary = ({
         )}
         <div className="flex justify-between">
           <span>Phí vận chuyển:</span>
-          <span className="text-green-500 font-semibold">Miễn phí</span>
+          {hasSelectedItems && shippingFee > 0
+            ? <span className="font-semibold text-orange-500">+{formatPrice(shippingFee)}</span>
+            : <span className="text-green-500 font-semibold">Miễn phí</span>
+          }
         </div>
 
         <div className="flex justify-between items-end pt-2.5 border-t border-gray-100">

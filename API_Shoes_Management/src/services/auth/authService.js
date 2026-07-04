@@ -130,6 +130,8 @@ const login = async (reqBody) => {
     redirectUrl = '/manager/stores'
   } else if (user.role_id === ROLE_ID.VENDOR) {
     redirectUrl = '/vendor/dashboard'
+  } else if (user.role_id === ROLE_ID.SHIPPER) {
+    redirectUrl = '/shipper/dashboard'
   }
 
   // Trả về dữ liệu sạch và cặp token để Controller bỏ vào Cookie
@@ -330,6 +332,7 @@ const googleLogin = async (accessToken) => {
   if (user.role_id === ROLE_ID.ADMIN) redirectUrl = '/admin/dashboard'
   else if (user.role_id === ROLE_ID.MANAGER) redirectUrl = '/manager/stores'
   else if (user.role_id === ROLE_ID.VENDOR) redirectUrl = '/vendor/dashboard'
+  else if (user.role_id === ROLE_ID.SHIPPER) redirectUrl = '/shipper/dashboard'
 
   return {
     user: {
