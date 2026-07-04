@@ -5,5 +5,21 @@ export const aiApiService = {
   chat: async (message, history = []) => {
     const response = await authorizedAxiosInstance.post(`${DEV_API_URL}/api/ai/chat`, { message, history })
     return response.data
+  },
+
+  searchByImage: async (imageFile) => {
+    const formData = new FormData()
+    formData.append('image', imageFile)
+    
+    const response = await authorizedAxiosInstance.post(
+      `${DEV_API_URL}/api/ai/search-by-image`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+    return response.data
   }
 }

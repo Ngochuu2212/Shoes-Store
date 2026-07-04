@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams, useLocation } from 'react-router-dom'
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BreadCrumb } from '~/components/user/BreadCrumb'
 import { FilterSidebar } from './FilterSidebar'
@@ -12,6 +11,7 @@ import { usePageTitle } from '~/hooks/usePageTitle'
 export const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const [products, setProducts] = useState([])
   const [pagination, setPagination] = useState({ totalItems: 0, totalPages: 1, currentPage: 1 })
@@ -70,6 +70,9 @@ export const ProductsPage = () => {
 
   // ĐỒNG BỘ STATE LÊN URL
   useEffect(() => {
+    // Nếu đang tìm kiếm bằng hình ảnh AI, ta giữ nguyên url hoặc bỏ đồng bộ để tránh bị reset
+    if (location.state?.aiProducts) return
+
     const urlParams = {}
 
     if (filters.search) urlParams.search = filters.search
@@ -85,10 +88,20 @@ export const ProductsPage = () => {
     if (filters.sortBy !== 'latest') urlParams.sortBy = filters.sortBy
 
     setSearchParams(urlParams)
-  }, [filters, setSearchParams])
+  }, [filters, setSearchParams, location.state])
 
   // GỌI API
   useEffect(() => {
+    if (location.state?.aiProducts) {
+      setProducts(location.state.aiProducts)
+      setPagination({
+        totalItems: location.state.aiProducts.length,
+        totalPages: 1,
+        currentPage: 1
+      })
+      return
+    }
+
     const fetchProducts = async () => {
       try {
         setLoading(true)
@@ -115,7 +128,7 @@ export const ProductsPage = () => {
 
     fetchProducts()
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [filters])
+  }, [filters, location.state])
 
   const handlePageChange = (newPage) => {
     setFilters({ ...filters, page: newPage })
@@ -126,6 +139,9 @@ export const ProductsPage = () => {
   }
 
   const handleClearAllFilters = () => {
+    if (location.state?.aiProducts) {
+      navigate('/products', { replace: true, state: null })
+    }
     setFilters({
       search: '', categories: [], stores: [], prices: [],
       ratings: [], sizes: [], colors: [], isDiscounted: false, page: 1, limit: 9, sortBy: 'latest'
@@ -173,6 +189,52 @@ export const ProductsPage = () => {
 
           {/* Cột phải: Content chính */}
           <div className="flex-1 flex flex-col">
+            
+            {/* AI Search Banner */}
+            {location.state?.aiProducts && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-orange-50/50 border border-orange-200/60 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-orange-100 flex items-center justify-center text-orange-500 overflow-hidden shadow-inner shrink-0">
+                    {location.state.uploadedImage ? (
+                      <img src={location.state.uploadedImage} alt="Uploaded preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <FiZap size={20} />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                      Tìm kiếm bằng hình ảnh AI
+                      <FiZap size={14} className="text-orange-500 fill-orange-500 animate-pulse" />
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Đang hiển thị {location.state.aiProducts.length} sản phẩm phù hợp nhất với hình ảnh bạn tải lên.
+                    </p>
+                    {location.state.keywords && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {location.state.keywords.map(kw => (
+                          <span key={kw} className="text-[10px] bg-orange-100/50 text-orange-700 font-bold px-2 py-0.5 rounded-md capitalize">
+                            {kw}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    navigate('/products', { replace: true, state: null })
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 hover:text-orange-600 border border-gray-200 hover:border-orange-200 rounded-2xl text-xs font-bold transition-all cursor-pointer shadow-sm shrink-0"
+                >
+                  <FiX size={14} />
+                  <span>Xóa tìm kiếm AI</span>
+                </button>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: -20 }}

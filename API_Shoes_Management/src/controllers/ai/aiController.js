@@ -88,6 +88,97 @@ Chỉ dẫn phong cách trả lời:
   }
 }
 
+const fileToGenerativePart = (buffer, mimeType) => {
+  return {
+    inlineData: {
+      data: buffer.toString('base64'),
+      mimeType
+    }
+  }
+}
+
+const searchByImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp hình ảnh sản phẩm cần tìm kiếm' })
+    }
+
+    if (!env.GEMINI_API_KEY || env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+      return res.status(500).json({ message: 'Hệ thống chưa được cấu hình GEMINI_API_KEY. Vui lòng liên hệ quản trị viên!' })
+    }
+
+    // 1. Chuyển đổi buffer hình ảnh sang định dạng Gemini SDK yêu cầu
+    const imagePart = fileToGenerativePart(req.file.buffer, req.file.mimetype)
+
+    // 2. Định nghĩa prompt phân tích ảnh để rút trích các từ khóa
+    const prompt = 'Hãy phân tích hình ảnh đôi giày này và liệt kê các từ khóa mô tả về thương hiệu, kiểu dáng, màu sắc và loại giày. Chỉ trả về các từ khóa phân cách bằng dấu phẩy, không thêm bất kỳ văn bản giải thích nào khác. Ví dụ: sneaker, Nike, màu đỏ, cổ thấp'
+
+    // 3. Gọi Gemini API
+    const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+
+    const result = await model.generateContent([prompt, imagePart])
+    const keywordsText = result.response.text() || ''
+
+    // 4. Tách các từ khóa thành mảng
+    const keywords = keywordsText
+      .split(',')
+      .map(kw => kw.trim().toLowerCase())
+      .filter(Boolean)
+
+    if (keywords.length === 0) {
+      return res.status(200).json({ products: [] })
+    }
+
+    // 5. Thực hiện câu lệnh truy vấn SQL xếp hạng sản phẩm dựa trên số lượng từ khóa trùng khớp
+    let selectScore = ''
+    const queryParams = []
+
+    keywords.forEach((kw, index) => {
+      selectScore += `(CASE WHEN LOWER(p.name) LIKE ? THEN 3 ELSE 0 END + CASE WHEN LOWER(p.description) LIKE ? THEN 1 ELSE 0 END)`
+      if (index < keywords.length - 1) {
+        selectScore += ' + '
+      }
+      queryParams.push(`%${kw}%`, `%${kw}%`)
+    })
+
+    const query = `
+      SELECT 
+        p.id, 
+        p.store_id, 
+        p.category_id, 
+        p.name, 
+        p.slug, 
+        p.description, 
+        p.price, 
+        p.sold, 
+        p.rating_avg, 
+        p.view_count, 
+        p.images,
+        (${selectScore}) AS score
+      FROM products p
+      WHERE p.is_active = 1 AND p.status = 'approved'
+      HAVING score > 0
+      ORDER BY score DESC, p.sold DESC
+      LIMIT 20
+    `
+
+    const [products] = await pool.execute(query, queryParams)
+
+    return res.status(200).json({
+      keywords,
+      products
+    })
+
+  } catch (error) {
+    console.error('Lỗi tìm kiếm sản phẩm bằng hình ảnh AI:', error)
+    return res.status(500).json({
+      message: `Đã xảy ra lỗi khi tìm kiếm hình ảnh AI: ${error.message}`
+    })
+  }
+}
+
 export const aiController = {
-  chatWithAI
+  chatWithAI,
+  searchByImage
 }
