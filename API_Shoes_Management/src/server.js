@@ -51,9 +51,12 @@ import { adminPayoutRouter } from '~/routes/admin/adminPayoutRoute'
 import { adminSystemSettingRouter } from '~/routes/admin/systemSettingRoute'
 import { adminOrderRouter } from '~/routes/admin/adminOrderRoute'
 
-// Định tuyến hệ thống API cho CHAT và NOTIFICATION (Thời gian thực)
+// Định tuyến hệ thống API cho CHAT & NOTIFICATION
 import { chatRouter } from '~/routes/chat/chatRoute'
 import { notificationRouter } from '~/routes/notification/notificationRoute'
+
+// Định tuyến hệ thống API cho SHIPPER (Giao hàng)
+import { shipperRouter } from '~/routes/shipper/shipperRoute'
 
 import { corsOptions } from '~/config/corsOptions'
 import cookieParser from 'cookie-parser'
@@ -126,6 +129,9 @@ const START_SERVER = () => {
   // Định tuyến hệ thống API cho CHAT & NOTIFICATION
   app.use('/api/chats', chatRouter)
   app.use('/api/notifications', notificationRouter)
+
+  // Định tuyến hệ thống API cho SHIPPER (Giao hàng)
+  app.use('/api/shipper', shipperRouter)
 
   // Thêm middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)

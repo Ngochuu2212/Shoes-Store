@@ -54,8 +54,8 @@ const forceCancelOrder = async (orderId, adminNote) => {
   const order = await adminOrderModel.getOrderDetailSystem(orderId)
   if (!order) throw new Error('Đơn hàng cần ép hủy không tồn tại trên hệ thống.')
 
-  // RÀNG BUỘC CỨNG: Nếu đơn đã hoàn thành giao (delivered) hoặc đã hủy từ trước (cancelled) -> Chặn can thiệp
-  if ([ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED].includes(order.status)) {
+  // RÀNG BUỘC CỨNG: Nếu đơn đã hoàn thành giao (completed/delivered) hoặc đã hủy -> Chặn can thiệp
+  if ([ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELLED].includes(order.status)) {
     throw new Error(`Đơn hàng đã ở trạng thái kết thúc [${order.status}]. Admin không thể can thiệp ép hủy luồng này.`)
   }
 

@@ -35,9 +35,17 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
       return { label: 'Chờ xử lý', className: 'bg-amber-50 text-amber-600 border-amber-100', icon: FiClock }
     case ORDER_STATUS.PROCESSING:
       return { label: 'Đang xử lý', className: 'bg-blue-50 text-blue-600 border-blue-100', icon: FiPackage }
+    case ORDER_STATUS.WAITING_FOR_SHIPPER:
+      return { label: 'Chờ Shipper', className: 'bg-yellow-50 text-yellow-700 border-yellow-100', icon: FiClock }
+    case ORDER_STATUS.ACCEPTED_BY_SHIPPER:
+      return { label: 'Shipper nhận', className: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: FiTruck }
+    case ORDER_STATUS.SHIPPING:
+      return { label: 'Đang giao', className: 'bg-orange-50 text-orange-600 border-orange-100', icon: FiTruck }
     case ORDER_STATUS.SHIPPED:
       return { label: 'Đang giao', className: 'bg-purple-50 text-purple-600 border-purple-100', icon: FiTruck }
     case ORDER_STATUS.DELIVERED:
+      return { label: 'Đã giao', className: 'bg-purple-50 text-purple-600 border-purple-100', icon: FiCheckCircle }
+    case ORDER_STATUS.COMPLETED:
       return { label: 'Hoàn thành', className: 'bg-green-50 text-green-600 border-green-100', icon: FiCheckCircle }
     case ORDER_STATUS.CANCEL_REQUESTED:
       return { label: 'Yêu cầu hủy', className: 'bg-orange-50 text-orange-600 border-orange-100', icon: FiAlertCircle }
@@ -67,12 +75,7 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
       actions.push({ value: ORDER_STATUS.PROCESSING, label: 'Xác nhận đơn hàng', icon: FiCheckCircle, color: 'text-blue-600' })
       actions.push({ value: ORDER_STATUS.CANCELLED, label: 'Từ chối đơn hàng', icon: FiXCircle, color: 'text-red-500' })
     }
-    if (currentStatus === ORDER_STATUS.PROCESSING) {
-      actions.push({ value: ORDER_STATUS.SHIPPED, label: 'Giao cho vận chuyển', icon: FiTruck, color: 'text-purple-600' })
-    }
-    if (currentStatus === ORDER_STATUS.SHIPPED) {
-      actions.push({ value: ORDER_STATUS.DELIVERED, label: 'Xác nhận đã giao', icon: FiCheckCircle, color: 'text-green-600' })
-    }
+    // Vendor chỉ xác nhận và bàn giao cho Shipper qua trang chi tiết
     return actions
   }
 

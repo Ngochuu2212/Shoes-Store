@@ -84,7 +84,7 @@ const validateUpdateStatusBulkBody = async (req, res, next) => {
       'array.base': 'Danh sách mã đơn hàng phải là một mảng dữ liệu số.',
       'array.min': 'Vui lòng tích chọn tối thiểu 1 đơn hàng để xử lý hàng loạt.'
     }),
-    targetStatus: Joi.string().valid(ORDER_STATUS.PROCESSING, ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED).required().messages({
+    targetStatus: Joi.string().valid(ORDER_STATUS.PROCESSING, ORDER_STATUS.CANCELLED).required().messages({
       'any.only': 'Trạng thái đích cập nhật hàng loạt không hợp lệ.'
     })
   })

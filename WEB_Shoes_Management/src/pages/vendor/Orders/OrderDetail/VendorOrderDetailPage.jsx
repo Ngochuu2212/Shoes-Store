@@ -62,9 +62,17 @@ export const VendorOrderDetailPage = () => {
       return { label: 'Chờ xử lý', className: 'bg-amber-50 text-amber-600 border-amber-100', icon: FiClock, color: 'text-amber-600' }
     case ORDER_STATUS.PROCESSING:
       return { label: 'Đang xử lý', className: 'bg-blue-50 text-blue-600 border-blue-100', icon: FiPackage, color: 'text-blue-600' }
+    case ORDER_STATUS.WAITING_FOR_SHIPPER:
+      return { label: 'Chờ Shipper', className: 'bg-yellow-50 text-yellow-700 border-yellow-100', icon: FiClock, color: 'text-yellow-700' }
+    case ORDER_STATUS.ACCEPTED_BY_SHIPPER:
+      return { label: 'Shipper đã nhận', className: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: FiTruck, color: 'text-indigo-600' }
+    case ORDER_STATUS.SHIPPING:
+      return { label: 'Đang giao', className: 'bg-orange-50 text-orange-600 border-orange-100', icon: FiTruck, color: 'text-orange-600' }
     case ORDER_STATUS.SHIPPED:
       return { label: 'Đang giao hàng', className: 'bg-purple-50 text-purple-600 border-purple-100', icon: FiTruck, color: 'text-purple-600' }
     case ORDER_STATUS.DELIVERED:
+      return { label: 'Đã giao - chờ xác nhận', className: 'bg-purple-50 text-purple-600 border-purple-100', icon: FiCheckCircle, color: 'text-purple-600' }
+    case ORDER_STATUS.COMPLETED:
       return { label: 'Hoàn thành', className: 'bg-green-50 text-green-600 border-green-100', icon: FiCheckCircle, color: 'text-green-600' }
     case ORDER_STATUS.CANCEL_REQUESTED:
       return { label: 'Yêu cầu hủy', className: 'bg-orange-50 text-orange-600 border-orange-100', icon: FiAlertCircle, color: 'text-orange-600' }
@@ -118,11 +126,25 @@ export const VendorOrderDetailPage = () => {
     }
   }
 
+  const handleAssignToShipper = async () => {
+    try {
+      const res = await vendorOrderApiService.assignToShipper(id)
+      toast.success(res.message)
+      fetchOrderDetail()
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message || 'Bàn giao thất bại.')
+    }
+  }
+
   const StatusBadge = order ? getStatusBadge(order.status) : null
   const PaymentStatusBadge = order ? getPaymentStatusBadge(order.payment_status) : null
 
   const canUpdateStatus = order &&
     order.status !== ORDER_STATUS.DELIVERED &&
+    order.status !== ORDER_STATUS.COMPLETED &&
+    order.status !== ORDER_STATUS.WAITING_FOR_SHIPPER &&
+    order.status !== ORDER_STATUS.ACCEPTED_BY_SHIPPER &&
+    order.status !== ORDER_STATUS.SHIPPING &&
     order.status !== ORDER_STATUS.CANCELLED &&
     !order.cancel_reason?.startsWith('[ADMIN FORCE CANCEL]')
 
@@ -449,19 +471,10 @@ export const VendorOrderDetailPage = () => {
 
               {order.status === ORDER_STATUS.PROCESSING && (
                 <button
-                  onClick={() => handleUpdateStatus(ORDER_STATUS.SHIPPED)}
-                  className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer"
+                  onClick={handleAssignToShipper}
+                  className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer"
                 >
-                  <FiTruck size={16} /> Giao cho vận chuyển
-                </button>
-              )}
-
-              {order.status === ORDER_STATUS.SHIPPED && (
-                <button
-                  onClick={() => handleUpdateStatus(ORDER_STATUS.DELIVERED)}
-                  className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer"
-                >
-                  <FiCheckCircle size={16} /> Xác nhận đã giao hàng
+                  <FiTruck size={16} /> Bàn giao cho Shipper
                 </button>
               )}
 

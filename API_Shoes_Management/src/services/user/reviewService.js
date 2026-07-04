@@ -23,7 +23,7 @@ const createReview = async (userId, orderId, { rating, comment, images }) => {
     throw new Error('Đơn hàng không tồn tại hoặc bạn không có quyền đánh giá đơn hàng này.')
   }
 
-  if (order.status !== ORDER_STATUS.DELIVERED) {
+  if (order.status !== ORDER_STATUS.DELIVERED && order.status !== ORDER_STATUS.COMPLETED) {
     throw new Error('Bạn chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã được giao thành công.')
   }
 
@@ -65,7 +65,7 @@ const createStoreReview = async (userId, orderId, { rating, comment }) => {
     throw new Error('Đơn hàng không tồn tại hoặc bạn không có quyền đánh giá.')
   }
 
-  if (order.status !== ORDER_STATUS.DELIVERED) {
+  if (order.status !== ORDER_STATUS.DELIVERED && order.status !== ORDER_STATUS.COMPLETED) {
     throw new Error('Bạn chỉ có thể đánh giá cửa hàng sau khi đơn hàng đã được giao thành công.')
   }
 

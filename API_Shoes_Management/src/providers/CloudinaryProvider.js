@@ -108,6 +108,20 @@ const uploadChat = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 })
 
+// 8. Cấu hình lưu trữ ảnh minh chứng giao hàng của Shipper
+const deliveryProofStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'shoes_store_delivery_proofs',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
+  }
+})
+const uploadDeliveryProof = multer({
+  storage: deliveryProofStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }
+})
+
 export const CloudinaryProvider = {
   cloudinary,
   streamUpload: uploadAvatar.single('avatar'),
@@ -121,5 +135,6 @@ export const CloudinaryProvider = {
   uploadReviewFields: uploadReview.array('reviewImages', 10),
   uploadAppealFields: uploadAppeal.array('evidenceImages', 5),
   streamUploadCategory: uploadCategory.single('categoryImage'),
-  uploadChatImages: uploadChat.array('chatImages', 10)
+  uploadChatImages: uploadChat.array('chatImages', 10),
+  uploadDeliveryProofImages: uploadDeliveryProof.array('proofImages', 10)
 }

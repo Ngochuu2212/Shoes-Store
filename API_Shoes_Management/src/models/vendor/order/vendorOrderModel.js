@@ -265,7 +265,7 @@ const completeOrderAndCreditStore = async (orderId, storeId, totalAmount) => {
       `UPDATE orders 
        SET status = ?, payment_status = 'paid' 
        WHERE id = ?`,
-      [ORDER_STATUS.DELIVERED, orderId]
+      [ORDER_STATUS.COMPLETED, orderId]
     )
 
     // 4. Bơm khoản doanh thu thực nhận (Net Profit) vào ví tài khoản cho Store
@@ -286,6 +286,15 @@ const completeOrderAndCreditStore = async (orderId, storeId, totalAmount) => {
   }
 }
 
+// Vendor bàn giao đơn hàng cho Shipper
+const assignToShipper = async (orderId, storeId) => {
+  const [result] = await pool.execute(
+    'UPDATE orders SET status = ? WHERE id = ? AND store_id = ? AND status = ?',
+    [ORDER_STATUS.WAITING_FOR_SHIPPER, orderId, storeId, ORDER_STATUS.PROCESSING]
+  )
+  return result.affectedRows > 0
+}
+
 export const vendorOrderModel = {
   getStoreByOwnerId,
   getVendorOrders,
@@ -299,5 +308,6 @@ export const vendorOrderModel = {
   updateOrderStatusBulk,
   getVendorOrderDetail,
   completeOrderAndCreditStore,
-  getStoreOwnerInfo
+  getStoreOwnerInfo,
+  assignToShipper
 }

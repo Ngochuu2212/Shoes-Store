@@ -8,16 +8,22 @@ export const ROLE_ID = {
   ADMIN: 1,
   MANAGER: 2,
   VENDOR: 3,
-  USER: 4
+  USER: 4,
+  SHIPPER: 5
 }
 
 export const ORDER_STATUS = {
   PENDING: 'pending',
   PROCESSING: 'processing',
-  SHIPPED: 'shipped',
+  WAITING_FOR_SHIPPER: 'waiting_for_shipper',
+  ACCEPTED_BY_SHIPPER: 'accepted_by_shipper',
+  SHIPPING: 'shipping',
   DELIVERED: 'delivered',
+  COMPLETED: 'completed',
   CANCELLED: 'cancelled',
-  CANCEL_REQUESTED: 'cancel_requested'
+  CANCEL_REQUESTED: 'cancel_requested',
+  // Backward compat
+  SHIPPED: 'shipped'
 }
 
 export const PAYMENT_STATUS = {
@@ -28,6 +34,10 @@ export const PAYMENT_STATUS = {
 
 export const PAYMENT_METHODS = {
   COD: 'COD',
+  VNPAY: 'VNPAY',
+  MOMO: 'MOMO',
+  WALLET: 'WALLET'
+}
   VNPAY: 'VNPAY',
   MOMO: 'MOMO'
 }

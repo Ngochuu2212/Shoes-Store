@@ -33,5 +33,11 @@ export const vendorOrderApiService = {
   updateOrderStatusBulk: async (orderIds, targetStatus) => {
     const response = await authorizedAxiosInstance.patch(`${DEV_API_URL}/api/vendor/orders/update-status-bulk`, { orderIds, targetStatus })
     return response.data
+  },
+
+  // Bàn giao đơn hàng cho Shipper
+  assignToShipper: async (id) => {
+    const response = await authorizedAxiosInstance.put(`${DEV_API_URL}/api/vendor/orders/${id}/assign-shipper`)
+    return response.data
   }
 }

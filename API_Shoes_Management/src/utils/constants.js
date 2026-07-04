@@ -2,7 +2,8 @@ export const ROLE_ID = {
   ADMIN: 1,
   MANAGER: 2,
   VENDOR: 3,
-  USER: 4
+  USER: 4,
+  SHIPPER: 5
 }
 
 // Định nghĩa các chế độ lọc thời gian cho Dashboard Thống kê
@@ -17,10 +18,16 @@ export const ANALYTICS_TYPES = {
 export const ORDER_STATUS = {
   PENDING: 'pending',
   PROCESSING: 'processing',
-  SHIPPED: 'shipped',
+  // Luồng mới với Shipper
+  WAITING_FOR_SHIPPER: 'waiting_for_shipper',
+  ACCEPTED_BY_SHIPPER: 'accepted_by_shipper',
+  SHIPPING: 'shipping',
   DELIVERED: 'delivered',
+  COMPLETED: 'completed',
   CANCELLED: 'cancelled',
-  CANCEL_REQUESTED: 'cancel_requested'
+  CANCEL_REQUESTED: 'cancel_requested',
+  // Giữ lại cho backward compat với dữ liệu cũ
+  SHIPPED: 'shipped'
 }
 
 export const PAYMENT_STATUS = {
@@ -98,6 +105,10 @@ export const NOTIFICATION_TYPES = {
   ORDER_DELIVERED: 'ORDER_DELIVERED',
   ORDER_CANCELLED: 'ORDER_CANCELLED',
   ORDER_CANCEL_REQUESTED: 'ORDER_CANCEL_REQUESTED',
+  ORDER_WAITING_FOR_SHIPPER: 'ORDER_WAITING_FOR_SHIPPER',
+  ORDER_ACCEPTED_BY_SHIPPER: 'ORDER_ACCEPTED_BY_SHIPPER',
+  ORDER_SHIPPING: 'ORDER_SHIPPING',
+  ORDER_COMPLETED: 'ORDER_COMPLETED',
 
   // --- Phân hệ Ví điện tử ---
   WALLET_REFUND: 'WALLET_REFUND',

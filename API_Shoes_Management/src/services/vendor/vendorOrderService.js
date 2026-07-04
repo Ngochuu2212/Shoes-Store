@@ -107,41 +107,8 @@ const updateOrderStatusBulk = async (userId, orderIds, targetStatus) => {
     }
   }
 
-  if (targetStatus === ORDER_STATUS.DELIVERED) {
-    let successCount = 0
-    let totalCredited = 0
-
-    for (const orderId of orderIds) {
-      const currentStatus = await vendorOrderModel.getOrderStatus(orderId)
-      const orderDetail = await vendorOrderModel.getVendorOrders(storeId, { searchOrderId: orderId, limit: 1, offset: 0 })
-
-      if (currentStatus === ORDER_STATUS.SHIPPED && orderDetail.length > 0) {
-        const cashFlow = await vendorOrderModel.completeOrderAndCreditStore(
-          orderId,
-          storeId,
-          Number(orderDetail[0].total_amount)
-        )
-        totalCredited += cashFlow.vendorNetProfit
-        successCount++
-
-        // Gửi thông báo khi đơn hàng đã giao thành công
-        const userId = await orderModel.getOrderUserId(orderId)
-        if (userId) {
-          await sendOrderNotification(
-            orderId,
-            userId,
-            'Đơn hàng đã giao thành công',
-            `Đơn hàng #${orderId} đã được giao thành công. Cảm ơn bạn đã mua sắm!`,
-            NOTIFICATION_TYPES.ORDER_DELIVERED
-          )
-        }
-      }
-    }
-
-    return {
-      message: `Xử lý giao hàng loạt thành công cho ${successCount}/${orderIds.length} đơn hàng đủ điều kiện. Doanh thu sạch đã được cộng vào ví balance.`,
-      creditedAmount: totalCredited
-    }
+  if (targetStatus === ORDER_STATUS.DELIVERED || targetStatus === ORDER_STATUS.COMPLETED) {
+    throw new Error('Chỉ Shipper mới có quyền hoàn tất đơn hàng. Vendor không được phép thực hiện thao tác này.')
   }
 
   const affectedRows = await vendorOrderModel.updateOrderStatusBulk(orderIds, targetStatus, storeId)
@@ -196,40 +163,17 @@ const updateOrderStatus = async (userId, orderId, newStatus) => {
   }
 
   const currentStatus = orderDetail[0].status
-  if (currentStatus === ORDER_STATUS.DELIVERED || currentStatus === ORDER_STATUS.CANCELLED) {
+  if (currentStatus === ORDER_STATUS.DELIVERED || currentStatus === ORDER_STATUS.COMPLETED || currentStatus === ORDER_STATUS.CANCELLED) {
     throw new Error('Không thể thay đổi trạng thái của đơn hàng đã hoàn thành hoặc đã hủy.')
+  }
+
+  // Vendor không được phép chuyển sang DELIVERED hoặc COMPLETED - chỉ Shipper mới được
+  if (newStatus === ORDER_STATUS.DELIVERED || newStatus === ORDER_STATUS.COMPLETED) {
+    throw new Error('Chỉ Shipper mới có quyền hoàn tất đơn hàng. Vendor hãy dùng chức năng "Bàn giao cho Shipper".')
   }
 
   // Lấy userId để gửi notification
   const userOrderId = await orderModel.getOrderUserId(orderId)
-
-  if (newStatus === ORDER_STATUS.DELIVERED) {
-    if (currentStatus !== ORDER_STATUS.SHIPPED) {
-      throw new Error('Đơn hàng phải được chuyển sang trạng thái "Đang giao hàng (shipped)" trước khi xác nhận Giao thành công.')
-    }
-
-    const cashFlow = await vendorOrderModel.completeOrderAndCreditStore(
-      orderId,
-      storeId,
-      Number(orderDetail[0].total_amount)
-    )
-
-    // Gửi thông báo khi đơn hàng đã giao thành công
-    if (userOrderId) {
-      await sendOrderNotification(
-        orderId,
-        userOrderId,
-        'Đơn hàng đã giao thành công',
-        `Đơn hàng #${orderId} đã được giao thành công. Cảm ơn bạn đã mua sắm!`,
-        NOTIFICATION_TYPES.ORDER_DELIVERED
-      )
-    }
-
-    return {
-      message: 'Xác nhận giao hàng thành công! Trạng thái thanh toán đã lật sang [PAID] và tiền doanh thu thực nhận đã được nạp vào ví balance của cửa hàng.',
-      data: cashFlow
-    }
-  }
 
   await vendorOrderModel.updateOrderStatus(orderId, newStatus)
 
@@ -362,9 +306,45 @@ const handleCancelRequest = async (userId, orderId, { decision, reason }) => {
   }
 }
 
+// Vendor bàn giao đơn hàng cho Shipper
+const assignToShipper = async (userId, orderId) => {
+  const storeId = await getVerifiedStoreId(userId)
+
+  const isOwner = await vendorOrderModel.checkOrderOwnership(orderId, storeId)
+  if (!isOwner) throw new Error('Đơn hàng không thuộc cửa hàng của bạn.')
+
+  const orderDetail = await vendorOrderModel.getVendorOrders(storeId, { searchOrderId: orderId, limit: 1, offset: 0 })
+  if (orderDetail.length === 0) throw new Error('Đơn hàng không tồn tại.')
+
+  if (orderDetail[0].cancel_reason?.startsWith('[ADMIN FORCE CANCEL]')) {
+    throw new Error('Đơn hàng này đã bị Ban quản trị sàn ép hủy. Không thể bàn giao.')
+  }
+
+  if (orderDetail[0].status !== ORDER_STATUS.PROCESSING) {
+    throw new Error('Chỉ có thể bàn giao đơn đang ở trạng thái "Đang xử lý" (processing).')
+  }
+
+  const updated = await vendorOrderModel.assignToShipper(orderId, storeId)
+  if (!updated) throw new Error('Không thể bàn giao đơn hàng. Vui lòng thử lại.')
+
+  const userOrderId = await orderModel.getOrderUserId(orderId)
+  if (userOrderId) {
+    await sendOrderNotification(
+      orderId,
+      userOrderId,
+      'Đơn hàng đang tìm shipper',
+      `Đơn hàng #${orderId} đã được đóng gói xong và đang được giao cho đơn vị vận chuyển.`,
+      NOTIFICATION_TYPES.ORDER_WAITING_FOR_SHIPPER
+    )
+  }
+
+  return { message: `Đã bàn giao đơn hàng #${orderId} cho đơn vị vận chuyển. Đơn hàng sẽ xuất hiện trong danh sách chờ Shipper.` }
+}
+
 export const vendorOrderService = {
   getVendorOrders,
   updateOrderStatus,
   handleCancelRequest,
-  updateOrderStatusBulk
+  updateOrderStatusBulk,
+  assignToShipper
 }

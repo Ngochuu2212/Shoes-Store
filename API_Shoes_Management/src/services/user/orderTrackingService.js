@@ -119,7 +119,7 @@ const cancelOrderByUser = async (userId, orderId, cancelReason) => {
       throw new Error('Bạn không có quyền can thiệp vào đơn hàng này.')
     }
 
-    if ([ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.CANCEL_REQUESTED].includes(order.status)) {
+    if ([ORDER_STATUS.WAITING_FOR_SHIPPER, ORDER_STATUS.ACCEPTED_BY_SHIPPER, ORDER_STATUS.SHIPPING, ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELLED, ORDER_STATUS.CANCEL_REQUESTED].includes(order.status)) {
       throw new Error('Đơn hàng đã thay đổi trạng thái, không thể thực hiện yêu cầu hủy.')
     }
 

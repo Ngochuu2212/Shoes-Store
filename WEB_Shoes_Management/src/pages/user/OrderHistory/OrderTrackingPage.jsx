@@ -163,19 +163,19 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.SHIPPED} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.SHIPPING} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiTruck size={16} />
                   <span>Đang giao</span>
-                  {statusCounts?.shipped > 0 && <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-[10px] font-bold">{statusCounts.shipped}</span>}
+                  {statusCounts?.shipping > 0 && <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-[10px] font-bold">{statusCounts.shipping}</span>}
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.DELIVERED} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.COMPLETED} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiCheckCircle size={16} />
                   <span>Đã giao</span>
-                  {statusCounts?.delivered > 0 && <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-[10px] font-bold">{statusCounts.delivered}</span>}
+                  {statusCounts?.completed > 0 && <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-[10px] font-bold">{statusCounts.completed}</span>}
                 </div>
               </TabsTrigger>
 

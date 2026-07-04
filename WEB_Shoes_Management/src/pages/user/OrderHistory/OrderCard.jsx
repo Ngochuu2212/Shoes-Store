@@ -16,8 +16,12 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
     switch (status) {
     case ORDER_STATUS.PENDING: return <span className="text-gray-500 font-bold bg-gray-100 px-3 py-1 rounded-full text-xs">ĐƠN HÀNG MỚI</span>
     case ORDER_STATUS.PROCESSING: return <span className="text-blue-500 font-bold bg-blue-50 px-3 py-1 rounded-full text-xs">ĐANG XỬ LÝ</span>
+    case ORDER_STATUS.WAITING_FOR_SHIPPER: return <span className="text-yellow-700 font-bold bg-yellow-50 px-3 py-1 rounded-full text-xs">CHỜ SHIPPER</span>
+    case ORDER_STATUS.ACCEPTED_BY_SHIPPER: return <span className="text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded-full text-xs">SHIPPER ĐÃ NHẬN</span>
+    case ORDER_STATUS.SHIPPING: return <span className="text-orange-600 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs">ĐANG GIAO HÀNG</span>
     case ORDER_STATUS.SHIPPED: return <span className="text-purple-600 font-bold bg-purple-50 px-3 py-1 rounded-full text-xs">ĐANG GIAO HÀNG</span>
-    case ORDER_STATUS.DELIVERED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs">ĐÃ GIAO THÀNH CÔNG</span>
+    case ORDER_STATUS.DELIVERED: return <span className="text-purple-600 font-bold bg-purple-50 px-3 py-1 rounded-full text-xs">ĐÃ GIAO - CHỜ XÁC NHẬN</span>
+    case ORDER_STATUS.COMPLETED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs">ĐÃ GIAO THÀNH CÔNG</span>
     case ORDER_STATUS.CANCELLED: return <span className="text-red-500 font-bold bg-red-50 px-3 py-1 rounded-full text-xs">ĐÃ HỦY</span>
     case ORDER_STATUS.CANCEL_REQUESTED: return <span className="text-orange-500 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs">ĐANG YÊU CẦU HỦY</span>
     default: return null
@@ -224,7 +228,7 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
           </button>
         )}
 
-        {order.status === ORDER_STATUS.DELIVERED && (
+        {order.status === ORDER_STATUS.COMPLETED && (
           order.is_reviewed ? (
             <TooltipProvider>
               <Tooltip>
@@ -253,7 +257,7 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
           )
         )}
 
-        {(order.status === ORDER_STATUS.DELIVERED || order.status === ORDER_STATUS.CANCELLED) && (
+        {(order.status === ORDER_STATUS.COMPLETED || order.status === ORDER_STATUS.CANCELLED) && (
           <Link
             to={`/product/${order.items[0]?.slug}`}
             className="px-4 py-2 flex items-center justify-center bg-brand-primary text-white font-semibold rounded-lg text-sm transition-all duration-300 ease-in-out hover:bg-[#c73652] cursor-pointer shadow-sm active:scale-95"

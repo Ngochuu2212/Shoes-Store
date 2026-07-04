@@ -48,9 +48,21 @@ const updateOrderStatusBulk = async (req, res) => {
   }
 }
 
+const assignToShipper = async (req, res) => {
+  try {
+    const userId = req.jwtDecoded?.id
+    const { id } = req.params
+    const result = await vendorOrderService.assignToShipper(userId, Number(id))
+    return res.status(200).json(result)
+  } catch (error) {
+    return res.status(400).json({ message: error.message })
+  }
+}
+
 export const vendorOrderController = {
   getVendorOrders,
   updateOrderStatus,
   handleCancelRequest,
-  updateOrderStatusBulk
+  updateOrderStatusBulk,
+  assignToShipper
 }

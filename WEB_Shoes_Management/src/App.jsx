@@ -69,6 +69,13 @@ import { AdminPayoutDetailPage } from '~/pages/admin/Payouts/PayoutDetail/AdminP
 import { AdminSystemSettingsPage } from '~/pages/admin/SystemSettings/AdminSystemSettingsPage'
 import { AdminProfilePage } from '~/pages/admin/Profile/AdminProfilePage'
 
+// SHIPPER PAGES
+import { ShipperLayout } from '~/layouts/shipper/ShipperLayout'
+import { ShipperDashboardPage } from '~/pages/shipper/Dashboard/ShipperDashboardPage'
+import { ShipperAvailableOrdersPage } from '~/pages/shipper/Orders/ShipperAvailableOrdersPage'
+import { ShipperMyDeliveriesPage } from '~/pages/shipper/Orders/ShipperMyDeliveriesPage'
+import { ShipperHistoryPage } from '~/pages/shipper/Orders/ShipperHistoryPage'
+
 // AUTH PAGES
 import { RegisterPage } from '~/pages/auth/RegisterPage/RegisterPage'
 import { VerifyOtpPage } from '~/pages/auth/VerifyOtpPage/VerifyOtpPage'
@@ -227,6 +234,17 @@ const App = () => {
 
           {/* Thông báo */}
           <Route path="notifications" element={<AllNotificationsPage />} />
+        </Route>
+
+        {/* SHIPPER */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/shipper" element={<ShipperLayout />}>
+            <Route path="dashboard" element={<ShipperDashboardPage />} />
+            <Route path="available-orders" element={<ShipperAvailableOrdersPage />} />
+            <Route path="my-deliveries" element={<ShipperMyDeliveriesPage />} />
+            <Route path="history" element={<ShipperHistoryPage />} />
+            <Route path="notifications" element={<AllNotificationsPage />} />
+          </Route>
         </Route>
 
         {/* KHU VỰC XÁC THỰC (CHẶN KHI ĐÃ ĐĂNG NHẬP) */}
