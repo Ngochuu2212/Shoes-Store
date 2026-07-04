@@ -242,7 +242,7 @@ export const Header = () => {
 
               <div className="flex items-center gap-2 text-brand-primary font-bold text-base transition-opacity duration-200 hover:opacity-80 cursor-pointer border-l border-gray-200 pl-6">
                 <FiPhone size={16} />
-                <span>Hotline: 1900 1234</span>
+                <span>Hotline: 0939507217</span>
               </div>
             </div>
           </div>
