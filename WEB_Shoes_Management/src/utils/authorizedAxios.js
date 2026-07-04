@@ -117,7 +117,8 @@ authorizedAxiosInstance.interceptors.response.use(
     if (
       error.response?.status !== 401 &&
       error.response?.status !== 410 &&
-      error.response?.status !== 503
+      error.response?.status !== 503 &&
+      !(error.response?.status === 403 && error.response?.data?.message?.includes('khóa'))
     ) {
       const errorMessage = error.response?.data?.message || error?.message
       toast.error(errorMessage)

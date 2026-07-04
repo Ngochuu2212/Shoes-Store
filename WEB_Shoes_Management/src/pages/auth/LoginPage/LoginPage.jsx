@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertTriangle } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 import { useGoogleLogin } from '@react-oauth/google'
 import { InputField } from '~/components/common/InputField'
@@ -19,6 +19,8 @@ import { setCartCount } from '~/redux/user/cartSlice'
 export const LoginPage = () => {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showBlockedModal, setShowBlockedModal] = useState(false)
+  const [blockedMessage, setBlockedMessage] = useState('')
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -67,6 +69,12 @@ export const LoginPage = () => {
 
         navigate(response.redirectUrl || '/')
       }
+    } catch (error) {
+      const errMsg = error.response?.data?.message || error.message || ''
+      if (error.response?.status === 403 && errMsg.includes('khóa')) {
+        setBlockedMessage(errMsg)
+        setShowBlockedModal(true)
+      }
     } finally {
       setLoading(false)
     }
@@ -104,7 +112,13 @@ export const LoginPage = () => {
           navigate(response.redirectUrl || '/')
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || 'Đăng nhập bằng Google thất bại!')
+        const errMsg = error.response?.data?.message || ''
+        if (error.response?.status === 403 && errMsg.includes('khóa')) {
+          setBlockedMessage(errMsg)
+          setShowBlockedModal(true)
+        } else {
+          toast.error(error.response?.data?.message || 'Đăng nhập bằng Google thất bại!')
+        }
       } finally {
         setLoading(false)
       }
@@ -279,6 +293,53 @@ export const LoginPage = () => {
           <span className="hover:text-brand-primary transition-colors cursor-pointer">Trợ giúp</span>
         </motion.div>
       </motion.div>
+
+      {/* Blocked Account Modal */}
+      <AnimatePresence>
+        {showBlockedModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowBlockedModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 to-rose-600" />
+              
+              <div className="flex flex-col items-center text-center mt-4">
+                <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 border border-red-100 shadow-sm shadow-red-50 animate-bounce">
+                  <FiAlertTriangle size={32} />
+                </div>
+                
+                <h3 className="text-xl font-black text-gray-800">Tài khoản bị khóa</h3>
+                
+                <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+                  {blockedMessage || 'Tài khoản của bạn đã bị khóa bởi quản trị viên do vi phạm điều khoản chính sách của hệ thống.'}
+                </p>
+                
+                <div className="bg-gray-50 rounded-2xl p-4 w-full mt-5 border border-gray-100 text-left text-xs text-gray-400">
+                  <p className="font-bold text-gray-600 mb-1">Cần hỗ trợ?</p>
+                  <p>Nếu bạn cho rằng đây là một sự nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ của Shoes Store qua email support@shoesstore.com để được giải quyết nhanh nhất.</p>
+                </div>
+                
+                <button
+                  onClick={() => setShowBlockedModal(false)}
+                  className="w-full mt-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-2xl font-bold text-sm shadow-md shadow-red-100 transition-all duration-200 cursor-pointer"
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

@@ -65,6 +65,9 @@ const login = async (req, res) => {
     if (error.message.includes('không chính xác') || error.message.includes('chưa được kích hoạt')) {
       return res.status(400).json({ message: error.message })
     }
+    if (error.message.includes('đã bị khóa')) {
+      return res.status(403).json({ message: error.message })
+    }
     return res.status(500).json({ message: `Lỗi hệ thống đăng nhập: ${error.message}` })
   }
 }

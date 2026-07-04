@@ -97,9 +97,13 @@ const login = async (reqBody) => {
     throw new Error('Email hoặc mật khẩu không chính xác')
   }
 
-  // 2. Kiểm tra xem tài khoản đã kích hoạt OTP qua Email chưa
+  // 2. Kiểm tra trạng thái kích hoạt / bị khóa của tài khoản
   if (user.is_active === 0) {
-    throw new Error('Tài khoản của bạn chưa được kích hoạt. Vui lòng xác thực OTP trước!')
+    if (user.is_verified === 0) {
+      throw new Error('Tài khoản của bạn chưa được kích hoạt. Vui lòng xác thực OTP trước!')
+    } else {
+      throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết!')
+    }
   }
 
   // 3. So sánh mật khẩu client gửi lên với mật khẩu đã hash trong DB
@@ -316,7 +320,11 @@ const googleLogin = async (accessToken) => {
 
   // 5. Kiểm tra tài khoản có bị khóa không
   if (user.is_active === 0) {
-    throw new Error('Tài khoản của bạn đã bị khóa hoặc chưa được kích hoạt')
+    if (user.is_verified === 0) {
+      throw new Error('Tài khoản của bạn chưa được kích hoạt. Vui lòng xác thực OTP trước!')
+    } else {
+      throw new Error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết!')
+    }
   }
 
   // 6. Tạo JWT tokens
