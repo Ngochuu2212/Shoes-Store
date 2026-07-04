@@ -93,7 +93,7 @@ export const AIChatbot = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-40 right-6 w-[350px] sm:w-[380px] h-[460px] sm:h-[480px] bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
+            className="fixed bottom-36 right-6 w-[330px] sm:w-[360px] h-[400px] sm:h-[430px] bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex items-center justify-between">
