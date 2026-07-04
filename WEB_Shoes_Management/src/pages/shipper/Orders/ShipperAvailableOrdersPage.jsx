@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiMapPin, FiPhone, FiPackage, FiClock, FiRefreshCw,
@@ -36,86 +36,88 @@ const OrderCard = ({ order, onAccept, accepting }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.22 }}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
     >
-      <div className="h-1.5 bg-gradient-to-r from-orange-400 to-amber-400" />
-      <div className="p-5">
+      <div className="h-1.5 bg-gradient-to-r from-orange-500 to-amber-500" />
+      <div className="p-6">
         {/* Header row */}
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
-              <FiPackage size={16} className="text-orange-500" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center border border-orange-100">
+              <FiPackage size={18} className="text-orange-500" />
             </div>
             <div>
-              <p className="font-bold text-gray-800 text-sm leading-tight">Đơn #{order.id}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="font-extrabold text-gray-800 text-sm leading-tight">Đơn #{order.id}</p>
+              <p className="text-[11px] text-gray-400 mt-1">
                 {new Date(order.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 whitespace-nowrap">
-            ⏳ Chờ nhận
+          <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">
+            Chờ nhận
           </span>
         </div>
 
         {/* Store */}
-        <div className="flex items-center gap-2 mb-3.5 pb-3.5 border-b border-gray-50">
-          <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
+        <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-gray-100">
+          <div className="w-7 h-7 rounded-lg bg-orange-600 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-sm shadow-orange-200">
             {order.store_name?.charAt(0)?.toUpperCase() || 'S'}
           </div>
-          <p className="text-sm font-semibold text-gray-700 truncate">{order.store_name || 'Cửa hàng'}</p>
+          <p className="text-sm font-bold text-gray-700 truncate">{order.store_name || 'Cửa hàng'}</p>
         </div>
 
         {/* Recipient */}
-        <div className="space-y-2 mb-4">
+        <div className="space-y-3 mb-5">
           <div className="flex items-start gap-2.5">
-            <FiMapPin size={13} className="mt-0.5 text-orange-400 shrink-0" />
+            <FiMapPin size={14} className="mt-0.5 text-orange-500 shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">{order.recipient_name}</p>
-              <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Địa chỉ nhận</p>
+              <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
+              <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
             </div>
           </div>
           {order.recipient_phone && (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 pt-1">
               <FiPhone size={13} className="text-gray-400 shrink-0" />
-              <p className="text-xs text-gray-500">{order.recipient_phone}</p>
+              <p className="text-xs text-gray-600 font-medium">{order.recipient_phone}</p>
             </div>
           )}
         </div>
 
         {/* Badges */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${shippingCfg.color}`}>
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${shippingCfg.color}`}>
             <ShippingIcon size={10} />
             {shippingCfg.label}
           </span>
-          <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${paymentCfg.color}`}>
+          <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${paymentCfg.color}`}>
             {paymentCfg.label}
           </span>
           {order.payment_status === 'paid' && (
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-700">
+            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200">
               Đã thanh toán
             </span>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div>
-            <p className="text-[11px] text-gray-400 mb-0.5">Giá trị đơn</p>
-            <p className="text-xl font-extrabold text-orange-600">{formatPrice(order.total_amount)}</p>
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Tổng thu hộ (COD)</p>
+            <p className="text-2xl font-black text-orange-600 tracking-tight mt-0.5">{formatPrice(order.total_amount)}</p>
           </div>
           <motion.button
-            whileTap={{ scale: 0.94 }}
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => onAccept(order.id)}
             disabled={isAccepting}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-semibold rounded-xl shadow-sm shadow-orange-200 transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-60 text-white text-sm font-bold rounded-2xl shadow-md shadow-orange-100 transition-all duration-200 cursor-pointer"
           >
             {isAccepting
               ? <FiRefreshCw size={14} className="animate-spin" />
-              : <MdOutlineDeliveryDining size={17} />
+              : <MdOutlineDeliveryDining size={18} />
             }
-            {isAccepting ? 'Đang nhận...' : 'Nhận đơn'}
+            <span>{isAccepting ? 'Đang nhận...' : 'Nhận đơn'}</span>
           </motion.button>
         </div>
       </div>
@@ -188,22 +190,42 @@ export const ShipperAvailableOrdersPage = () => {
 
       {/* Stats bar */}
       {!loading && orders.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-amber-600">{orders.length}</p>
-            <p className="text-xs text-amber-700 font-medium mt-0.5">Tổng chờ nhận</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shadow-sm shadow-amber-150">
+              {orders.length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Tổng chờ</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Sẵn sàng nhận</p>
+            </div>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-blue-600">{orders.filter(o => o.shipping_method === 'standard').length}</p>
-            <p className="text-xs text-blue-700 font-medium mt-0.5">Tiêu chuẩn</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black shadow-sm shadow-blue-150">
+              {orders.filter(o => o.shipping_method === 'standard').length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Tiêu chuẩn</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Giao thường</p>
+            </div>
           </div>
-          <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-orange-600">{orders.filter(o => o.shipping_method === 'express').length}</p>
-            <p className="text-xs text-orange-700 font-medium mt-0.5">Nhanh</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black shadow-sm shadow-orange-150">
+              {orders.filter(o => o.shipping_method === 'express').length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Nhanh</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Giao nhanh</p>
+            </div>
           </div>
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-red-600">{orders.filter(o => o.shipping_method === 'same_day').length}</p>
-            <p className="text-xs text-red-700 font-medium mt-0.5">Hoả tốc</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center font-black shadow-sm shadow-red-150">
+              {orders.filter(o => o.shipping_method === 'same_day').length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Hoả tốc</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Giao ngay</p>
+            </div>
           </div>
         </div>
       )}

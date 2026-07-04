@@ -45,8 +45,17 @@ export const ShipperHeader = ({ onMobileMenuToggle, isMobileOpen }) => {
         {isMobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
       </button>
 
-      <div className="hidden lg:flex items-center gap-2">
-        <span className="text-sm text-gray-500">Hệ thống giao hàng</span>
+      <div className="hidden lg:flex items-center gap-2.5">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </span>
+        <span className="text-xs font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-orange-600 to-amber-500 uppercase">
+          Hệ thống giao hàng
+        </span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-orange-100 bg-orange-50/50 text-orange-600 uppercase tracking-wide">
+          Portal Active
+        </span>
       </div>
 
       <div className="flex items-center gap-2">

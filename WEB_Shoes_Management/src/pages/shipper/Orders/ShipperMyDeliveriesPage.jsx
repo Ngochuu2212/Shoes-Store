@@ -101,11 +101,10 @@ const UploadProofModal = ({ orderId, onClose, onSuccess }) => {
             placeholder="Ghi chú (tùy chọn): Ví dụ: Đã giao trước cửa, khách không có nhà..."
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none h-20 mb-4 focus:outline-none focus:border-orange-400"
           />
-
           <button
             onClick={handleUpload}
             disabled={uploading || files.length === 0}
-            className="w-full py-3 bg-orange-500 hover:bg-orange-600 active:scale-[0.98] disabled:bg-gray-300 text-white rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-orange-500 hover:bg-orange-600 active:scale-[0.98] disabled:bg-gray-300 text-white rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
           >
             {uploading ? <span className="animate-spin">⏳</span> : <FiCamera size={16} />}
             {uploading ? 'Đang upload...' : 'Upload ảnh minh chứng'}
@@ -130,18 +129,18 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.22 }}
-      className={`bg-white rounded-2xl shadow-sm border border-gray-100 border-l-4 ${statusCfg.border} overflow-hidden hover:shadow-md transition-all duration-200`}
+      className={`bg-white rounded-3xl shadow-sm border border-gray-100 border-l-4 ${statusCfg.border} overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300`}
     >
-      <div className="p-5">
+      <div className="p-6">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center">
-              <FiTruck size={15} className="text-gray-500" />
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100">
+              <FiTruck size={16} className="text-gray-500" />
             </div>
             <div>
-              <p className="font-bold text-gray-800 text-sm">Đơn #{order.id}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="font-extrabold text-gray-800 text-sm">Đơn #{order.id}</p>
+              <p className="text-[11px] text-gray-400 mt-1">
                 {new Date(order.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </p>
             </div>
@@ -150,32 +149,35 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
         </div>
 
         {/* Recipient */}
-        <div className="space-y-2 mb-4">
+        <div className="space-y-3 mb-5">
           <div className="flex items-start gap-2.5">
-            <FiMapPin size={13} className="mt-0.5 text-orange-400 shrink-0" />
+            <FiMapPin size={14} className="mt-0.5 text-orange-500 shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-800 truncate">{order.recipient_name}</p>
-              <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Người nhận & Địa chỉ</p>
+              <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
+              <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
             </div>
           </div>
           {order.recipient_phone && (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 pt-1">
               <FiPhone size={13} className="text-gray-400 shrink-0" />
-              <p className="text-xs text-gray-500">{order.recipient_phone}</p>
+              <p className="text-xs text-gray-600 font-semibold">{order.recipient_phone}</p>
             </div>
           )}
         </div>
 
         {/* Proof images */}
         {order.delivery_proof_images?.length > 0 && (
-          <div className="mb-4 p-3 bg-green-50 rounded-xl border border-green-100">
-            <p className="text-[11px] text-green-700 font-medium mb-2">✅ Ảnh minh chứng ({order.delivery_proof_images.length})</p>
-            <div className="flex gap-1.5">
+          <div className="mb-5 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+            <p className="text-[11px] text-emerald-700 font-extrabold uppercase tracking-wider mb-2 flex items-center gap-1">
+              <span>✅ Ảnh minh chứng ({order.delivery_proof_images.length})</span>
+            </p>
+            <div className="flex gap-2">
               {order.delivery_proof_images.slice(0, 4).map((img, i) => (
-                <img key={i} src={img} alt="proof" className="w-11 h-11 object-cover rounded-lg border border-green-200" />
+                <img key={i} src={img} alt="proof" className="w-12 h-12 object-cover rounded-xl border border-emerald-250 hover:scale-105 transition-transform" />
               ))}
               {order.delivery_proof_images.length > 4 && (
-                <div className="w-11 h-11 rounded-lg bg-green-100 border border-green-200 flex items-center justify-center text-xs text-green-600 font-medium">
+                <div className="w-12 h-12 rounded-xl bg-emerald-100/50 border border-emerald-250 flex items-center justify-center text-xs text-emerald-750 font-bold">
                   +{order.delivery_proof_images.length - 4}
                 </div>
               )}
@@ -184,42 +186,69 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
         )}
 
         {needsProof && (
-          <div className="mb-4 p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-700">
-            ⚠️ Cần upload ảnh minh chứng trước khi hoàn tất
+          <div className="mb-5 p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200 text-xs text-amber-800 font-medium">
+            ⚠️ Vui lòng chụp/tải ảnh xác nhận giao hàng.
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-          <p className="text-base font-extrabold text-gray-800">{formatPrice(order.total_amount)}</p>
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div>
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Giá trị đơn</p>
+            <p className="text-2xl font-black text-gray-800 tracking-tight mt-0.5">{formatPrice(order.total_amount)}</p>
+          </div>
           <div className="flex gap-2">
             {canStart && (
-              <motion.button whileTap={{ scale: 0.94 }} onClick={() => onAction('start', order.id)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm shadow-blue-200">
-                <MdOutlineDeliveryDining size={15} /> Bắt đầu giao
+              <motion.button
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => onAction('start', order.id)}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl text-xs font-bold transition-all duration-200 shadow-md shadow-blue-100 cursor-pointer"
+              >
+                <MdOutlineDeliveryDining size={16} />
+                <span>Bắt đầu giao</span>
               </motion.button>
             )}
             {canMarkDelivered && (
-              <motion.button whileTap={{ scale: 0.94 }} onClick={() => onAction('delivered', order.id)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm shadow-purple-200">
-                <FiCheck size={13} /> Đã giao
+              <motion.button
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => onAction('delivered', order.id)}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-2xl text-xs font-bold transition-all duration-200 shadow-md shadow-purple-100 cursor-pointer"
+              >
+                <FiCheck size={14} />
+                <span>Đã giao</span>
               </motion.button>
             )}
             {needsProof && (
-              <motion.button whileTap={{ scale: 0.94 }} onClick={() => onOpenUpload(order.id)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm shadow-orange-200">
-                <FiCamera size={13} /> Upload ảnh
+              <motion.button
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => onOpenUpload(order.id)}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl text-xs font-bold transition-all duration-200 shadow-md shadow-orange-100 cursor-pointer"
+              >
+                <FiCamera size={14} />
+                <span>Upload ảnh</span>
               </motion.button>
             )}
             {canComplete && (
               <>
-                <motion.button whileTap={{ scale: 0.94 }} onClick={() => onOpenUpload(order.id)}
-                  className="flex items-center gap-1.5 px-2.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-medium transition-all duration-200">
-                  <FiCamera size={13} />
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => onOpenUpload(order.id)}
+                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-250 text-gray-600 rounded-2xl text-sm transition-all duration-200 cursor-pointer border border-gray-200"
+                >
+                  <FiCamera size={15} />
                 </motion.button>
-                <motion.button whileTap={{ scale: 0.94 }} onClick={() => onAction('complete', order.id)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-semibold transition-all duration-200 shadow-sm shadow-green-200">
-                  <FiCheckCircle size={13} /> Hoàn tất
+                <motion.button
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => onAction('complete', order.id)}
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl text-xs font-bold transition-all duration-200 shadow-md shadow-emerald-100 cursor-pointer"
+                >
+                  <FiCheckCircle size={14} />
+                  <span>Hoàn tất</span>
                 </motion.button>
               </>
             )}
@@ -300,18 +329,33 @@ export const ShipperMyDeliveriesPage = () => {
 
       {/* Status breakdown bar */}
       {!loading && orders.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-blue-600">{orders.filter(o => o.status === 'accepted_by_shipper').length}</p>
-            <p className="text-xs text-blue-700 font-medium mt-0.5">Đã nhận đơn</p>
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black shadow-sm shadow-blue-150">
+              {orders.filter(o => o.status === 'accepted_by_shipper').length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Đã nhận</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Chờ xuất phát</p>
+            </div>
           </div>
-          <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-orange-600">{orders.filter(o => o.status === 'shipping').length}</p>
-            <p className="text-xs text-orange-700 font-medium mt-0.5">Đang giao</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center font-black shadow-sm shadow-orange-150">
+              {orders.filter(o => o.status === 'shipping').length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Đang giao</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Đang trên đường</p>
+            </div>
           </div>
-          <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
-            <p className="text-2xl font-black text-purple-600">{orders.filter(o => o.status === 'delivered').length}</p>
-            <p className="text-xs text-purple-700 font-medium mt-0.5">Chờ xác nhận</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center font-black shadow-sm shadow-purple-150">
+              {orders.filter(o => o.status === 'delivered').length}
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Đã giao</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Chờ hoàn tất</p>
+            </div>
           </div>
         </div>
       )}

@@ -35,21 +35,21 @@ const OrderCard = ({ order }) => {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22 }}
-      className={`bg-white rounded-2xl shadow-sm border border-gray-100 border-l-4 ${statusCfg.border} overflow-hidden hover:shadow-md transition-all duration-200`}
+      className={`bg-white rounded-3xl shadow-sm border border-gray-100 border-l-4 ${statusCfg.border} overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300`}
     >
-      <div className="p-5">
+      <div className="p-6">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isCompleted ? 'bg-green-50' : 'bg-red-50'}`}>
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${isCompleted ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`}>
               {isCompleted
-                ? <FiCheckCircle size={16} className="text-green-500" />
-                : <FiXCircle size={16} className="text-red-400" />
+                ? <FiCheckCircle size={18} className="text-green-500" />
+                : <FiXCircle size={18} className="text-red-400" />
               }
             </div>
             <div>
-              <p className="font-bold text-gray-800 text-sm">Đơn #{order.id}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="font-extrabold text-gray-800 text-sm">Đơn #{order.id}</p>
+              <p className="text-[11px] text-gray-400 mt-1">
                 {order.delivery_completed_at
                   ? `Hoàn tất: ${new Date(order.delivery_completed_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}`
                   : new Date(order.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
@@ -61,25 +61,26 @@ const OrderCard = ({ order }) => {
 
         {/* Recipient */}
         <div className="flex items-start gap-2.5 mb-4">
-          <FiMapPin size={13} className="mt-0.5 text-orange-400 shrink-0" />
+          <FiMapPin size={14} className="mt-0.5 text-orange-500 shrink-0" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">{order.recipient_name}</p>
-            <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{order.shipping_address}</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Người nhận</p>
+            <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
+            <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{order.shipping_address}</p>
           </div>
         </div>
 
         {/* Proof images */}
         {proofImages.length > 0 && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-            <p className="text-[11px] text-gray-500 font-medium mb-2 flex items-center gap-1">
-              <FiImage size={11} /> Ảnh minh chứng ({proofImages.length})
+          <div className="mb-4 p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
+            <p className="text-[11px] text-gray-400 font-extrabold uppercase tracking-wider mb-2 flex items-center gap-1">
+              <FiImage size={12} /> Ảnh minh chứng ({proofImages.length})
             </p>
-            <div className="flex gap-1.5">
+            <div className="flex gap-2">
               {proofImages.slice(0, 4).map((img, i) => (
-                <img key={i} src={img} alt="proof" className="w-11 h-11 object-cover rounded-lg border border-gray-200" />
+                <img key={i} src={img} alt="proof" className="w-12 h-12 object-cover rounded-xl border border-gray-250 hover:scale-105 transition-transform" />
               ))}
               {proofImages.length > 4 && (
-                <div className="w-11 h-11 rounded-lg bg-gray-200 flex items-center justify-center text-xs text-gray-500 font-medium">
+                <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center text-xs text-gray-600 font-extrabold">
                   +{proofImages.length - 4}
                 </div>
               )}
@@ -88,15 +89,18 @@ const OrderCard = ({ order }) => {
         )}
 
         {order.delivery_note && (
-          <p className="text-xs text-gray-400 italic mb-3 line-clamp-2">📝 {order.delivery_note}</p>
+          <p className="text-xs text-gray-500 italic mb-4 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100">📝 {order.delivery_note}</p>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-          <p className="text-base font-extrabold text-gray-800">{formatPrice(order.total_amount)}</p>
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div>
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Tổng tiền</p>
+            <p className="text-xl font-black text-gray-800 mt-0.5">{formatPrice(order.total_amount)}</p>
+          </div>
           {proofImages.length === 0 && (
-            <span className="flex items-center gap-1 text-xs text-gray-400">
-              <FiImage size={12} /> Không có ảnh
+            <span className="flex items-center gap-1.5 text-xs text-gray-400 font-semibold bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">
+              <FiImage size={13} /> Không có ảnh
             </span>
           )}
         </div>
@@ -155,23 +159,23 @@ export const ShipperHistoryPage = () => {
 
       {/* Stats bar */}
       {!loading && orders.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center shrink-0">
-              <FiCheckCircle size={16} className="text-white" />
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black shadow-sm shadow-emerald-150">
+              {orders.filter(o => o.status === 'completed').length}
             </div>
             <div>
-              <p className="text-2xl font-black text-green-600">{orders.filter(o => o.status === 'completed').length}</p>
-              <p className="text-xs text-green-700 font-medium">Đơn hoàn tất</p>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Hoàn thành</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Giao thành công</p>
             </div>
           </div>
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-red-400 flex items-center justify-center shrink-0">
-              <FiXCircle size={16} className="text-white" />
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-3.5 hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center font-black shadow-sm shadow-red-150">
+              {orders.filter(o => o.status === 'cancelled').length}
             </div>
             <div>
-              <p className="text-2xl font-black text-red-500">{orders.filter(o => o.status === 'cancelled').length}</p>
-              <p className="text-xs text-red-600 font-medium">Đơn đã hủy</p>
+              <p className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Đã hủy</p>
+              <p className="text-xs font-bold text-gray-700 mt-0.5">Giao thất bại</p>
             </div>
           </div>
         </div>
