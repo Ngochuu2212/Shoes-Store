@@ -328,7 +328,7 @@ const completeDelivery = async (orderId, shipperId) => {
 const getDashboardStats = async (shipperId) => {
   const [rows] = await pool.execute(`
     SELECT
-      SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) AS waitingOrders,
+      SUM(CASE WHEN status IN (?, ?) AND shipper_id IS NULL THEN 1 ELSE 0 END) AS waitingOrders,
       SUM(CASE WHEN status IN (?,?,?,?,?,?) AND shipper_id = ? THEN 1 ELSE 0 END) AS activeDeliveries,
       SUM(CASE WHEN status IN (?, ?) AND shipper_id = ? AND DATE(delivery_completed_at) = CURDATE() THEN 1 ELSE 0 END) AS completedToday,
       SUM(CASE WHEN status IN (?, ?) AND shipper_id = ? THEN 1 ELSE 0 END) AS totalCompleted

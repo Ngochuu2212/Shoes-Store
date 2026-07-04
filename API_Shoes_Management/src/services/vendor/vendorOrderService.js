@@ -378,9 +378,9 @@ const handleReturnRequest = async (userId, orderId, { decision, reason }) => {
 
   if (decision === 'accept') {
     const finalReason = reason ? reason : 'Người bán chấp nhận yêu cầu trả hàng.'
-    // Vendor duyệt -> đơn chuyển sang trạng thái chờ shipper đến lấy trả
+    // Vendor duyệt -> đơn chuyển sang trạng thái chờ shipper đến lấy trả và reset shipper_id về NULL để các shipper khác có thể nhận đơn
     await pool.execute(
-      'UPDATE orders SET status = ?, return_reject_reason = ? WHERE id = ?',
+      'UPDATE orders SET status = ?, return_reject_reason = ?, shipper_id = NULL WHERE id = ?',
       [ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER, finalReason, orderId]
     )
 
