@@ -234,3 +234,29 @@ body {
     @apply font-sans;
   }
 }
+
+/* Custom scrollbar utility */
+.scroll-x-beautiful {
+  overflow-x: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent !important;
+}
+
+.scroll-x-beautiful::-webkit-scrollbar {
+  height: 6px !important;
+  display: block !important;
+}
+
+.scroll-x-beautiful::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-radius: 10px !important;
+}
+
+.scroll-x-beautiful::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+}
+
+.scroll-x-beautiful::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25) !important;
+}

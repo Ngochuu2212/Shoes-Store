@@ -158,7 +158,7 @@ export const OrderTrackingPage = () => {
           transition={{ ease: 'circOut', duration: 0.5, delay: 0.1 }}
         >
           <Tabs defaultValue="all" value={currentTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="w-full flex overflow-x-auto justify-start lg:justify-between items-center bg-white px-3 py-8 gap-1.5 rounded-2xl shadow-sm mb-6 border border-gray-100 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <TabsList className="w-full flex scroll-x-beautiful justify-start items-center bg-white px-3 pt-8 pb-10 gap-1.5 rounded-2xl shadow-sm mb-6 border border-gray-100">
               <TabsTrigger value="all" className="flex-none py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiGrid size={16} />
