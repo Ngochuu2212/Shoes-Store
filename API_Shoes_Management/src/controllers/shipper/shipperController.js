@@ -94,6 +94,7 @@ const completeDelivery = async (req, res) => {
 
 export const shipperController = {
   getDashboard,
+  getDashboardCharts,
   getAvailableOrders,
   acceptOrder,
   getMyDeliveries,

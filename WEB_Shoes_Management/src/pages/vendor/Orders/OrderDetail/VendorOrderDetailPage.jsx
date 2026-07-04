@@ -377,11 +377,11 @@ export const VendorOrderDetailPage = () => {
               <FiDollarSign className="text-brand-primary" /> Tổng kết đơn hàng
             </h3>
             <div className="space-y-3">
-              {/* Tổng tiền hàng (trước giảm giá) */}
+              {/* Tổng tiền hàng (trước giảm giá, trước phí ship) */}
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Tổng tiền hàng</span>
                 <span className="text-sm font-bold text-gray-800">
-                  {formatPrice(Number(order.total_amount) + Number(order.discount_amount))}
+                  {formatPrice(Number(order.total_amount) + Number(order.discount_amount) - Number(order.shipping_fee || 0))}
                 </span>
               </div>
 
@@ -393,10 +393,26 @@ export const VendorOrderDetailPage = () => {
                 </div>
               )}
 
-              {/* Thành tiền (sau giảm giá) */}
+              {/* Phí vận chuyển */}
+              {Number(order.shipping_fee) > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Phí vận chuyển ({order.shipping_method || 'standard'})</span>
+                  <span className="text-sm font-bold text-orange-500">+{formatPrice(order.shipping_fee)}</span>
+                </div>
+              )}
+
+              {/* Số dư ví dùng */}
+              {Number(order.wallet_amount_used) > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Số dư ví</span>
+                  <span className="text-sm font-bold text-blue-600">-{formatPrice(order.wallet_amount_used)}</span>
+                </div>
+              )}
+
+              {/* Thành tiền (sau giảm giá, sau ví) */}
               <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                 <span className="text-base font-extrabold text-gray-800">Thành tiền</span>
-                <span className="text-xl font-extrabold text-brand-primary">{formatPrice(order.total_amount)}</span>
+                <span className="text-xl font-extrabold text-brand-primary">{formatPrice(Math.max(0, Number(order.total_amount) - Number(order.wallet_amount_used || 0)))}</span>
               </div>
 
               {/* Phí sàn */}
@@ -425,6 +441,28 @@ export const VendorOrderDetailPage = () => {
                   </p>
                 </div>
               )}
+
+              {/* Ảnh minh chứng giao hàng */}
+              {(() => {
+                let proofImgs = []
+                try {
+                  proofImgs = typeof order.delivery_proof_images === 'string'
+                    ? JSON.parse(order.delivery_proof_images)
+                    : (Array.isArray(order.delivery_proof_images) ? order.delivery_proof_images : [])
+                } catch { proofImgs = [] }
+                return proofImgs.length > 0 ? (
+                  <div className="border-t pt-3 space-y-2">
+                    <p className="text-sm font-bold text-gray-700">📸 Ảnh minh chứng giao hàng ({proofImgs.length})</p>
+                    <div className="flex flex-wrap gap-2">
+                      {proofImgs.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noreferrer">
+                          <img src={url} alt={`proof-${i}`} className="w-16 h-16 object-cover rounded-xl border border-gray-200 hover:scale-105 transition-transform cursor-pointer" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ) : null
+              })()}
             </div>
           </motion.div>
 

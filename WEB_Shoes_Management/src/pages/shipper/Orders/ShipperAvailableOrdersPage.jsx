@@ -48,7 +48,7 @@ const OrderCard = ({ order, onAccept }) => (
       </div>
       <button
         onClick={() => onAccept(order.id)}
-        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2"
+        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2"
       >
         <FiCheck size={14} /> Nhận đơn
       </button>

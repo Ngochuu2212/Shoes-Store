@@ -44,6 +44,7 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
   const totalAmount = Number(order.total_amount) || 0
   const discountAmount = Number(order.discount_amount) || 0
   const walletAmountUsed = Number(order.wallet_amount_used) || 0
+  const shippingFee = Number(order.shipping_fee) || 0
   const finalTotal = Math.max(0, totalAmount - walletAmountUsed)
 
   return (
@@ -155,6 +156,13 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
                 <span className="text-sm font-bold text-green-600">
                   - {formatPrice(discountAmount)}
                 </span>
+              </div>
+            )}
+
+            {shippingFee > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">Phí vận chuyển:</span>
+                <span className="text-sm font-bold text-orange-500">+ {formatPrice(shippingFee)}</span>
               </div>
             )}
 

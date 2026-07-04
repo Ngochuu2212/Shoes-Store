@@ -249,7 +249,7 @@ const getDashboardStats = async (shipperId) => {
     SELECT
       SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS waitingOrders,
       SUM(CASE WHEN status IN (?,?,?) AND shipper_id = ? THEN 1 ELSE 0 END) AS activeDeliveries,
-      SUM(CASE WHEN status = ? AND shipper_id = ? THEN 1 ELSE 0 END) AS completedToday,
+      SUM(CASE WHEN status = ? AND shipper_id = ? AND DATE(delivery_completed_at) = CURDATE() THEN 1 ELSE 0 END) AS completedToday,
       SUM(CASE WHEN status = ? AND shipper_id = ? THEN 1 ELSE 0 END) AS totalCompleted
     FROM orders
   `, [
@@ -266,6 +266,46 @@ const getDashboardStats = async (shipperId) => {
   }
 }
 
+// Thống kê 7 ngày gần nhất cho chart
+const getDailyStats = async (shipperId) => {
+  const [rows] = await pool.execute(`
+    SELECT 
+      DATE(delivery_completed_at) AS delivery_date,
+      COUNT(*) AS count
+    FROM orders
+    WHERE shipper_id = ? 
+      AND status = ?
+      AND delivery_completed_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    GROUP BY DATE(delivery_completed_at)
+    ORDER BY delivery_date ASC
+  `, [shipperId, ORDER_STATUS.COMPLETED])
+
+  // Điền đủ 7 ngày (kể cả ngày không có giao hàng)
+  const result = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const dateStr = d.toISOString().split('T')[0]
+    const found = rows.find(r => {
+      const rd = new Date(r.delivery_date)
+      return rd.toISOString().split('T')[0] === dateStr
+    })
+    result.push({ date: dateStr, count: found ? Number(found.count) : 0 })
+  }
+  return result
+}
+
+// Thống kê trạng thái đơn của shipper
+const getStatusBreakdown = async (shipperId) => {
+  const [rows] = await pool.execute(`
+    SELECT status, COUNT(*) AS count
+    FROM orders
+    WHERE shipper_id = ?
+    GROUP BY status
+  `, [shipperId])
+  return rows.map(r => ({ status: r.status, count: Number(r.count) }))
+}
+
 export const shipperModel = {
   getAvailableOrders,
   countAvailableOrders,
@@ -279,5 +319,7 @@ export const shipperModel = {
   markDelivered,
   saveDeliveryProof,
   completeDelivery,
-  getDashboardStats
+  getDashboardStats,
+  getDailyStats,
+  getStatusBreakdown
 }

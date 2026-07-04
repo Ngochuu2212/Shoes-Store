@@ -176,6 +176,14 @@ const completeDelivery = async (userId, orderId) => {
 
 export const shipperService = {
   getDashboard,
+  getDashboardCharts: async (userId) => {
+    await verifyShipperRole(userId)
+    const [daily, statusBreakdown] = await Promise.all([
+      shipperModel.getDailyStats(userId),
+      shipperModel.getStatusBreakdown(userId)
+    ])
+    return { daily, statusBreakdown }
+  },
   getAvailableOrders,
   acceptOrder,
   getMyDeliveries,

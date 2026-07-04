@@ -75,6 +75,7 @@ import { ShipperDashboardPage } from '~/pages/shipper/Dashboard/ShipperDashboard
 import { ShipperAvailableOrdersPage } from '~/pages/shipper/Orders/ShipperAvailableOrdersPage'
 import { ShipperMyDeliveriesPage } from '~/pages/shipper/Orders/ShipperMyDeliveriesPage'
 import { ShipperHistoryPage } from '~/pages/shipper/Orders/ShipperHistoryPage'
+import { ShipperProfilePage } from '~/pages/shipper/Profile/ShipperProfilePage'
 
 // AUTH PAGES
 import { RegisterPage } from '~/pages/auth/RegisterPage/RegisterPage'
@@ -244,6 +245,7 @@ const App = () => {
             <Route path="my-deliveries" element={<ShipperMyDeliveriesPage />} />
             <Route path="history" element={<ShipperHistoryPage />} />
             <Route path="notifications" element={<AllNotificationsPage />} />
+            <Route path="profile" element={<ShipperProfilePage />} />
           </Route>
         </Route>
 

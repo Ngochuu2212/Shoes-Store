@@ -99,7 +99,7 @@ const UploadProofModal = ({ orderId, onClose, onSuccess }) => {
           <button
             onClick={handleUpload}
             disabled={uploading || files.length === 0}
-            className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-orange-500 hover:bg-orange-600 active:scale-[0.98] disabled:bg-gray-300 text-white rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2"
           >
             {uploading ? <span className="animate-spin">⏳</span> : <FiCamera size={16} />}
             {uploading ? 'Đang upload...' : 'Upload ảnh minh chứng'}
@@ -161,28 +161,28 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
         <p className="text-sm font-bold text-gray-800">{formatPrice(order.total_amount)}</p>
         <div className="flex gap-2">
           {canStart && (
-            <button onClick={() => onAction('start', order.id)} className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+            <motion.button whileTap={{ scale: 0.96 }} onClick={() => onAction('start', order.id)} className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all duration-200">
               <FiTruck size={12} /> Bắt đầu giao
-            </button>
+            </motion.button>
           )}
           {canMarkDelivered && (
-            <button onClick={() => onAction('delivered', order.id)} className="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+            <motion.button whileTap={{ scale: 0.96 }} onClick={() => onAction('delivered', order.id)} className="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all duration-200">
               <FiCheck size={12} /> Đã giao
-            </button>
+            </motion.button>
           )}
           {needsProof && (
-            <button onClick={() => onOpenUpload(order.id)} className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+            <motion.button whileTap={{ scale: 0.96 }} onClick={() => onOpenUpload(order.id)} className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all duration-200">
               <FiCamera size={12} /> Upload ảnh
-            </button>
+            </motion.button>
           )}
           {canComplete && (
             <>
-              <button onClick={() => onOpenUpload(order.id)} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors">
+              <motion.button whileTap={{ scale: 0.96 }} onClick={() => onOpenUpload(order.id)} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all duration-200">
                 <FiCamera size={12} />
-              </button>
-              <button onClick={() => onAction('complete', order.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              </motion.button>
+              <motion.button whileTap={{ scale: 0.96 }} onClick={() => onAction('complete', order.id)} className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all duration-200">
                 <FiCheck size={12} /> Hoàn tất
-              </button>
+              </motion.button>
             </>
           )}
         </div>

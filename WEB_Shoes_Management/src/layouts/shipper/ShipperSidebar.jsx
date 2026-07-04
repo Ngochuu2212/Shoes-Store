@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiPackage, FiTruck, FiCheckCircle, FiClock,
-  FiLogOut, FiPieChart, FiX, FiMenu
+  FiLogOut, FiPieChart, FiX, FiMenu, FiUser, FiBell
 } from 'react-icons/fi'
 import { logoutSuccess } from '~/redux/user/userSlice'
 import authorizedAxiosInstance from '~/utils/authorizedAxios'
@@ -14,7 +14,9 @@ const NAV_ITEMS = [
   { icon: FiPieChart, label: 'Dashboard', to: '/shipper/dashboard' },
   { icon: FiClock, label: 'Đơn chờ nhận', to: '/shipper/available-orders' },
   { icon: FiTruck, label: 'Đang giao', to: '/shipper/my-deliveries' },
-  { icon: FiCheckCircle, label: 'Lịch sử', to: '/shipper/history' }
+  { icon: FiCheckCircle, label: 'Lịch sử', to: '/shipper/history' },
+  { icon: FiBell, label: 'Thông báo', to: '/shipper/notifications' },
+  { icon: FiUser, label: 'Tài khoản', to: '/shipper/profile' }
 ]
 
 export const ShipperSidebar = ({ isMobileOpen = false, onMobileClose = () => {} }) => {

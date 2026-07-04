@@ -226,7 +226,8 @@ const getVendorOrderDetail = async (orderId, storeId) => {
   const orderQuery = `
     SELECT id, user_id, recipient_name, recipient_phone, total_amount, discount_amount,
            commission_rate_snapshot, status, payment_status, payment_method,
-           shipping_address, cancel_reason, created_at, updated_at
+           shipping_address, cancel_reason, created_at, updated_at,
+           wallet_amount_used, shipping_fee, shipping_method, delivery_proof_images
     FROM orders
     WHERE id = ? AND store_id = ?
   `

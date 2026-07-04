@@ -54,5 +54,10 @@ export const shipperApiService = {
   getDeliveryHistory: async (page = 1, limit = 10) => {
     const res = await authorizedAxiosInstance.get(`${BASE}/history?page=${page}&limit=${limit}`)
     return res.data
+  },
+
+  getDashboardCharts: async () => {
+    const res = await authorizedAxiosInstance.get(`${BASE}/dashboard/charts`)
+    return res.data
   }
 }

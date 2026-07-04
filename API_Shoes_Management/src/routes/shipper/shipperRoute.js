@@ -9,6 +9,7 @@ router.use(authGuard.isAuthorized)
 
 // Dashboard
 router.get('/dashboard', shipperController.getDashboard)
+router.get('/dashboard/charts', shipperController.getDashboardCharts)
 
 // Đơn hàng chờ shipper nhận
 router.get('/available-orders', shipperController.getAvailableOrders)
