@@ -130,7 +130,7 @@ export const ShipperHistoryPage = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md shadow-green-200">
             <FiCheckCircle size={20} className="text-white" />
@@ -152,6 +152,30 @@ export const ShipperHistoryPage = () => {
           Làm mới
         </motion.button>
       </div>
+
+      {/* Stats bar */}
+      {!loading && orders.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-green-500 flex items-center justify-center shrink-0">
+              <FiCheckCircle size={16} className="text-white" />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-green-600">{orders.filter(o => o.status === 'completed').length}</p>
+              <p className="text-xs text-green-700 font-medium">Đơn hoàn tất</p>
+            </div>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-red-400 flex items-center justify-center shrink-0">
+              <FiXCircle size={16} className="text-white" />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-red-500">{orders.filter(o => o.status === 'cancelled').length}</p>
+              <p className="text-xs text-red-600 font-medium">Đơn đã hủy</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">

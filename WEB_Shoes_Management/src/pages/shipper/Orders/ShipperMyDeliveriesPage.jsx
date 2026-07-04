@@ -275,7 +275,7 @@ export const ShipperMyDeliveriesPage = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md shadow-blue-200">
             <FiTruck size={20} className="text-white" />
@@ -297,6 +297,24 @@ export const ShipperMyDeliveriesPage = () => {
           Làm mới
         </motion.button>
       </div>
+
+      {/* Status breakdown bar */}
+      {!loading && orders.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-blue-600">{orders.filter(o => o.status === 'accepted_by_shipper').length}</p>
+            <p className="text-xs text-blue-700 font-medium mt-0.5">Đã nhận đơn</p>
+          </div>
+          <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-orange-600">{orders.filter(o => o.status === 'shipping').length}</p>
+            <p className="text-xs text-orange-700 font-medium mt-0.5">Đang giao</p>
+          </div>
+          <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-purple-600">{orders.filter(o => o.status === 'delivered').length}</p>
+            <p className="text-xs text-purple-700 font-medium mt-0.5">Chờ xác nhận</p>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">

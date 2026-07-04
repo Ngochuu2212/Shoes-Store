@@ -11,16 +11,16 @@ import { Pagination } from '~/components/common/Pagination'
 import { formatPrice } from '~/utils/formatters'
 
 const SHIPPING_METHOD_CONFIG = {
-  standard: { label: 'Ti\u00eau chu\u1ea9n', color: 'bg-blue-100 text-blue-700', icon: FiTruck },
+  standard: { label: 'Tiêu chuẩn', color: 'bg-blue-100 text-blue-700', icon: FiTruck },
   express: { label: 'Nhanh', color: 'bg-orange-100 text-orange-700', icon: FiZap },
-  same_day: { label: 'Ho\u1ea3 t\u1ed1c', color: 'bg-red-100 text-red-700', icon: FiAlertCircle }
+  same_day: { label: 'Hoả tốc', color: 'bg-red-100 text-red-700', icon: FiAlertCircle }
 }
 
 const PAYMENT_LABEL = {
   cod: { label: 'COD', color: 'bg-yellow-100 text-yellow-700' },
   vnpay: { label: 'VNPAY', color: 'bg-purple-100 text-purple-700' },
   momo: { label: 'MoMo', color: 'bg-pink-100 text-pink-700' },
-  wallet: { label: 'V\u00ed', color: 'bg-green-100 text-green-700' }
+  wallet: { label: 'Ví', color: 'bg-green-100 text-green-700' }
 }
 
 const OrderCard = ({ order, onAccept, accepting }) => {
@@ -47,14 +47,14 @@ const OrderCard = ({ order, onAccept, accepting }) => {
               <FiPackage size={16} className="text-orange-500" />
             </div>
             <div>
-              <p className="font-bold text-gray-800 text-sm leading-tight">\u0110\u01a1n #{order.id}</p>
+              <p className="font-bold text-gray-800 text-sm leading-tight">Đơn #{order.id}</p>
               <p className="text-[11px] text-gray-400 mt-0.5">
                 {new Date(order.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </p>
             </div>
           </div>
           <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 whitespace-nowrap">
-            \u23f3 Ch\u1edd nh\u1eadn
+            ⏳ Chờ nhận
           </span>
         </div>
 
@@ -63,7 +63,7 @@ const OrderCard = ({ order, onAccept, accepting }) => {
           <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
             {order.store_name?.charAt(0)?.toUpperCase() || 'S'}
           </div>
-          <p className="text-sm font-semibold text-gray-700 truncate">{order.store_name || 'C\u1eeda h\u00e0ng'}</p>
+          <p className="text-sm font-semibold text-gray-700 truncate">{order.store_name || 'Cửa hàng'}</p>
         </div>
 
         {/* Recipient */}
@@ -94,7 +94,7 @@ const OrderCard = ({ order, onAccept, accepting }) => {
           </span>
           {order.payment_status === 'paid' && (
             <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-700">
-              \u0110\u00e3 thanh to\u00e1n
+              Đã thanh toán
             </span>
           )}
         </div>
@@ -102,7 +102,7 @@ const OrderCard = ({ order, onAccept, accepting }) => {
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-50">
           <div>
-            <p className="text-[11px] text-gray-400 mb-0.5">Gi\u00e1 tr\u1ecb \u0111\u01a1n</p>
+            <p className="text-[11px] text-gray-400 mb-0.5">Giá trị đơn</p>
             <p className="text-xl font-extrabold text-orange-600">{formatPrice(order.total_amount)}</p>
           </div>
           <motion.button
@@ -115,7 +115,7 @@ const OrderCard = ({ order, onAccept, accepting }) => {
               ? <FiRefreshCw size={14} className="animate-spin" />
               : <MdOutlineDeliveryDining size={17} />
             }
-            {isAccepting ? '\u0110ang nh\u1eadn...' : 'Nh\u1eadn \u0111\u01a1n'}
+            {isAccepting ? 'Đang nhận...' : 'Nhận đơn'}
           </motion.button>
         </div>
       </div>
@@ -138,7 +138,7 @@ export const ShipperAvailableOrdersPage = () => {
       setOrders(data.orders || data)
       if (data.pagination) setPagination(data.pagination)
     } catch {
-      if (!silent) toast.error('Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch \u0111\u01a1n h\u00e0ng')
+      if (!silent) toast.error('Không thể tải danh sách đơn hàng')
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -149,10 +149,10 @@ export const ShipperAvailableOrdersPage = () => {
     setAccepting(orderId)
     try {
       await shipperApiService.acceptOrder(orderId)
-      toast.success(`\u2705 \u0110\u00e3 nh\u1eadn \u0111\u01a1n #${orderId} th\u00e0nh c\u00f4ng!`)
+      toast.success(`✅ Đã nhận đơn #${orderId} thành công!`)
       fetchOrders(pagination.currentPage, true)
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Kh\u00f4ng th\u1ec3 nh\u1eadn \u0111\u01a1n h\u00e0ng')
+      toast.error(err?.response?.data?.message || 'Không thể nhận đơn hàng')
     } finally {
       setAccepting(null)
     }
@@ -163,15 +163,15 @@ export const ShipperAvailableOrdersPage = () => {
   return (
     <div>
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-md shadow-orange-200">
             <FiClock size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-800">\u0110\u01a1n ch\u1edd nh\u1eadn</h1>
+            <h1 className="text-xl font-bold text-gray-800">Đơn chờ nhận</h1>
             <p className="text-xs text-gray-400 mt-0.5">
-              {loading ? '\u0110ang t\u1ea3i...' : `${orders.length} \u0111\u01a1n \u0111ang ch\u1edd shipper`}
+              {loading ? 'Đang tải...' : `${orders.length} đơn đang chờ shipper`}
             </p>
           </div>
         </div>
@@ -182,9 +182,31 @@ export const ShipperAvailableOrdersPage = () => {
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-colors disabled:opacity-60"
         >
           <FiRefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-          L\u00e0m m\u1edbi
+          Làm mới
         </motion.button>
       </div>
+
+      {/* Stats bar */}
+      {!loading && orders.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-amber-600">{orders.length}</p>
+            <p className="text-xs text-amber-700 font-medium mt-0.5">Tổng chờ nhận</p>
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-blue-600">{orders.filter(o => o.shipping_method === 'standard').length}</p>
+            <p className="text-xs text-blue-700 font-medium mt-0.5">Tiêu chuẩn</p>
+          </div>
+          <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-orange-600">{orders.filter(o => o.shipping_method === 'express').length}</p>
+            <p className="text-xs text-orange-700 font-medium mt-0.5">Nhanh</p>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p className="text-2xl font-black text-red-600">{orders.filter(o => o.shipping_method === 'same_day').length}</p>
+            <p className="text-xs text-red-700 font-medium mt-0.5">Hoả tốc</p>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -211,13 +233,13 @@ export const ShipperAvailableOrdersPage = () => {
           <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-4">
             <FiPackage size={36} className="text-orange-300" />
           </div>
-          <p className="text-gray-600 font-semibold">Kh\u00f4ng c\u00f3 \u0111\u01a1n h\u00e0ng n\u00e0o \u0111ang ch\u1edd</p>
-          <p className="text-gray-400 text-sm mt-1.5">H\u00e3y quay l\u1ea1i sau ho\u1eb7c nh\u1ea5n &quot;L\u00e0m m\u1edbi&quot;</p>
+          <p className="text-gray-600 font-semibold">Không có đơn hàng nào đang chờ</p>
+          <p className="text-gray-400 text-sm mt-1.5">Hãy quay lại sau hoặc nhấn &quot;Làm mới&quot;</p>
           <button
             onClick={() => fetchOrders()}
             className="mt-5 px-5 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-colors"
           >
-            T\u1ea3i l\u1ea1i ngay
+            Tải lại ngay
           </button>
         </div>
       ) : (
