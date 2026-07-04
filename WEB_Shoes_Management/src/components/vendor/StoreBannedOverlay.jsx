@@ -131,8 +131,8 @@ export const StoreBannedOverlay = ({ store, onAppealSubmit, isSubmitting }) => {
                 <FiMail size={12} />
                 Hỗ trợ
               </div>
-              <Link to="mailto:support@shoesstore.com" className="text-sm font-semibold text-brand-primary hover:underline mt-0.5 block">
-                support@shoesstore.com
+              <Link to="mailto:phamngochuu3101@gmail.com" className="text-sm font-semibold text-brand-primary hover:underline mt-0.5 block">
+                phamngochuu3101@gmail.com
               </Link>
             </div>
           </div>

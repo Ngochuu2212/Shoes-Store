@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertTriangle } from 'react-icons/fi'
+import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertTriangle, FiX } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 import { useGoogleLogin } from '@react-oauth/google'
 import { InputField } from '~/components/common/InputField'
@@ -16,11 +16,27 @@ import { useDispatch } from 'react-redux'
 import { loginSuccess, setFavorites } from '~/redux/user/userSlice'
 import { setCartCount } from '~/redux/user/cartSlice'
 
+const HELP_CONTENTS = {
+  'Chính sách bảo mật': {
+    title: 'Chính sách bảo mật',
+    content: 'ShoesStore cam kết bảo vệ thông tin cá nhân của bạn. Mọi dữ liệu thu thập (như email, số điện thoại, địa chỉ) đều được mã hóa bằng công nghệ SSL tiên tiến và chỉ sử dụng cho mục đích vận hành đơn hàng, cải thiện dịch vụ. Chúng tôi không bao giờ chia sẻ thông tin của bạn với bên thứ ba mà không có sự đồng ý của bạn.'
+  },
+  'Điều khoản dịch vụ': {
+    title: 'Điều khoản dịch vụ',
+    content: 'Điều khoản dịch vụ của ShoesStore cam kết mang lại môi trường mua bán minh bạch, công bằng. Chúng tôi có quyền tạm khóa hoặc khóa vĩnh viễn các tài khoản vi phạm chính sách mà không cần báo trước.'
+  },
+  'Trợ giúp': {
+    title: 'Trợ giúp & Hỗ trợ',
+    content: 'Vui lòng liên hệ email hỗ trợ phamngochuu3101@gmail.com hoặc gọi số điện thoại 0939507217 để được hỗ trợ trực tiếp các vấn đề liên quan đến đăng nhập, quên mật khẩu hoặc lỗi thanh toán.'
+  }
+}
+
 export const LoginPage = () => {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showBlockedModal, setShowBlockedModal] = useState(false)
   const [blockedMessage, setBlockedMessage] = useState('')
+  const [activeHelpItem, setActiveHelpItem] = useState(null)
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -286,11 +302,26 @@ export const LoginPage = () => {
           variants={slideUp}
           className="flex items-center gap-6 text-xs text-gray-400 mt-12 border-t border-gray-100 pt-4 w-full justify-center select-none"
         >
-          <span className="hover:text-brand-primary transition-colors cursor-pointer">Chính sách bảo mật</span>
+          <span
+            onClick={() => setActiveHelpItem(HELP_CONTENTS['Chính sách bảo mật'])}
+            className="hover:text-brand-primary transition-colors cursor-pointer"
+          >
+            Chính sách bảo mật
+          </span>
           <span>•</span>
-          <span className="hover:text-brand-primary transition-colors cursor-pointer">Điều khoản dịch vụ</span>
+          <span
+            onClick={() => setActiveHelpItem(HELP_CONTENTS['Điều khoản dịch vụ'])}
+            className="hover:text-brand-primary transition-colors cursor-pointer"
+          >
+            Điều khoản dịch vụ
+          </span>
           <span>•</span>
-          <span className="hover:text-brand-primary transition-colors cursor-pointer">Trợ giúp</span>
+          <span
+            onClick={() => setActiveHelpItem(HELP_CONTENTS['Trợ giúp'])}
+            className="hover:text-brand-primary transition-colors cursor-pointer"
+          >
+            Trợ giúp
+          </span>
         </motion.div>
       </motion.div>
 
@@ -326,7 +357,7 @@ export const LoginPage = () => {
                 
                 <div className="bg-gray-50 rounded-2xl p-4 w-full mt-5 border border-gray-100 text-left text-xs text-gray-400">
                   <p className="font-bold text-gray-600 mb-1">Cần hỗ trợ?</p>
-                  <p>Nếu bạn cho rằng đây là một sự nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ của Shoes Store qua email support@shoesstore.com để được giải quyết nhanh nhất.</p>
+                  <p>Nếu bạn cho rằng đây là một sự nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ của Shoes Store qua email phamngochuu3101@gmail.com hoặc SĐT 0939507217 để được giải quyết nhanh nhất.</p>
                 </div>
                 
                 <button
@@ -336,6 +367,50 @@ export const LoginPage = () => {
                   Xác nhận
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Help Modal */}
+      <AnimatePresence>
+        {activeHelpItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setActiveHelpItem(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 to-amber-500" />
+              
+              <div className="flex items-center justify-between mb-4 mt-2">
+                <h3 className="text-lg font-black text-gray-800">{activeHelpItem.title}</h3>
+                <button
+                  onClick={() => setActiveHelpItem(null)}
+                  className="p-1.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+
+              <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-line mt-2 mb-4">
+                {activeHelpItem.content}
+              </div>
+
+              <button
+                onClick={() => setActiveHelpItem(null)}
+                className="w-full mt-2 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-orange-100 transition-all duration-200 cursor-pointer"
+              >
+                Đóng
+              </button>
             </motion.div>
           </motion.div>
         )}
