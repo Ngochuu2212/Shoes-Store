@@ -10,7 +10,7 @@ import {
   TooltipTrigger
 } from '~/components/ui/tooltip'
 
-export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrder }) => {
+export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrder, onRequestReturn }) => {
   // Render màu và text của badge trạng thái
   const renderStatusBadge = (status) => {
     switch (status) {
@@ -24,6 +24,15 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
     case ORDER_STATUS.COMPLETED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs">ĐÃ GIAO THÀNH CÔNG</span>
     case ORDER_STATUS.CANCELLED: return <span className="text-red-500 font-bold bg-red-50 px-3 py-1 rounded-full text-xs">ĐÃ HỦY</span>
     case ORDER_STATUS.CANCEL_REQUESTED: return <span className="text-orange-500 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs">ĐANG YÊU CẦU HỦY</span>
+    
+    // Trạng thái trả hàng mới
+    case ORDER_STATUS.RETURN_REQUESTED: return <span className="text-orange-600 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs">YÊU CẦU TRẢ HÀNG</span>
+    case ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER: return <span className="text-yellow-700 font-bold bg-yellow-50 px-3 py-1 rounded-full text-xs">TRẢ HÀNG - CHỜ SHIPPER</span>
+    case ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER: return <span className="text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded-full text-xs">TRẢ HÀNG - SHIPPER ĐÃ NHẬN</span>
+    case ORDER_STATUS.RETURN_SHIPPING: return <span className="text-orange-600 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs">TRẢ HÀNG - ĐANG THU HỒI</span>
+    case ORDER_STATUS.RETURN_DELIVERED: return <span className="text-purple-600 font-bold bg-purple-50 px-3 py-1 rounded-full text-xs">TRẢ HÀNG - ĐÃ GIAO SHOP</span>
+    case ORDER_STATUS.RETURN_COMPLETED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs">ĐÃ TRẢ HÀNG THÀNH CÔNG</span>
+    
     default: return null
     }
   }
@@ -263,6 +272,15 @@ export const OrderCard = ({ order, onCancelOrder, onWithdrawCancel, onReviewOrde
         Đánh giá ngay
             </button>
           )
+        )}
+
+        {order.status === ORDER_STATUS.COMPLETED && (
+          <button
+            onClick={() => onRequestReturn && onRequestReturn(order)}
+            className="px-4 py-2 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 ease-in-out cursor-pointer shadow-sm active:scale-95"
+          >
+            Trả hàng
+          </button>
         )}
 
         {(order.status === ORDER_STATUS.COMPLETED || order.status === ORDER_STATUS.CANCELLED) && (

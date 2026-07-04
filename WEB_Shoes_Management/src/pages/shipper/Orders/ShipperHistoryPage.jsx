@@ -8,7 +8,8 @@ import { formatPrice } from '~/utils/formatters'
 
 const HISTORY_STATUS = {
   completed: { label: 'Hoàn tất', cls: 'bg-green-100 text-green-700', border: 'border-l-green-400', icon: FiCheckCircle },
-  cancelled: { label: 'Đã hủy', cls: 'bg-red-100 text-red-700', border: 'border-l-red-400', icon: FiXCircle }
+  cancelled: { label: 'Đã hủy', cls: 'bg-red-100 text-red-700', border: 'border-l-red-400', icon: FiXCircle },
+  return_completed: { label: 'Đã hoàn trả', cls: 'bg-green-100 text-green-700', border: 'border-l-green-400', icon: FiCheckCircle }
 }
 
 const StatusBadge = ({ status }) => {
@@ -27,7 +28,7 @@ const OrderCard = ({ order }) => {
     ? JSON.parse(order.delivery_proof_images || '[]')
     : (order.delivery_proof_images || [])
   const statusCfg = HISTORY_STATUS[order.status] || { border: 'border-l-gray-300' }
-  const isCompleted = order.status === 'completed'
+  const isCompleted = order.status === 'completed' || order.status === 'return_completed'
 
   return (
     <motion.div
@@ -59,13 +60,19 @@ const OrderCard = ({ order }) => {
           <StatusBadge status={order.status} />
         </div>
 
-        {/* Recipient */}
+        {/* Recipient / Return Store */}
         <div className="flex items-start gap-2.5 mb-4">
           <FiMapPin size={14} className="mt-0.5 text-orange-500 shrink-0" />
           <div className="min-w-0">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Người nhận</p>
-            <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
-            <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{order.shipping_address}</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+              {order.status === 'return_completed' ? 'Cửa hàng nhận hàng trả' : 'Người nhận'}
+            </p>
+            <p className="text-sm font-bold text-gray-800 truncate mt-0.5">
+              {order.status === 'return_completed' ? order.store_name : order.recipient_name}
+            </p>
+            <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+              {order.status === 'return_completed' ? order.store_address : order.shipping_address}
+            </p>
           </div>
         </div>
 

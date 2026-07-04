@@ -141,7 +141,15 @@ export const OrderFilters = ({ filters, onFilterChange, onReset }) => {
     { value: ORDER_STATUS.SHIPPED, label: 'Đang giao hàng', color: 'text-purple-600' },
     { value: ORDER_STATUS.DELIVERED, label: 'Hoàn thành', color: 'text-green-600' },
     { value: ORDER_STATUS.CANCEL_REQUESTED, label: 'Yêu cầu hủy', color: 'text-orange-600' },
-    { value: ORDER_STATUS.CANCELLED, label: 'Đã hủy', color: 'text-red-600' }
+    { value: ORDER_STATUS.CANCELLED, label: 'Đã hủy', color: 'text-red-600' },
+    
+    // Trạng thái trả hàng mới
+    { value: ORDER_STATUS.RETURN_REQUESTED, label: 'Yêu cầu trả hàng', color: 'text-orange-600 font-bold' },
+    { value: ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER, label: 'Trả hàng - Chờ shipper', color: 'text-yellow-600 font-bold' },
+    { value: ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER, label: 'Trả hàng - Shipper đã nhận', color: 'text-indigo-600' },
+    { value: ORDER_STATUS.RETURN_SHIPPING, label: 'Trả hàng - Đang thu hồi', color: 'text-orange-600' },
+    { value: ORDER_STATUS.RETURN_DELIVERED, label: 'Trả hàng - Đã giao shop', color: 'text-purple-600' },
+    { value: ORDER_STATUS.RETURN_COMPLETED, label: 'Đã trả hàng thành công', color: 'text-green-600 font-bold' }
   ]
 
   const paymentOptions = [

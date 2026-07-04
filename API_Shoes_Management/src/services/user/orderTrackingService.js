@@ -441,11 +441,90 @@ const deletePendingOrders = async (userId, orderIds, sendNotification = true) =>
   }
 }
 
+const requestOrderReturn = async (userId, orderId, returnReason) => {
+  const connection = await pool.getConnection()
+
+  try {
+    await connection.beginTransaction()
+
+    const order = await orderTrackingModel.getOrderById(orderId)
+
+    if (!order) {
+      throw new Error('Đơn hàng không tồn tại.')
+    }
+
+    if (order.user_id !== userId) {
+      throw new Error('Bạn không có quyền can thiệp vào đơn hàng này.')
+    }
+
+    // Chỉ cho phép trả hàng khi đơn hàng đang ở trạng thái COMPLETED
+    if (order.status !== ORDER_STATUS.COMPLETED) {
+      throw new Error('Chỉ có thể yêu cầu trả hàng đối với đơn hàng đã giao thành công (hoàn thành).')
+    }
+
+    // Cập nhật trạng thái thành RETURN_REQUESTED và lưu return_reason vào DB
+    await connection.execute(
+      'UPDATE orders SET status = ?, return_reason = ? WHERE id = ?',
+      [ORDER_STATUS.RETURN_REQUESTED, returnReason, orderId]
+    )
+
+    await connection.commit()
+
+    // Lấy thông tin người mua và chủ gian hàng
+    const [userRows] = await pool.execute('SELECT fullname FROM users WHERE id = ?', [userId])
+    const buyerName = userRows.length > 0 ? userRows[0].fullname : 'Khách hàng'
+    const [storeRows] = await pool.execute('SELECT owner_id, name FROM stores WHERE id = ?', [order.store_id])
+    const storeOwnerId = storeRows.length > 0 ? storeRows[0].owner_id : null
+    const storeName = storeRows.length > 0 ? storeRows[0].name : 'Cửa hàng'
+
+    // Gửi thông báo cho Vendor
+    if (storeOwnerId) {
+      const formattedAmount = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)
+      await notificationService.createAndPushNotification({
+        userId: storeOwnerId,
+        title: 'Yêu cầu trả hàng mới',
+        content: JSON.stringify({
+          message: `Khách hàng ${buyerName} đã gửi yêu cầu trả hàng cho đơn hàng #${orderId} với lý do: "${returnReason}". Tổng tiền: ${formattedAmount}. Vui lòng xem xét và duyệt yêu cầu.`,
+          orderId: orderId,
+          storeName: storeName,
+          buyerName: buyerName,
+          amount: order.total_amount,
+          reason: returnReason,
+          orderStatus: ORDER_STATUS.RETURN_REQUESTED
+        }),
+        type: 'ORDER_RETURN_REQUESTED',
+        referenceId: orderId
+      })
+    }
+
+    // Gửi thông báo cho User
+    await sendNotificationToUser(
+      userId,
+      orderId,
+      'Đã gửi yêu cầu trả hàng',
+      `Yêu cầu trả hàng của bạn cho đơn hàng #${orderId} đã được gửi đến ${storeName}. Vui lòng chờ cửa hàng duyệt.`,
+      'ORDER_RETURN_REQUESTED'
+    )
+
+    return {
+      status: ORDER_STATUS.RETURN_REQUESTED,
+      message: 'Đã gửi yêu cầu trả hàng thành công.'
+    }
+
+  } catch (error) {
+    await connection.rollback()
+    throw error
+  } finally {
+    connection.release()
+  }
+}
+
 export const orderTrackingService = {
   getOrderHistory,
   cancelOrderByUser,
   handleAutoConfirmOrders,
   withdrawCancelRequest,
   getOrderDetail,
-  deletePendingOrders
+  deletePendingOrders,
+  requestOrderReturn
 }

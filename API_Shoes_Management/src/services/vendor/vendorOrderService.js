@@ -360,10 +360,90 @@ const assignToShipper = async (userId, orderId) => {
   return { message: `Đã bàn giao đơn hàng #${orderId} cho đơn vị vận chuyển. Đơn hàng sẽ xuất hiện trong danh sách chờ Shipper.` }
 }
 
+const handleReturnRequest = async (userId, orderId, { decision, reason }) => {
+  const storeId = await getVerifiedStoreId(userId)
+
+  const isOwner = await vendorOrderModel.checkOrderOwnership(orderId, storeId)
+  if (!isOwner) throw new Error('Bạn không có quyền xử lý đơn hàng này.')
+
+  const orderDetail = await vendorOrderModel.getVendorOrders(storeId, { searchOrderId: orderId, limit: 1, offset: 0 })
+  if (orderDetail.length === 0) throw new Error('Đơn hàng không tồn tại.')
+
+  const currentStatus = orderDetail[0].status
+  const userOrderId = await orderModel.getOrderUserId(orderId)
+
+  if (currentStatus !== ORDER_STATUS.RETURN_REQUESTED) {
+    throw new Error('Đơn hàng không ở trạng thái yêu cầu trả hàng.')
+  }
+
+  if (decision === 'accept') {
+    const finalReason = reason ? reason : 'Người bán chấp nhận yêu cầu trả hàng.'
+    // Vendor duyệt -> đơn chuyển sang trạng thái chờ shipper đến lấy trả
+    await pool.execute(
+      'UPDATE orders SET status = ?, return_reject_reason = ? WHERE id = ?',
+      [ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER, finalReason, orderId]
+    )
+
+    // Gửi thông báo cho User khi chấp nhận yêu cầu trả hàng
+    if (userOrderId) {
+      await sendOrderNotification(
+        orderId,
+        userOrderId,
+        'Yêu cầu trả hàng được chấp nhận',
+        `Yêu cầu trả hàng cho đơn #${orderId} đã được chấp nhận. Shipper sẽ sớm liên hệ bạn để lấy hàng hoàn trả.`,
+        'ORDER_RETURN_ACCEPTED'
+      )
+    }
+
+    // Gửi thông báo cho shippers để vào nhận đơn trả
+    try {
+      const [shippers] = await pool.execute('SELECT id FROM users WHERE role_id = 5 AND is_active = 1')
+      for (const shipper of shippers) {
+        await sendOrderNotification(
+          orderId,
+          shipper.id,
+          '🔄 Có đơn hoàn trả mới cần thu hồi!',
+          `Đơn hoàn trả #${orderId} đang chờ shipper đến nhận. Hãy vào mục "Đơn chờ nhận" để xem chi tiết.`,
+          NOTIFICATION_TYPES.ORDER_WAITING_FOR_SHIPPER
+        )
+      }
+    } catch (err) {
+      console.error('Lỗi gửi thông báo cho shippers về đơn trả:', err)
+    }
+
+    return { message: 'Đã chấp nhận yêu cầu trả hàng, đơn chuyển sang chờ shipper.' }
+
+  } else if (decision === 'reject') {
+    if (!reason || !reason.trim()) {
+      throw new Error('Vui lòng cung cấp lý do từ chối trả hàng.')
+    }
+
+    // Từ chối trả hàng -> chuyển trạng thái về COMPLETED (Hoàn thành)
+    await pool.execute(
+      'UPDATE orders SET status = ?, return_reject_reason = ? WHERE id = ?',
+      [ORDER_STATUS.COMPLETED, reason, orderId]
+    )
+
+    // Gửi thông báo cho User khi từ chối yêu cầu trả hàng
+    if (userOrderId) {
+      await sendOrderNotification(
+        orderId,
+        userOrderId,
+        'Yêu cầu trả hàng bị từ chối',
+        `Yêu cầu trả hàng cho đơn #${orderId} đã bị từ chối. Lý do: "${reason}". Đơn hàng quay về trạng thái hoàn thành.`,
+        'ORDER_RETURN_REJECTED'
+      )
+    }
+
+    return { message: 'Đã từ chối yêu cầu trả hàng, trạng thái đơn quay về Hoàn thành.' }
+  }
+}
+
 export const vendorOrderService = {
   getVendorOrders,
   updateOrderStatus,
   handleCancelRequest,
   updateOrderStatusBulk,
-  assignToShipper
+  assignToShipper,
+  handleReturnRequest
 }

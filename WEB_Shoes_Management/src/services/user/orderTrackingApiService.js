@@ -30,5 +30,11 @@ export const orderTrackingApiService = {
   deletePendingOrders: async (orderIds) => {
     const response = await authorizedAxiosInstance.delete(`${DEV_API_URL}/api/orders/pending-orders`, { data: { orderIds } })
     return response.data
+  },
+
+  // 4. API Yêu cầu trả hàng
+  requestReturn: async (orderId, reason) => {
+    const response = await authorizedAxiosInstance.put(`${DEV_API_URL}/api/orders/return/${orderId}`, { reason })
+    return response.data
   }
 }

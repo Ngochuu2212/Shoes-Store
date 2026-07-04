@@ -67,10 +67,28 @@ const deletePendingOrders = async (req, res) => {
   }
 }
 
+const requestOrderReturn = async (req, res) => {
+  try {
+    const userId = req.jwtDecoded?.id
+    const { orderId } = req.params
+    const { reason } = req.body
+
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp lý do trả hàng.' })
+    }
+
+    const result = await orderTrackingService.requestOrderReturn(userId, Number(orderId), reason)
+    return res.status(200).json(result)
+  } catch (error) {
+    return res.status(500).json({ message: `Lỗi yêu cầu trả hàng: ${error.message}` })
+  }
+}
+
 export const orderTrackingController = {
   getOrderHistory,
   cancelOrderByUser,
   withdrawCancelRequest,
   getOrderDetail,
-  deletePendingOrders
+  deletePendingOrders,
+  requestOrderReturn
 }

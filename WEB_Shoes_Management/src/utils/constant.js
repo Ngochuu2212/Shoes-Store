@@ -23,7 +23,15 @@ export const ORDER_STATUS = {
   CANCELLED: 'cancelled',
   CANCEL_REQUESTED: 'cancel_requested',
   // Backward compat
-  SHIPPED: 'shipped'
+  SHIPPED: 'shipped',
+
+  // Trạng thái trả hàng mới
+  RETURN_REQUESTED: 'return_requested',
+  RETURN_WAITING_FOR_SHIPPER: 'return_waiting_for_shipper',
+  RETURN_ACCEPTED_BY_SHIPPER: 'return_accepted_by_shipper',
+  RETURN_SHIPPING: 'return_shipping',
+  RETURN_DELIVERED: 'return_delivered',
+  RETURN_COMPLETED: 'return_completed'
 }
 
 export const PAYMENT_STATUS = {

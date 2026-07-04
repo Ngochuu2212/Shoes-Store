@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 import { OrderCard } from './OrderCard'
 import { CancelOrderModal } from './CancelOrderModal'
 import { WithdrawCancelModal } from './WithdrawCancelModal'
+import { ReturnOrderModal } from './ReturnOrderModal'
 import { ORDER_STATUS } from '~/utils/constant'
 import { FiGrid, FiFileText,
   FiPackage, FiTruck,
@@ -30,6 +31,8 @@ export const OrderTrackingPage = () => {
   const [selectedOrderForCancel, setSelectedOrderForCancel] = useState(null)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [selectedOrderForWithdraw, setSelectedOrderForWithdraw] = useState(null)
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false)
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState(null)
 
   const navigate = useNavigate()
 
@@ -97,6 +100,23 @@ export const OrderTrackingPage = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi rút yêu cầu.')
     }
+  }
+
+  const triggerReturnModal = (order) => {
+    setSelectedOrderForReturn(order)
+    setIsReturnModalOpen(true)
+  }
+
+  const handleConfirmReturn = async (orderId, reason) => {
+    setIsReturnModalOpen(false)
+    try {
+      const res = await orderTrackingApiService.requestReturn(orderId, reason)
+      toast.success(res.message || 'Gửi yêu cầu trả hàng thành công!')
+      fetchOrders(pagination.currentPage, currentTab)
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Gặp lỗi khi yêu cầu trả hàng.')
+    }
+    setSelectedOrderForReturn(null)
   }
 
   const handleNavigateToReview = (order) => {
@@ -232,6 +252,7 @@ export const OrderTrackingPage = () => {
                             onReviewOrder={handleNavigateToReview}
                             onCancelOrder={() => triggerCancelModal(order)}
                             onWithdrawCancel={() => triggerWithdrawModal(order)}
+                            onRequestReturn={triggerReturnModal}
                           />
                         </motion.div>
                       ))}
@@ -268,6 +289,13 @@ export const OrderTrackingPage = () => {
         onClose={() => setIsWithdrawModalOpen(false)}
         order={selectedOrderForWithdraw}
         onConfirm={handleConfirmWithdraw}
+      />
+
+      <ReturnOrderModal
+        isOpen={isReturnModalOpen}
+        onClose={() => setIsReturnModalOpen(false)}
+        order={selectedOrderForReturn}
+        onConfirm={handleConfirmReturn}
       />
     </div>
   )

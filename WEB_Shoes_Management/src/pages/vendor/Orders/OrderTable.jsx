@@ -1,18 +1,23 @@
 import { useState } from 'react'
-import { FiEye, FiCheckCircle, FiXCircle, FiTruck, FiPackage, FiClock, FiChevronDown, FiCreditCard, FiAlertCircle, FiInfo, FiPhone } from 'react-icons/fi'
+import { FiEye, FiCheckCircle, FiXCircle, FiTruck, FiPackage, FiClock, FiChevronDown, FiCreditCard, FiAlertCircle, FiInfo, FiPhone, FiRefreshCw } from 'react-icons/fi'
 import { Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu'
 import { formatPrice } from '~/utils/formatters'
 import { ORDER_STATUS, PAYMENT_METHODS } from '~/utils/constant'
 import { CancelRequestModal } from './CancelRequestModal'
+import { ReturnRequestModal } from './ReturnRequestModal'
 import { Link } from 'react-router-dom'
 
-export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUpdateStatus, onAssignShipper, onCancelRequest, onUpdateStatusBulk }) => {
+export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUpdateStatus, onAssignShipper, onCancelRequest, onReturnRequest, onUpdateStatusBulk }) => {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
   const [cancelOrderId, setCancelOrderId] = useState(null)
   const [cancelOrderReason, setCancelOrderReason] = useState('')
+
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false)
+  const [returnOrderId, setReturnOrderId] = useState(null)
+  const [returnOrderReason, setReturnOrderReason] = useState('')
 
   const handleToggleSelectAll = (e) => onSelectAll(e.target.checked)
 
@@ -51,6 +56,21 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
       return { label: 'Yêu cầu hủy', className: 'bg-orange-50 text-orange-600 border-orange-100', icon: FiAlertCircle }
     case ORDER_STATUS.CANCELLED:
       return { label: 'Đã hủy', className: 'bg-red-50 text-red-500 border-red-100', icon: FiXCircle }
+    
+    // Trạng thái trả hàng mới
+    case ORDER_STATUS.RETURN_REQUESTED:
+      return { label: 'Yêu cầu trả hàng', className: 'bg-orange-550/10 text-orange-600 border-orange-200 font-bold', icon: FiAlertCircle }
+    case ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER:
+      return { label: 'Trả hàng - Chờ Shipper', className: 'bg-yellow-50 text-yellow-700 border-yellow-100', icon: FiClock }
+    case ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER:
+      return { label: 'Trả hàng - Shipper nhận', className: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: FiTruck }
+    case ORDER_STATUS.RETURN_SHIPPING:
+      return { label: 'Trả hàng - Đang thu hồi', className: 'bg-orange-50 text-orange-600 border-orange-100', icon: FiTruck }
+    case ORDER_STATUS.RETURN_DELIVERED:
+      return { label: 'Trả hàng - Đã giao Shop', className: 'bg-purple-555/10 text-purple-600 border-purple-200', icon: FiCheckCircle }
+    case ORDER_STATUS.RETURN_COMPLETED:
+      return { label: 'Đã trả hàng', className: 'bg-green-50 text-green-600 border-green-100', icon: FiCheckCircle }
+
     default:
       return { label: status, className: 'bg-gray-50 text-gray-500 border-gray-100', icon: FiClock }
     }
@@ -94,8 +114,38 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
     setCancelOrderReason('')
   }
 
-  const hasCancelReason = (order) => {
-    return (order.status === ORDER_STATUS.CANCEL_REQUESTED || order.status === ORDER_STATUS.CANCELLED) && order.cancel_reason
+  const handleOpenReturnModal = (orderId, returnReason) => {
+    setReturnOrderId(orderId)
+    setReturnOrderReason(returnReason || '')
+    setIsReturnModalOpen(true)
+  }
+
+  const handleConfirmReturn = async (decision, reason) => {
+    await onReturnRequest(returnOrderId, decision, reason)
+    setIsReturnModalOpen(false)
+    setReturnOrderId(null)
+    setReturnOrderReason('')
+  }
+
+  const hasTooltipReason = (order) => {
+    return (
+      ((order.status === ORDER_STATUS.CANCEL_REQUESTED || order.status === ORDER_STATUS.CANCELLED) && order.cancel_reason) ||
+      (order.status === ORDER_STATUS.RETURN_REQUESTED && order.return_reason) ||
+      (order.status === ORDER_STATUS.COMPLETED && order.return_reject_reason)
+    )
+  }
+
+  const getTooltipReasonContent = (order) => {
+    if (order.status === ORDER_STATUS.RETURN_REQUESTED) {
+      return { title: 'Lý do yêu cầu trả hàng:', text: order.return_reason }
+    }
+    if (order.return_reject_reason) {
+      return { title: 'Lý do từ chối trả hàng:', text: order.return_reject_reason }
+    }
+    return {
+      title: `Lý do ${order.status === ORDER_STATUS.CANCEL_REQUESTED ? 'yêu cầu hủy' : 'hủy đơn'}:`,
+      text: order.cancel_reason
+    }
   }
 
   return (
@@ -138,7 +188,9 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
                   const PaymentBadge = getPaymentMethodBadge(order.payment_method)
                   const actions = getStatusActions(order.status)
                   const showCancelRequest = order.status === ORDER_STATUS.CANCEL_REQUESTED
-                  const showCancelReason = hasCancelReason(order)
+                  const showReturnRequest = order.status === ORDER_STATUS.RETURN_REQUESTED
+                  const showTooltipReason = hasTooltipReason(order)
+                  const tooltipContent = getTooltipReasonContent(order)
                   const { fee, netAmount } = calculateNetAmount(order.total_amount, order.commission_rate_snapshot)
 
                   return (
@@ -189,7 +241,7 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
                       </td>
                       <td className="py-4 px-4 text-center">
                         <div className="flex items-center justify-center">
-                          {showCancelReason ? (
+                          {showTooltipReason ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="cursor-help">
@@ -201,8 +253,8 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent className="max-w-[350px] rounded-lg bg-gray-800 text-white text-xs border-none font-semibold p-3">
-                                <p className="font-bold mb-1">Lý do {order.status === ORDER_STATUS.CANCEL_REQUESTED ? 'yêu cầu hủy' : 'hủy đơn'}:</p>
-                                <p className="text-gray-300 break-words">{order.cancel_reason}</p>
+                                <p className="font-bold mb-1">{tooltipContent.title}</p>
+                                <p className="text-gray-300 break-words">{tooltipContent.text}</p>
                               </TooltipContent>
                             </Tooltip>
                           ) : (
@@ -243,6 +295,23 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
                               </TooltipTrigger>
                               <TooltipContent className="rounded-lg bg-orange-600 text-white text-xs border-none font-semibold">
                                 Xử lý yêu cầu hủy
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+
+                          {/* Xử lý yêu cầu trả hàng */}
+                          {showReturnRequest && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() => handleOpenReturnModal(order.id, order.return_reason)}
+                                  className="inline-flex p-2.5 bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white border border-orange-100 rounded-xl cursor-pointer active:scale-90 transition-all duration-200"
+                                >
+                                  <FiRefreshCw size={13} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent className="rounded-lg bg-orange-600 text-white text-xs border-none font-semibold">
+                                Xử lý yêu cầu trả hàng
                               </TooltipContent>
                             </Tooltip>
                           )}
@@ -289,6 +358,14 @@ export const OrderTable = ({ orders, selectedIds, onSelectRow, onSelectAll, onUp
         onClose={() => setIsCancelModalOpen(false)}
         onConfirm={handleConfirmCancel}
         customerReason={cancelOrderReason}
+        isLoading={false}
+      />
+
+      <ReturnRequestModal
+        isOpen={isReturnModalOpen}
+        onClose={() => setIsReturnModalOpen(false)}
+        onConfirm={handleConfirmReturn}
+        customerReason={returnOrderReason}
         isLoading={false}
       />
     </>

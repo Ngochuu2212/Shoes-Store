@@ -49,10 +49,23 @@ export const OrderDetailPage = () => {
     switch (status) {
     case ORDER_STATUS.PENDING: return <span className="text-gray-500 font-bold bg-gray-100 px-3 py-1 rounded-full text-xs ml-3">ĐƠN HÀNG MỚI</span>
     case ORDER_STATUS.PROCESSING: return <span className="text-blue-500 font-bold bg-blue-50 px-3 py-1 rounded-full text-xs ml-3">ĐANG XỬ LÝ</span>
+    case ORDER_STATUS.WAITING_FOR_SHIPPER: return <span className="text-yellow-700 font-bold bg-yellow-50 px-3 py-1 rounded-full text-xs ml-3">CHỜ SHIPPER</span>
+    case ORDER_STATUS.ACCEPTED_BY_SHIPPER: return <span className="text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded-full text-xs ml-3">SHIPPER ĐÃ NHẬN</span>
+    case ORDER_STATUS.SHIPPING: return <span className="text-orange-600 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs ml-3">ĐANG GIAO HÀNG</span>
     case ORDER_STATUS.SHIPPED: return <span className="text-purple-600 font-bold bg-purple-50 px-3 py-1 rounded-full text-xs ml-3">ĐANG GIAO HÀNG</span>
-    case ORDER_STATUS.DELIVERED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs ml-3">ĐÃ GIAO THÀNH CÔNG</span>
+    case ORDER_STATUS.DELIVERED: return <span className="text-purple-600 font-bold bg-purple-50 px-3 py-1 rounded-full text-xs ml-3">ĐÃ GIAO - CHỜ XÁC NHẬN</span>
+    case ORDER_STATUS.COMPLETED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs ml-3">ĐÃ GIAO THÀNH CÔNG</span>
     case ORDER_STATUS.CANCELLED: return <span className="text-red-500 font-bold bg-red-50 px-3 py-1 rounded-full text-xs ml-3">ĐÃ HỦY</span>
     case ORDER_STATUS.CANCEL_REQUESTED: return <span className="text-orange-500 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs ml-3">ĐANG YÊU CẦU HỦY</span>
+    
+    // Trạng thái trả hàng mới
+    case ORDER_STATUS.RETURN_REQUESTED: return <span className="text-orange-600 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs ml-3">YÊU CẦU TRẢ HÀNG</span>
+    case ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER: return <span className="text-yellow-700 font-bold bg-yellow-50 px-3 py-1 rounded-full text-xs ml-3">TRẢ HÀNG - CHỜ SHIPPER</span>
+    case ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER: return <span className="text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded-full text-xs ml-3">TRẢ HÀNG - SHIPPER ĐÃ NHẬN</span>
+    case ORDER_STATUS.RETURN_SHIPPING: return <span className="text-orange-600 font-bold bg-orange-50 px-3 py-1 rounded-full text-xs ml-3">TRẢ HÀNG - ĐANG THU HỒI</span>
+    case ORDER_STATUS.RETURN_DELIVERED: return <span className="text-purple-600 font-bold bg-purple-50 px-3 py-1 rounded-full text-xs ml-3">TRẢ HÀNG - ĐÃ GIAO SHOP</span>
+    case ORDER_STATUS.RETURN_COMPLETED: return <span className="text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-xs ml-3">ĐÃ TRẢ HÀNG THÀNH CÔNG</span>
+    
     default: return null
     }
   }

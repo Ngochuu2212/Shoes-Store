@@ -29,83 +29,101 @@ const OrderCard = ({ order, onAccept, accepting }) => {
   const paymentCfg = PAYMENT_LABEL[order.payment_method] || { label: order.payment_method, color: 'bg-gray-100 text-gray-600' }
   const isAccepting = accepting === order.id
 
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.22 }}
-      className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-    >
-      <div className="h-1.5 bg-gradient-to-r from-orange-500 to-amber-500" />
-      <div className="p-6">
-        {/* Header row */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center border border-orange-100">
-              <FiPackage size={18} className="text-orange-500" />
+      const isReturn = order.status === 'return_waiting_for_shipper'
+      return (
+        <motion.div
+          layout
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.22 }}
+          className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+        >
+          <div className={`h-1.5 ${isReturn ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-orange-500 to-amber-500'}`} />
+          <div className="p-6">
+            {/* Header row */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border ${isReturn ? 'bg-red-50 border-red-100 text-red-500' : 'bg-orange-50 border-orange-100 text-orange-500'}`}>
+                  <FiPackage size={18} />
+                </div>
+                <div>
+                  <p className="font-extrabold text-gray-800 text-sm leading-tight">Đơn #{order.id}</p>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {new Date(order.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold border uppercase tracking-wider ${isReturn ? 'bg-red-50 text-red-600 border-red-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                {isReturn ? 'Trả hàng' : 'Chờ nhận'}
+              </span>
             </div>
-            <div>
-              <p className="font-extrabold text-gray-800 text-sm leading-tight">Đơn #{order.id}</p>
-              <p className="text-[11px] text-gray-400 mt-1">
-                {new Date(order.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </p>
+
+            {/* Store */}
+            <div className="mb-4 pb-4 border-b border-gray-100">
+              <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1">Cửa hàng</p>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-orange-600 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-sm shadow-orange-200">
+                  {order.store_name?.charAt(0)?.toUpperCase() || 'S'}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-700 truncate">{order.store_name || 'Cửa hàng'}</p>
+                  {isReturn && order.store_address && (
+                    <p className="text-xs text-gray-500 mt-0.5">Địa chỉ trả shop: {order.store_address}</p>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-          <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">
-            Chờ nhận
-          </span>
-        </div>
 
-        {/* Store */}
-        <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-gray-100">
-          <div className="w-7 h-7 rounded-lg bg-orange-600 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-sm shadow-orange-200">
-            {order.store_name?.charAt(0)?.toUpperCase() || 'S'}
-          </div>
-          <p className="text-sm font-bold text-gray-700 truncate">{order.store_name || 'Cửa hàng'}</p>
-        </div>
-
-        {/* Recipient */}
-        <div className="space-y-3 mb-5">
-          <div className="flex items-start gap-2.5">
-            <FiMapPin size={14} className="mt-0.5 text-orange-500 shrink-0" />
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Địa chỉ nhận</p>
-              <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
-              <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
+            {/* Recipient */}
+            <div className="space-y-3 mb-5">
+              <div className="flex items-start gap-2.5">
+                <FiMapPin size={14} className={`mt-0.5 shrink-0 ${isReturn ? 'text-red-500' : 'text-orange-500'}`} />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                    {isReturn ? 'Địa chỉ lấy hàng (Khách hàng)' : 'Địa chỉ nhận'}
+                  </p>
+                  <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
+                </div>
+              </div>
+              {order.recipient_phone && (
+                <div className="flex items-center gap-2.5 pt-1">
+                  <FiPhone size={13} className="text-gray-400 shrink-0" />
+                  <p className="text-xs text-gray-600 font-medium">{order.recipient_phone}</p>
+                </div>
+              )}
             </div>
-          </div>
-          {order.recipient_phone && (
-            <div className="flex items-center gap-2.5 pt-1">
-              <FiPhone size={13} className="text-gray-400 shrink-0" />
-              <p className="text-xs text-gray-600 font-medium">{order.recipient_phone}</p>
+
+            {/* Badges */}
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              {isReturn && (
+                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700 border border-red-200">
+                  Thu hồi trả hàng
+                </span>
+              )}
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${shippingCfg.color}`}>
+                <ShippingIcon size={10} />
+                {shippingCfg.label}
+              </span>
+              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${paymentCfg.color}`}>
+                {paymentCfg.label}
+              </span>
+              {order.payment_status === 'paid' && (
+                <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200">
+                  Đã thanh toán
+                </span>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Badges */}
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${shippingCfg.color}`}>
-            <ShippingIcon size={10} />
-            {shippingCfg.label}
-          </span>
-          <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${paymentCfg.color}`}>
-            {paymentCfg.label}
-          </span>
-          {order.payment_status === 'paid' && (
-            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200">
-              Đã thanh toán
-            </span>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div>
-            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Tổng thu hộ (COD)</p>
-            <p className="text-2xl font-black text-orange-600 tracking-tight mt-0.5">{formatPrice(order.total_amount)}</p>
-          </div>
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div>
+                <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+                  {isReturn ? 'Hoàn trả lại khách' : 'Tổng thu hộ (COD)'}
+                </p>
+                <p className="text-2xl font-black text-orange-600 tracking-tight mt-0.5">{formatPrice(order.total_amount)}</p>
+              </div>
           <motion.button
             whileHover={{ scale: 1.03, y: -1 }}
             whileTap={{ scale: 0.96 }}

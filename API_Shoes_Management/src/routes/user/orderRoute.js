@@ -28,6 +28,8 @@ router.put('/cancel/:orderId', orderTrackingValidation.checkOrderIdParam,
   orderTrackingController.cancelOrderByUser)
 router.put('/cancel-withdraw/:orderId', orderTrackingValidation.checkOrderIdParam,
   orderTrackingController.withdrawCancelRequest)
+router.put('/return/:orderId', orderTrackingValidation.checkOrderIdParam,
+  orderTrackingController.requestOrderReturn)
 router.delete('/pending-orders', orderTrackingController.deletePendingOrders)
 
 router.post('/:orderId/reviews', reviewValidation.validateProductReviewBody,

@@ -109,6 +109,17 @@ export const VendorOrdersPage = () => {
     }
   }
 
+  const handleReturnRequest = async (id, decision, reason) => {
+    try {
+      const res = await vendorOrderApiService.handleReturnRequest(id, decision, reason)
+      toast.success(res.message)
+      fetchOrders()
+      setSelectedIds([])
+    } catch (error) {
+      toast.error(error.message || 'Xử lý yêu cầu trả hàng thất bại.')
+    }
+  }
+
   const handleAssignShipper = async (id) => {
     try {
       const res = await vendorOrderApiService.assignToShipper(id)
@@ -203,6 +214,7 @@ export const VendorOrdersPage = () => {
               onUpdateStatus={handleUpdateStatus}
               onAssignShipper={handleAssignShipper}
               onCancelRequest={handleCancelRequest}
+              onReturnRequest={handleReturnRequest}
               onUpdateStatusBulk={handleBulkUpdate}
             />
 

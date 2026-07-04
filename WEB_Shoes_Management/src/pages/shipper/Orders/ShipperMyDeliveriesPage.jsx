@@ -10,7 +10,12 @@ import { formatPrice } from '~/utils/formatters'
 const STATUS_CONFIG = {
   accepted_by_shipper: { label: 'Đã nhận đơn', cls: 'bg-blue-100 text-blue-700', border: 'border-l-blue-400', dot: 'bg-blue-400' },
   shipping: { label: 'Đang giao', cls: 'bg-orange-100 text-orange-700', border: 'border-l-orange-400', dot: 'bg-orange-400' },
-  delivered: { label: 'Đã giao - chờ xác nhận', cls: 'bg-purple-100 text-purple-700', border: 'border-l-purple-400', dot: 'bg-purple-400' }
+  delivered: { label: 'Đã giao - chờ xác nhận', cls: 'bg-purple-100 text-purple-700', border: 'border-l-purple-400', dot: 'bg-purple-400' },
+  
+  // Trạng thái trả hàng
+  return_accepted_by_shipper: { label: 'Đơn trả - Đã nhận', cls: 'bg-blue-100 text-blue-700', border: 'border-l-blue-400', dot: 'bg-blue-400' },
+  return_shipping: { label: 'Đơn trả - Đang thu hồi', cls: 'bg-orange-100 text-orange-700', border: 'border-l-orange-400', dot: 'bg-orange-400' },
+  return_delivered: { label: 'Đơn trả - Đã giao Shop', cls: 'bg-purple-100 text-purple-700', border: 'border-l-purple-400', dot: 'bg-purple-400' }
 }
 
 const StatusBadge = ({ status }) => {
@@ -117,10 +122,12 @@ const UploadProofModal = ({ orderId, onClose, onSuccess }) => {
 
 const OrderCard = ({ order, onAction, onOpenUpload }) => {
   const statusCfg = STATUS_CONFIG[order.status] || { border: 'border-l-gray-300' }
-  const canStart = order.status === 'accepted_by_shipper'
-  const canMarkDelivered = order.status === 'shipping'
-  const needsProof = order.status === 'delivered' && (!order.delivery_proof_images || order.delivery_proof_images.length === 0)
-  const canComplete = order.status === 'delivered' && order.delivery_proof_images?.length > 0
+  const isReturn = order.status?.startsWith('return_')
+  const canStart = order.status === 'accepted_by_shipper' || order.status === 'return_accepted_by_shipper'
+  const canMarkDelivered = order.status === 'shipping' || order.status === 'return_shipping'
+  const isDeliveredState = order.status === 'delivered' || order.status === 'return_delivered'
+  const needsProof = isDeliveredState && (!order.delivery_proof_images || order.delivery_proof_images.length === 0)
+  const canComplete = isDeliveredState && order.delivery_proof_images?.length > 0
 
   return (
     <motion.div
@@ -148,12 +155,22 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
           <StatusBadge status={order.status} />
         </div>
 
+        {/* Store info if return */}
+        {isReturn && (
+          <div className="mb-4 pb-4 border-b border-gray-100">
+            <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wide mb-1">Cửa hàng nhận trả</p>
+            <p className="text-sm font-bold text-gray-700">{order.store_name}</p>
+          </div>
+        )}
+
         {/* Recipient */}
         <div className="space-y-3 mb-5">
           <div className="flex items-start gap-2.5">
             <FiMapPin size={14} className="mt-0.5 text-orange-500 shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Người nhận & Địa chỉ</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                {isReturn ? 'Địa chỉ lấy hàng (Khách hàng)' : 'Người nhận & Địa chỉ'}
+              </p>
               <p className="text-sm font-bold text-gray-800 truncate mt-0.5">{order.recipient_name}</p>
               <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mt-0.5">{order.shipping_address}</p>
             </div>
@@ -194,7 +211,9 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div>
-            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Giá trị đơn</p>
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+              {isReturn ? 'Hoàn trả lại khách' : 'Giá trị đơn'}
+            </p>
             <p className="text-2xl font-black text-gray-800 tracking-tight mt-0.5">{formatPrice(order.total_amount)}</p>
           </div>
           <div className="flex gap-2">
@@ -206,7 +225,7 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
                 className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl text-xs font-bold transition-all duration-200 shadow-md shadow-blue-100 cursor-pointer"
               >
                 <MdOutlineDeliveryDining size={16} />
-                <span>Bắt đầu giao</span>
+                <span>{isReturn ? 'Bắt đầu đi lấy' : 'Bắt đầu giao'}</span>
               </motion.button>
             )}
             {canMarkDelivered && (
@@ -217,7 +236,7 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
                 className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-2xl text-xs font-bold transition-all duration-200 shadow-md shadow-purple-100 cursor-pointer"
               >
                 <FiCheck size={14} />
-                <span>Đã giao</span>
+                <span>{isReturn ? 'Đã lấy hàng' : 'Đã giao'}</span>
               </motion.button>
             )}
             {needsProof && (

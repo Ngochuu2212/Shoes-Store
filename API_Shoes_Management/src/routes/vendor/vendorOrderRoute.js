@@ -11,6 +11,7 @@ router.get('/', vendorOrderValidation.validateGetOrdersFilters, vendorOrderContr
 router.put('/:id/update-status', vendorOrderValidation.validateUpdateStatusBody, vendorOrderController.updateOrderStatus)
 router.put('/:id/assign-shipper', vendorOrderController.assignToShipper)
 router.put('/:id/handle-cancel', vendorOrderValidation.validateCancelRequestBody, vendorOrderController.handleCancelRequest)
+router.put('/:id/handle-return', vendorOrderController.handleReturnRequest)
 router.patch('/update-status-bulk', vendorOrderValidation.validateUpdateStatusBulkBody, vendorOrderController.updateOrderStatusBulk)
 
 export const vendorOrderRouter = router

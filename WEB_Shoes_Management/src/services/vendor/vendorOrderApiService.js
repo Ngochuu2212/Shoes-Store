@@ -39,5 +39,11 @@ export const vendorOrderApiService = {
   assignToShipper: async (id) => {
     const response = await authorizedAxiosInstance.put(`${DEV_API_URL}/api/vendor/orders/${id}/assign-shipper`)
     return response.data
+  },
+
+  // Xử lý yêu cầu trả hàng
+  handleReturnRequest: async (id, decision, reason = '') => {
+    const response = await authorizedAxiosInstance.put(`${DEV_API_URL}/api/vendor/orders/${id}/handle-return`, { decision, reason })
+    return response.data
   }
 }

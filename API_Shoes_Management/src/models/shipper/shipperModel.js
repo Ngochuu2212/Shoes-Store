@@ -10,23 +10,27 @@ const getAvailableOrders = async ({ limit, offset }) => {
            s.name AS store_name, s.address AS store_address
     FROM orders o
     LEFT JOIN stores s ON o.store_id = s.id
-    WHERE o.status = ? AND o.shipper_id IS NULL
+    WHERE o.status IN (?, ?) AND o.shipper_id IS NULL
     ORDER BY o.created_at DESC
     LIMIT ? OFFSET ?
   `
-  const [rows] = await pool.execute(query, [ORDER_STATUS.WAITING_FOR_SHIPPER, String(limit), String(offset)])
+  const [rows] = await pool.execute(query, [
+    ORDER_STATUS.WAITING_FOR_SHIPPER,
+    ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER,
+    String(limit), String(offset)
+  ])
   return rows
 }
 
 const countAvailableOrders = async () => {
   const [rows] = await pool.execute(
-    'SELECT COUNT(*) as total FROM orders WHERE status = ? AND shipper_id IS NULL',
-    [ORDER_STATUS.WAITING_FOR_SHIPPER]
+    'SELECT COUNT(*) as total FROM orders WHERE status IN (?, ?) AND shipper_id IS NULL',
+    [ORDER_STATUS.WAITING_FOR_SHIPPER, ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER]
   )
   return rows[0].total
 }
 
-// Shipper nhận đơn: gán shipper_id + chuyển sang accepted_by_shipper
+// Shipper nhận đơn: gán shipper_id + chuyển sang accepted_by_shipper / return_accepted_by_shipper
 const acceptOrder = async (orderId, shipperId) => {
   const connection = await pool.getConnection()
   try {
@@ -38,14 +42,23 @@ const acceptOrder = async (orderId, shipperId) => {
       [orderId]
     )
     if (rows.length === 0) throw new Error('Đơn hàng không tồn tại.')
-    if (rows[0].status !== ORDER_STATUS.WAITING_FOR_SHIPPER) throw new Error('Đơn hàng không còn ở trạng thái chờ shipper.')
+    if (
+      rows[0].status !== ORDER_STATUS.WAITING_FOR_SHIPPER && 
+      rows[0].status !== ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER
+    ) {
+      throw new Error('Đơn hàng không còn ở trạng thái chờ shipper.')
+    }
     if (rows[0].shipper_id !== null) throw new Error('Đơn hàng đã được shipper khác nhận.')
+
+    const targetStatus = rows[0].status === ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER
+      ? ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER
+      : ORDER_STATUS.ACCEPTED_BY_SHIPPER
 
     await connection.execute(
       `UPDATE orders 
        SET status = ?, shipper_id = ?, delivery_accepted_at = NOW()
        WHERE id = ?`,
-      [ORDER_STATUS.ACCEPTED_BY_SHIPPER, shipperId, orderId]
+      [targetStatus, shipperId, orderId]
     )
 
     await connection.commit()
@@ -58,7 +71,7 @@ const acceptOrder = async (orderId, shipperId) => {
   }
 }
 
-// Lấy danh sách đơn của shipper (accepted, shipping, delivered)
+// Lấy danh sách đơn của shipper (accepted, shipping, delivered bao gồm cả Trả hàng)
 const getMyDeliveries = async (shipperId, { limit, offset }) => {
   const query = `
     SELECT o.id, o.recipient_name, o.recipient_phone, o.shipping_address,
@@ -69,7 +82,7 @@ const getMyDeliveries = async (shipperId, { limit, offset }) => {
            s.name AS store_name
     FROM orders o
     LEFT JOIN stores s ON o.store_id = s.id
-    WHERE o.shipper_id = ? AND o.status IN (?,?,?)
+    WHERE o.shipper_id = ? AND o.status IN (?,?,?,?,?,?)
     ORDER BY o.created_at DESC
     LIMIT ? OFFSET ?
   `
@@ -78,6 +91,9 @@ const getMyDeliveries = async (shipperId, { limit, offset }) => {
     ORDER_STATUS.ACCEPTED_BY_SHIPPER,
     ORDER_STATUS.SHIPPING,
     ORDER_STATUS.DELIVERED,
+    ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER,
+    ORDER_STATUS.RETURN_SHIPPING,
+    ORDER_STATUS.RETURN_DELIVERED,
     String(limit), String(offset)
   ])
   return rows
@@ -85,13 +101,21 @@ const getMyDeliveries = async (shipperId, { limit, offset }) => {
 
 const countMyDeliveries = async (shipperId) => {
   const [rows] = await pool.execute(
-    'SELECT COUNT(*) as total FROM orders WHERE shipper_id = ? AND status IN (?,?,?)',
-    [shipperId, ORDER_STATUS.ACCEPTED_BY_SHIPPER, ORDER_STATUS.SHIPPING, ORDER_STATUS.DELIVERED]
+    'SELECT COUNT(*) as total FROM orders WHERE shipper_id = ? AND status IN (?,?,?,?,?,?)',
+    [
+      shipperId,
+      ORDER_STATUS.ACCEPTED_BY_SHIPPER,
+      ORDER_STATUS.SHIPPING,
+      ORDER_STATUS.DELIVERED,
+      ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER,
+      ORDER_STATUS.RETURN_SHIPPING,
+      ORDER_STATUS.RETURN_DELIVERED
+    ]
   )
   return rows[0].total
 }
 
-// Lịch sử giao hàng (completed + cancelled có shipper_id)
+// Lịch sử giao hàng (completed + cancelled + return_completed có shipper_id)
 const getDeliveryHistory = async (shipperId, { limit, offset }) => {
   const query = `
     SELECT o.id, o.recipient_name, o.recipient_phone, o.shipping_address,
@@ -102,7 +126,7 @@ const getDeliveryHistory = async (shipperId, { limit, offset }) => {
            s.name AS store_name
     FROM orders o
     LEFT JOIN stores s ON o.store_id = s.id
-    WHERE o.shipper_id = ? AND o.status IN (?,?)
+    WHERE o.shipper_id = ? AND o.status IN (?,?,?)
     ORDER BY o.delivery_completed_at DESC, o.created_at DESC
     LIMIT ? OFFSET ?
   `
@@ -110,6 +134,7 @@ const getDeliveryHistory = async (shipperId, { limit, offset }) => {
     shipperId,
     ORDER_STATUS.COMPLETED,
     ORDER_STATUS.CANCELLED,
+    ORDER_STATUS.RETURN_COMPLETED,
     String(limit), String(offset)
   ])
   return rows
@@ -117,15 +142,15 @@ const getDeliveryHistory = async (shipperId, { limit, offset }) => {
 
 const countDeliveryHistory = async (shipperId) => {
   const [rows] = await pool.execute(
-    'SELECT COUNT(*) as total FROM orders WHERE shipper_id = ? AND status IN (?,?)',
-    [shipperId, ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELLED]
+    'SELECT COUNT(*) as total FROM orders WHERE shipper_id = ? AND status IN (?,?,?)',
+    [shipperId, ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELLED, ORDER_STATUS.RETURN_COMPLETED]
   )
   return rows[0].total
 }
 
 // Lấy chi tiết một đơn hàng cho shipper
 const getOrderDetail = async (orderId, shipperId) => {
-  // Cho phép xem nếu là shipper của đơn này HOẶC đơn đang chờ (waiting_for_shipper)
+  // Cho phép xem nếu là shipper của đơn này HOẶC đơn đang chờ (waiting_for_shipper / return_waiting_for_shipper)
   const query = `
     SELECT o.id, o.user_id, o.store_id, o.shipper_id,
            o.recipient_name, o.recipient_phone, o.shipping_address,
@@ -137,9 +162,14 @@ const getOrderDetail = async (orderId, shipperId) => {
            s.name AS store_name, s.address AS store_address, s.phone AS store_phone
     FROM orders o
     LEFT JOIN stores s ON o.store_id = s.id
-    WHERE o.id = ? AND (o.shipper_id = ? OR (o.status = ? AND o.shipper_id IS NULL))
+    WHERE o.id = ? AND (o.shipper_id = ? OR (o.status IN (?, ?) AND o.shipper_id IS NULL))
   `
-  const [rows] = await pool.execute(query, [orderId, shipperId, ORDER_STATUS.WAITING_FOR_SHIPPER])
+  const [rows] = await pool.execute(query, [
+    orderId,
+    shipperId,
+    ORDER_STATUS.WAITING_FOR_SHIPPER,
+    ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER
+  ])
   if (rows.length === 0) return null
 
   const order = rows[0]
@@ -168,73 +198,124 @@ const getOrderDetail = async (orderId, shipperId) => {
   return order
 }
 
-// Shipper bắt đầu giao hàng
+// Shipper bắt đầu giao hàng (hoặc bắt đầu đi lấy hàng trả)
 const startDelivery = async (orderId, shipperId) => {
+  const [order] = await pool.execute('SELECT status FROM orders WHERE id = ? AND shipper_id = ?', [orderId, shipperId])
+  if (order.length === 0) return false
+  const currentStatus = order[0].status
+  const nextStatus = currentStatus === ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER
+    ? ORDER_STATUS.RETURN_SHIPPING
+    : ORDER_STATUS.SHIPPING
+
   const [result] = await pool.execute(
-    'UPDATE orders SET status = ?, delivery_started_at = NOW() WHERE id = ? AND shipper_id = ? AND status = ?',
-    [ORDER_STATUS.SHIPPING, orderId, shipperId, ORDER_STATUS.ACCEPTED_BY_SHIPPER]
+    'UPDATE orders SET status = ?, delivery_started_at = NOW() WHERE id = ? AND shipper_id = ?',
+    [nextStatus, orderId, shipperId]
   )
   return result.affectedRows > 0
 }
 
-// Shipper đánh dấu đã giao (delivered) - bước trước khi upload proof
+// Shipper đánh dấu đã giao hàng (hoặc đã giao trả cho shop) - bước trước khi upload proof
 const markDelivered = async (orderId, shipperId) => {
+  const [order] = await pool.execute('SELECT status FROM orders WHERE id = ? AND shipper_id = ?', [orderId, shipperId])
+  if (order.length === 0) return false
+  const currentStatus = order[0].status
+  const nextStatus = currentStatus === ORDER_STATUS.RETURN_SHIPPING
+    ? ORDER_STATUS.RETURN_DELIVERED
+    : ORDER_STATUS.DELIVERED
+
   const [result] = await pool.execute(
-    'UPDATE orders SET status = ? WHERE id = ? AND shipper_id = ? AND status = ?',
-    [ORDER_STATUS.DELIVERED, orderId, shipperId, ORDER_STATUS.SHIPPING]
+    'UPDATE orders SET status = ? WHERE id = ? AND shipper_id = ?',
+    [nextStatus, orderId, shipperId]
   )
   return result.affectedRows > 0
 }
 
-// Lưu ảnh minh chứng giao hàng
+// Lưu ảnh minh chứng giao hàng (giao cho khách hoặc giao trả cho shop)
 const saveDeliveryProof = async (orderId, shipperId, imageUrls, note) => {
+  const [order] = await pool.execute('SELECT status FROM orders WHERE id = ? AND shipper_id = ?', [orderId, shipperId])
+  if (order.length === 0) return false
+  const currentStatus = order[0].status
+  if (currentStatus !== ORDER_STATUS.DELIVERED && currentStatus !== ORDER_STATUS.RETURN_DELIVERED) return false
+
   const [result] = await pool.execute(
-    'UPDATE orders SET delivery_proof_images = ?, delivery_note = ? WHERE id = ? AND shipper_id = ? AND status = ?',
-    [JSON.stringify(imageUrls), note || null, orderId, shipperId, ORDER_STATUS.DELIVERED]
+    'UPDATE orders SET delivery_proof_images = ?, delivery_note = ? WHERE id = ? AND shipper_id = ?',
+    [JSON.stringify(imageUrls), note || null, orderId, shipperId]
   )
   return result.affectedRows > 0
 }
 
-// Hoàn tất giao hàng - credit vendor store balance
+// Hoàn tất giao hàng:
+// - Đơn thường: Chuyển COMPLETED + Cộng tiền store
+// - Đơn trả hàng: Chuyển RETURN_COMPLETED + Trừ tiền store + Hoàn tiền ví User
 const completeDelivery = async (orderId, shipperId) => {
   const connection = await pool.getConnection()
   try {
     await connection.beginTransaction()
 
     const [rows] = await connection.execute(
-      'SELECT o.id, o.store_id, o.total_amount, o.commission_rate_snapshot, o.delivery_proof_images, o.status FROM orders o WHERE o.id = ? AND o.shipper_id = ?',
+      'SELECT o.id, o.user_id, o.store_id, o.total_amount, o.commission_rate_snapshot, o.delivery_proof_images, o.status FROM orders o WHERE o.id = ? AND o.shipper_id = ?',
       [orderId, shipperId]
     )
     if (rows.length === 0) throw new Error('Đơn hàng không tồn tại hoặc không thuộc quyền của bạn.')
 
     const order = rows[0]
-    if (order.status !== ORDER_STATUS.DELIVERED) throw new Error('Đơn hàng chưa ở trạng thái "Đã giao". Không thể hoàn tất.')
+    if (order.status !== ORDER_STATUS.DELIVERED && order.status !== ORDER_STATUS.RETURN_DELIVERED) {
+      throw new Error('Đơn hàng chưa ở trạng thái "Đã giao" hoặc "Trả hàng - Đã giao Shop". Không thể hoàn tất.')
+    }
 
     let proofImages = order.delivery_proof_images
     if (typeof proofImages === 'string') {
       try { proofImages = JSON.parse(proofImages) } catch { proofImages = [] }
     }
-    if (!proofImages || proofImages.length === 0) throw new Error('Bạn phải upload ảnh minh chứng giao hàng trước khi hoàn tất đơn.')
+    if (!proofImages || proofImages.length === 0) throw new Error('Bạn phải upload ảnh minh chứng trước khi hoàn tất đơn.')
 
     const totalAmount = Number(order.total_amount)
     const commissionRate = Number(order.commission_rate_snapshot) || 10
     const adminCommission = totalAmount * (commissionRate / 100)
     const vendorNetProfit = totalAmount - adminCommission
 
-    // Cập nhật trạng thái hoàn thành + thanh toán
-    await connection.execute(
-      `UPDATE orders SET status = ?, payment_status = 'paid', delivery_completed_at = NOW() WHERE id = ?`,
-      [ORDER_STATUS.COMPLETED, orderId]
-    )
+    if (order.status === ORDER_STATUS.RETURN_DELIVERED) {
+      // 1. Cập nhật trạng thái hoàn tất Trả hàng
+      await connection.execute(
+        `UPDATE orders SET status = ?, delivery_completed_at = NOW() WHERE id = ?`,
+        [ORDER_STATUS.RETURN_COMPLETED, orderId]
+      )
 
-    // Credit doanh thu vào ví store
-    await connection.execute(
-      'UPDATE stores SET balance = balance + ? WHERE id = ?',
-      [vendorNetProfit, order.store_id]
-    )
+      // 2. Khấu trừ doanh thu đã cộng trước đó từ ví của shop
+      await connection.execute(
+        'UPDATE stores SET balance = balance - ? WHERE id = ?',
+        [vendorNetProfit, order.store_id]
+      )
 
-    await connection.commit()
-    return { adminCommission, vendorNetProfit }
+      // 3. Hoàn lại 100% tiền đơn hàng vào ví người dùng (User)
+      await connection.execute(
+        'UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?',
+        [totalAmount, order.user_id]
+      )
+
+      // 4. Lưu vết giao dịch hoàn ví
+      await connection.execute(
+        'INSERT INTO wallet_transactions (user_id, type, amount, description, order_id) VALUES (?, ?, ?, ?, ?)',
+        [order.user_id, 'REFUND', totalAmount, `Hoàn tiền ví do trả hàng - đơn hàng #${orderId}`, orderId]
+      )
+
+      await connection.commit()
+      return { adminCommission, vendorNetProfit, isReturn: true }
+    } else {
+      // Đơn hàng giao thường
+      await connection.execute(
+        `UPDATE orders SET status = ?, payment_status = 'paid', delivery_completed_at = NOW() WHERE id = ?`,
+        [ORDER_STATUS.COMPLETED, orderId]
+      )
+
+      await connection.execute(
+        'UPDATE stores SET balance = balance + ? WHERE id = ?',
+        [vendorNetProfit, order.store_id]
+      )
+
+      await connection.commit()
+      return { adminCommission, vendorNetProfit, isReturn: false }
+    }
   } catch (error) {
     await connection.rollback()
     throw error
@@ -247,16 +328,18 @@ const completeDelivery = async (orderId, shipperId) => {
 const getDashboardStats = async (shipperId) => {
   const [rows] = await pool.execute(`
     SELECT
-      SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS waitingOrders,
-      SUM(CASE WHEN status IN (?,?,?) AND shipper_id = ? THEN 1 ELSE 0 END) AS activeDeliveries,
-      SUM(CASE WHEN status = ? AND shipper_id = ? AND DATE(delivery_completed_at) = CURDATE() THEN 1 ELSE 0 END) AS completedToday,
-      SUM(CASE WHEN status = ? AND shipper_id = ? THEN 1 ELSE 0 END) AS totalCompleted
+      SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) AS waitingOrders,
+      SUM(CASE WHEN status IN (?,?,?,?,?,?) AND shipper_id = ? THEN 1 ELSE 0 END) AS activeDeliveries,
+      SUM(CASE WHEN status IN (?, ?) AND shipper_id = ? AND DATE(delivery_completed_at) = CURDATE() THEN 1 ELSE 0 END) AS completedToday,
+      SUM(CASE WHEN status IN (?, ?) AND shipper_id = ? THEN 1 ELSE 0 END) AS totalCompleted
     FROM orders
   `, [
-    ORDER_STATUS.WAITING_FOR_SHIPPER,
-    ORDER_STATUS.ACCEPTED_BY_SHIPPER, ORDER_STATUS.SHIPPING, ORDER_STATUS.DELIVERED, shipperId,
-    ORDER_STATUS.COMPLETED, shipperId,
-    ORDER_STATUS.COMPLETED, shipperId
+    ORDER_STATUS.WAITING_FOR_SHIPPER, ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER,
+    ORDER_STATUS.ACCEPTED_BY_SHIPPER, ORDER_STATUS.SHIPPING, ORDER_STATUS.DELIVERED,
+    ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER, ORDER_STATUS.RETURN_SHIPPING, ORDER_STATUS.RETURN_DELIVERED,
+    shipperId,
+    ORDER_STATUS.COMPLETED, ORDER_STATUS.RETURN_COMPLETED, shipperId,
+    ORDER_STATUS.COMPLETED, ORDER_STATUS.RETURN_COMPLETED, shipperId
   ])
   return {
     waitingOrders: Number(rows[0].waitingOrders) || 0,
