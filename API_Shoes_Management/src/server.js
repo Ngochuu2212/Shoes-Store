@@ -58,6 +58,9 @@ import { notificationRouter } from '~/routes/notification/notificationRoute'
 // Định tuyến hệ thống API cho SHIPPER (Giao hàng)
 import { shipperRouter } from '~/routes/shipper/shipperRoute'
 
+// Định tuyến hệ thống API cho AI Chatbot
+import { aiRouter } from '~/routes/ai/aiRoute'
+
 import { corsOptions } from '~/config/corsOptions'
 import cookieParser from 'cookie-parser'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
@@ -132,6 +135,9 @@ const START_SERVER = () => {
 
   // Định tuyến hệ thống API cho SHIPPER (Giao hàng)
   app.use('/api/shipper', shipperRouter)
+
+  // Định tuyến hệ thống API cho AI Chatbot
+  app.use('/api/ai', aiRouter)
 
   // Thêm middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)

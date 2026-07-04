@@ -16,6 +16,9 @@ export const env = {
   // Cấu hình Google OAuth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 
+  // Cấu hình Gemini AI
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+
   // Cấu hình JWT
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,

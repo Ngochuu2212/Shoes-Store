@@ -4,6 +4,7 @@ import { useMaintenance } from '~/hooks/useMaintenance'
 import { MaintenanceModal } from '~/components/common/MaintenanceModal'
 import { Header } from './Header'
 import { Footer } from './Footer'
+import { AIChatbot } from '~/components/common/AIChatbot'
 
 export const MainLayout = () => {
   const { isMaintenance, maintenanceMessage, loading, handleMaintenanceLogout } = useMaintenance()
@@ -36,6 +37,7 @@ export const MainLayout = () => {
         <Outlet />
       </main>
       <Footer />
+      <AIChatbot />
 
       <MaintenanceModal
         isOpen={showMaintenanceModal}
