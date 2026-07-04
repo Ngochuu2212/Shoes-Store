@@ -123,11 +123,12 @@ const UploadProofModal = ({ orderId, onClose, onSuccess }) => {
 const OrderCard = ({ order, onAction, onOpenUpload }) => {
   const statusCfg = STATUS_CONFIG[order.status] || { border: 'border-l-gray-300' }
   const isReturn = order.status?.startsWith('return_')
+  const proofImages = isReturn ? (order.return_evidence_images || []) : (order.delivery_proof_images || [])
   const canStart = order.status === 'accepted_by_shipper' || order.status === 'return_accepted_by_shipper'
   const canMarkDelivered = order.status === 'shipping' || order.status === 'return_shipping'
   const isDeliveredState = order.status === 'delivered' || order.status === 'return_delivered'
-  const needsProof = isDeliveredState && (!order.delivery_proof_images || order.delivery_proof_images.length === 0)
-  const canComplete = isDeliveredState && order.delivery_proof_images?.length > 0
+  const needsProof = isDeliveredState && (!proofImages || proofImages.length === 0)
+  const canComplete = isDeliveredState && proofImages?.length > 0
 
   return (
     <motion.div
@@ -184,18 +185,18 @@ const OrderCard = ({ order, onAction, onOpenUpload }) => {
         </div>
 
         {/* Proof images */}
-        {order.delivery_proof_images?.length > 0 && (
+        {proofImages?.length > 0 && (
           <div className="mb-5 p-3.5 bg-emerald-50/50 rounded-2xl border border-emerald-100">
             <p className="text-[11px] text-emerald-700 font-extrabold uppercase tracking-wider mb-2 flex items-center gap-1">
-              <span>✅ Ảnh minh chứng ({order.delivery_proof_images.length})</span>
+              <span>✅ Ảnh minh chứng ({proofImages.length})</span>
             </p>
             <div className="flex gap-2">
-              {order.delivery_proof_images.slice(0, 4).map((img, i) => (
+              {proofImages.slice(0, 4).map((img, i) => (
                 <img key={i} src={img} alt="proof" className="w-12 h-12 object-cover rounded-xl border border-emerald-250 hover:scale-105 transition-transform" />
               ))}
-              {order.delivery_proof_images.length > 4 && (
+              {proofImages.length > 4 && (
                 <div className="w-12 h-12 rounded-xl bg-emerald-100/50 border border-emerald-250 flex items-center justify-center text-xs text-emerald-750 font-bold">
-                  +{order.delivery_proof_images.length - 4}
+                  +{proofImages.length - 4}
                 </div>
               )}
             </div>
@@ -289,7 +290,10 @@ export const ShipperMyDeliveriesPage = () => {
     ...order,
     delivery_proof_images: typeof order.delivery_proof_images === 'string'
       ? JSON.parse(order.delivery_proof_images || '[]')
-      : (order.delivery_proof_images || [])
+      : (order.delivery_proof_images || []),
+    return_evidence_images: typeof order.return_evidence_images === 'string'
+      ? JSON.parse(order.return_evidence_images || '[]')
+      : (order.return_evidence_images || [])
   })
 
   const fetchOrders = async (page = 1, silent = false) => {

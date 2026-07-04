@@ -78,14 +78,14 @@ const getMyDeliveries = async (shipperId, { limit, offset }) => {
            o.total_amount, o.shipping_fee, o.shipping_method, o.status,
            o.payment_method, o.payment_status, o.created_at,
            o.delivery_accepted_at, o.delivery_started_at, o.delivery_completed_at,
-           o.delivery_proof_images,
-           s.name AS store_name
-    FROM orders o
-    LEFT JOIN stores s ON o.store_id = s.id
-    WHERE o.shipper_id = ? AND o.status IN (?,?,?,?,?,?)
-    ORDER BY o.created_at DESC
-    LIMIT ? OFFSET ?
-  `
+           o.delivery_proof_images, o.return_evidence_images,
+           s.name AS store_name, s.address AS store_address
+     FROM orders o
+     LEFT JOIN stores s ON o.store_id = s.id
+     WHERE o.shipper_id = ? AND o.status IN (?,?,?,?,?,?)
+     ORDER BY o.created_at DESC
+     LIMIT ? OFFSET ?
+   `
   const [rows] = await pool.execute(query, [
     shipperId,
     ORDER_STATUS.ACCEPTED_BY_SHIPPER,
@@ -122,8 +122,8 @@ const getDeliveryHistory = async (shipperId, { limit, offset }) => {
            o.total_amount, o.shipping_fee, o.shipping_method, o.status,
            o.payment_method, o.payment_status, o.created_at,
            o.delivery_accepted_at, o.delivery_started_at, o.delivery_completed_at,
-           o.delivery_proof_images, o.delivery_note,
-           s.name AS store_name
+           o.delivery_proof_images, o.return_evidence_images, o.delivery_note,
+           s.name AS store_name, s.address AS store_address
     FROM orders o
     LEFT JOIN stores s ON o.store_id = s.id
     WHERE o.shipper_id = ? AND o.status IN (?,?,?)
@@ -158,7 +158,7 @@ const getOrderDetail = async (orderId, shipperId) => {
            o.status, o.payment_method, o.payment_status,
            o.cancel_reason, o.created_at,
            o.delivery_accepted_at, o.delivery_started_at, o.delivery_completed_at,
-           o.delivery_proof_images, o.delivery_note,
+           o.delivery_proof_images, o.return_evidence_images, o.delivery_note,
            s.name AS store_name, s.address AS store_address, s.phone AS store_phone
     FROM orders o
     LEFT JOIN stores s ON o.store_id = s.id
@@ -237,8 +237,9 @@ const saveDeliveryProof = async (orderId, shipperId, imageUrls, note) => {
   const currentStatus = order[0].status
   if (currentStatus !== ORDER_STATUS.DELIVERED && currentStatus !== ORDER_STATUS.RETURN_DELIVERED) return false
 
+  const columnName = currentStatus === ORDER_STATUS.RETURN_DELIVERED ? 'return_evidence_images' : 'delivery_proof_images'
   const [result] = await pool.execute(
-    'UPDATE orders SET delivery_proof_images = ?, delivery_note = ? WHERE id = ? AND shipper_id = ?',
+    `UPDATE orders SET ${columnName} = ?, delivery_note = ? WHERE id = ? AND shipper_id = ?`,
     [JSON.stringify(imageUrls), note || null, orderId, shipperId]
   )
   return result.affectedRows > 0
@@ -253,7 +254,7 @@ const completeDelivery = async (orderId, shipperId) => {
     await connection.beginTransaction()
 
     const [rows] = await connection.execute(
-      'SELECT o.id, o.user_id, o.store_id, o.total_amount, o.commission_rate_snapshot, o.delivery_proof_images, o.status FROM orders o WHERE o.id = ? AND o.shipper_id = ?',
+      'SELECT o.id, o.user_id, o.store_id, o.total_amount, o.commission_rate_snapshot, o.delivery_proof_images, o.return_evidence_images, o.status FROM orders o WHERE o.id = ? AND o.shipper_id = ?',
       [orderId, shipperId]
     )
     if (rows.length === 0) throw new Error('Đơn hàng không tồn tại hoặc không thuộc quyền của bạn.')
@@ -263,7 +264,8 @@ const completeDelivery = async (orderId, shipperId) => {
       throw new Error('Đơn hàng chưa ở trạng thái "Đã giao" hoặc "Trả hàng - Đã giao Shop". Không thể hoàn tất.')
     }
 
-    let proofImages = order.delivery_proof_images
+    const isReturn = order.status === ORDER_STATUS.RETURN_DELIVERED
+    let proofImages = isReturn ? order.return_evidence_images : order.delivery_proof_images
     if (typeof proofImages === 'string') {
       try { proofImages = JSON.parse(proofImages) } catch { proofImages = [] }
     }

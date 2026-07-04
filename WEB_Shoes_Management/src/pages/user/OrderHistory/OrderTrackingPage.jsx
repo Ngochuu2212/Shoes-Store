@@ -159,7 +159,7 @@ export const OrderTrackingPage = () => {
         >
           <Tabs defaultValue="all" value={currentTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="w-full flex overflow-x-auto justify-start lg:justify-between items-center bg-white px-3 py-8 gap-1.5 rounded-2xl shadow-sm mb-6 border border-gray-100 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <TabsTrigger value="all" className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value="all" className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiGrid size={16} />
                   <span>Tất cả</span>
@@ -167,7 +167,7 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.PENDING} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.PENDING} className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiFileText size={16} />
                   <span>Đơn hàng mới</span>
@@ -175,7 +175,7 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.PROCESSING} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.PROCESSING} className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiPackage size={16} />
                   <span>Đang xử lý</span>
@@ -183,7 +183,7 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.SHIPPING} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.SHIPPING} className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiTruck size={16} />
                   <span>Đang giao</span>
@@ -191,7 +191,7 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.COMPLETED} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.COMPLETED} className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiCheckCircle size={16} />
                   <span>Đã giao</span>
@@ -199,7 +199,7 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.CANCELLED} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.CANCELLED} className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiXCircle size={16} />
                   <span>Đã hủy</span>
@@ -207,7 +207,7 @@ export const OrderTrackingPage = () => {
                 </div>
               </TabsTrigger>
 
-              <TabsTrigger value={ORDER_STATUS.CANCEL_REQUESTED} className="flex-1 py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
+              <TabsTrigger value={ORDER_STATUS.CANCEL_REQUESTED} className="flex-1 shrink-0 min-w-max py-3.5 px-4 text-sm font-medium text-gray-500 rounded-xl hover:text-brand-primary hover:bg-gray-50/80 data-[state=active]:bg-brand-primary/10 data-[state=active]:text-brand-primary data-[state=active]:font-bold transition-all duration-300 ease-in-out active:scale-95 cursor-pointer">
                 <div className="flex items-center justify-center gap-2">
                   <FiAlertCircle size={16} />
                   <span>Yêu cầu hủy</span>
