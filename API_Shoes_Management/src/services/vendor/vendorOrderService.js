@@ -2,7 +2,7 @@ import { vendorOrderModel } from '~/models/vendor/order/vendorOrderModel'
 import { orderModel } from '~/models/user/order/orderModel'
 import { walletModel } from '~/models/user/wallet/walletModel'
 import { notificationService } from '~/services/notification/notificationService'
-import { ORDER_STATUS, NOTIFICATION_TYPES } from '~/utils/constants'
+import { ORDER_STATUS, NOTIFICATION_TYPES, ROLE_ID } from '~/utils/constants'
 import pool from '~/config/db'
 
 const getVerifiedStoreId = async (userId) => {
@@ -336,6 +336,25 @@ const assignToShipper = async (userId, orderId) => {
       `Đơn hàng #${orderId} đã được đóng gói xong và đang được giao cho đơn vị vận chuyển.`,
       NOTIFICATION_TYPES.ORDER_WAITING_FOR_SHIPPER
     )
+  }
+
+  // Gửi thông báo cho tất cả Shipper đang hoạt động
+  try {
+    const [shippers] = await pool.execute(
+      'SELECT id FROM users WHERE role_id = ? AND is_active = 1',
+      [ROLE_ID.SHIPPER]
+    )
+    for (const shipper of shippers) {
+      await sendOrderNotification(
+        orderId,
+        shipper.id,
+        '🚚 Có đơn hàng mới cần giao!',
+        `Đơn hàng #${orderId} đang chờ shipper nhận giao. Hãy vào mục "Đơn chờ nhận" để xem chi tiết.`,
+        NOTIFICATION_TYPES.ORDER_WAITING_FOR_SHIPPER
+      )
+    }
+  } catch (err) {
+    console.error('Lỗi gửi thông báo cho shippers:', err)
   }
 
   return { message: `Đã bàn giao đơn hàng #${orderId} cho đơn vị vận chuyển. Đơn hàng sẽ xuất hiện trong danh sách chờ Shipper.` }
