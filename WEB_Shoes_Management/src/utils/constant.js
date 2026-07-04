@@ -38,9 +38,6 @@ export const PAYMENT_METHODS = {
   MOMO: 'MOMO',
   WALLET: 'WALLET'
 }
-  VNPAY: 'VNPAY',
-  MOMO: 'MOMO'
-}
 
 export const CANCEL_REASONS = [
   'Thay đổi ý định mua hàng',
