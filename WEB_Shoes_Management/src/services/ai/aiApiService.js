@@ -41,9 +41,10 @@ export const aiApiService = {
     return response.data
   },
 
-  detectFeet: async (imageFile) => {
+  detectFeet: async (imageFile, shoeImageUrl) => {
     const formData = new FormData()
     formData.append('image', imageFile)
+    formData.append('shoeImageUrl', shoeImageUrl)
 
     const response = await authorizedAxiosInstance.post(
       `${DEV_API_URL}/api/ai/detect-feet`,

@@ -245,16 +245,34 @@ Hãy phản hồi bằng giọng điệu nhiệt tình, tinh tế, chia các ph�
 
 const detectFeet = async (req, res) => {
   try {
+    const { shoeImageUrl } = req.body
+    
     if (!req.file) {
       return res.status(400).json({ message: 'Vui lòng cung cấp hình ảnh chụp chân' })
+    }
+    if (!shoeImageUrl) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp hình ảnh giày' })
     }
 
     if (!env.GEMINI_API_KEY || env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
       return res.status(500).json({ message: 'Hệ thống chưa được cấu hình GEMINI_API_KEY.' })
     }
 
-    const imagePart = fileToGenerativePart(req.file.buffer, req.file.mimetype)
+    // 1. Đọc ảnh chân của người dùng
+    const footPart = fileToGenerativePart(req.file.buffer, req.file.mimetype)
 
+    // 2. Tải ảnh giày và chuyển thành buffer
+    let shoePart
+    try {
+      const response = await axios.get(shoeImageUrl, { responseType: 'arraybuffer' })
+      const contentType = response.headers['content-type'] || 'image/jpeg'
+      shoePart = fileToGenerativePart(Buffer.from(response.data), contentType)
+    } catch (fetchError) {
+      console.error('Lỗi tải ảnh giày phục vụ định vị:', fetchError.message)
+      return res.status(400).json({ message: 'Không thể tải ảnh giày từ máy chủ' })
+    }
+
+    // 3. Gọi Gemini 2.5 Flash
     const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.5-flash',
@@ -262,29 +280,41 @@ const detectFeet = async (req, res) => {
     })
 
     const prompt = `
-Analyze this photo and detect the feet or shoes area. 
-Return the 2D bounding boxes of all detected feet or shoes. 
-For each detected foot/shoe, provide its bounding box as [ymin, xmin, ymax, xmax] normalized on a 0 to 1000 scale.
-Output MUST be in the following JSON format:
+You are an AI spatial reasoning assistant for an e-commerce virtual shoe try-on simulator.
+You are given two images:
+1. "foot_photo": A photo of a user's feet (could be shot from top-down or side view).
+2. "shoe_photo": A photo of a shoe (usually side-profile).
+
+Your task is to analyze the spatial orientation of the feet in the "foot_photo" and calculate the perfect transformation coordinates and scale to overlay the "shoe_photo" directly on top of ONE of the user's feet, making it look as if they are wearing the shoe.
+
+Please follow these guidelines:
+1. Locate the foot that is most clearly visible (prefer the right foot if both are visible, or whichever foot matches the shoe orientation best).
+2. Identify the heel/ankle area and the toes area of that foot to understand the leg direction.
+3. Compare the orientation of the shoe in "shoe_photo" (is the toe pointing left or right?) and the orientation of the foot in "foot_photo" (is the foot pointing up, left, right, or diagonal?).
+4. Calculate the translation coordinates, rotation angle, and scale factor:
+   - "x": The center X coordinate on the foot photo where the shoe's midfoot/arch should sit (on a scale of 0 to 1000, where 0 is the left edge and 1000 is the right edge of the foot photo).
+   - "y": The center Y coordinate on the foot photo where the shoe's midfoot/arch should sit (on a scale of 0 to 1000, where 0 is the top edge and 1000 is the bottom edge of the foot photo).
+   - "scale": The scale factor (usually between 0.5 to 1.8) relative to a default shoe UI width of 192px to make the shoe fit the foot size.
+   - "rotation": The rotation angle in degrees (clockwise, e.g., -90, -45, 0, 45, 90) to align the shoe's sole with the foot's angle. (For example, if the foot points straight up but the shoe is horizontal pointing left, you may need to rotate it to point upwards).
+   - "isFlipped": A boolean (true or false) indicating if the shoe needs to be flipped horizontally (scaleX = -1) to match the left/right direction of the foot.
+
+Return your response strictly in the following JSON format:
 {
-  "detections": [
-    {
-      "box_2d": [ymin, xmin, ymax, xmax],
-      "label": "left_foot" or "right_foot" or "foot"
-    }
-  ]
+  "x": number,
+  "y": number,
+  "scale": number,
+  "rotation": number,
+  "isFlipped": boolean
 }
-If no feet are detected, return an empty array of detections.
 `
 
-    const result = await model.generateContent([prompt, imagePart])
+    const result = await model.generateContent([prompt, footPart, shoePart])
     const responseText = result.response.text()
     
     let parsed
     try {
       parsed = JSON.parse(responseText)
     } catch (parseErr) {
-      // Dọn dẹp markdown nếu có
       const cleaned = responseText.replace(/```json/g, '').replace(/```/g, '').trim()
       parsed = JSON.parse(cleaned)
     }

@@ -182,55 +182,44 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
       const reader = new FileReader()
       reader.onload = async (event) => {
         setUploadedImgUrl(event.target.result)
-        
-        // Gọi AI nhận diện chân
+                // Gọi AI nhận diện chân
         try {
           toast.info('🔍 AI đang quét ảnh chân để tự động đặt giày vào vị trí phù hợp...')
-          const data = await aiApiService.detectFeet(file)
+          const data = await aiApiService.detectFeet(file, shoeImage)
           
-          if (data && data.detections && data.detections.length > 0) {
-            // Lấy phát hiện đầu tiên
-            const firstDetection = data.detections[0]
-            const [ymin, xmin, ymax, xmax] = firstDetection.box_2d // tỷ lệ 0 đến 1000
-            
-            // Tính toán vị trí tâm (%)
-            const pctX = (xmin + xmax) / 2 / 1000
-            const pctY = (ymin + ymax) / 2 / 1000
+          if (data && typeof data.x === 'number' && typeof data.y === 'number') {
+            const { x, y, scale: newScale, rotation: newRotation, isFlipped: newIsFlipped } = data
             
             const container = containerRef.current
             if (container) {
               const rect = container.getBoundingClientRect()
-              const targetX = pctX * rect.width
-              const targetY = pctY * rect.height
-              setPosition({ x: targetX, y: targetY })
-              
-              // Điều chỉnh kích cỡ giày theo độ rộng của phát hiện
-              const detectWidthPct = (xmax - xmin) / 1000
-              const targetWidthOnUI = detectWidthPct * rect.width
-              // Giày mặc định rộng 192px trên UI
-              const calculatedScale = Math.max(0.4, Math.min(2.0, (targetWidthOnUI / 192) * 1.25)) // nhân 1.25 để giày phủ chân đẹp hơn
-              setScale(parseFloat(calculatedScale.toFixed(2)))
+              setPosition({
+                x: (x / 1000) * rect.width,
+                y: (y / 1000) * rect.height
+              })
+              setScale(newScale || 1.0)
+              setRotation(newRotation || 0)
+              setIsFlipped(!!newIsFlipped)
             } else {
               // Fallback nếu chưa render xong container
               setTimeout(() => {
                 const container = containerRef.current
                 if (container) {
                   const rect = container.getBoundingClientRect()
-                  const targetX = pctX * rect.width
-                  const targetY = pctY * rect.height
-                  setPosition({ x: targetX, y: targetY })
-                  
-                  const detectWidthPct = (xmax - xmin) / 1000
-                  const targetWidthOnUI = detectWidthPct * rect.width
-                  const calculatedScale = Math.max(0.4, Math.min(2.0, (targetWidthOnUI / 192) * 1.25))
-                  setScale(parseFloat(calculatedScale.toFixed(2)))
+                  setPosition({
+                    x: (x / 1000) * rect.width,
+                    y: (y / 1000) * rect.height
+                  })
+                  setScale(newScale || 1.0)
+                  setRotation(newRotation || 0)
+                  setIsFlipped(!!newIsFlipped)
                 }
               }, 300)
             }
             
-            toast.success('🎉 AI đã tự động phát hiện bàn chân và ướm giày đúng vị trí!')
+            toast.success('🎉 AI đã tự động phân tích phối cảnh và ướm giày đúng vị trí!')
           } else {
-            toast.warn('AI không tìm thấy rõ bàn chân. Bạn có thể kéo thả giày thủ công.')
+            toast.warn('AI không thể xác định vị trí chân thích hợp. Bạn hãy di chuyển giày thủ công nhé.')
           }
         } catch (detectErr) {
           console.error('Lỗi nhận dạng chân:', detectErr)
@@ -452,25 +441,45 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
                   accept="image/*"
                   className="hidden"
                 />
-
                 {!uploadedImgUrl ? (
                   /* Vùng Upload */
-                  <div
-                    onClick={triggerFileInput}
-                    className="flex-1 aspect-[3/4] max-h-[480px] border-3 border-dashed border-purple-200 hover:border-purple-500 bg-purple-50/20 hover:bg-purple-50/40 rounded-3xl flex flex-col items-center justify-center gap-4 p-8 text-center cursor-pointer transition-all duration-300 group"
-                  >
-                    <div className="w-16 h-16 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                      <FiUpload size={28} />
+                  <div className="space-y-4 flex-1 flex flex-col">
+                    <div
+                      onClick={triggerFileInput}
+                      className="flex-1 aspect-[3/4] max-h-[440px] border-3 border-dashed border-purple-200 hover:border-purple-500 bg-purple-50/20 hover:bg-purple-50/40 rounded-3xl flex flex-col items-center justify-center gap-4 p-8 text-center cursor-pointer transition-all duration-300 group"
+                    >
+                      <div className="w-16 h-16 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                        <FiUpload size={28} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-700 text-sm md:text-base">Tải ảnh chụp bàn chân lên</p>
+                        <p className="text-xs text-gray-400 mt-2 max-w-xs leading-relaxed">
+                          Nhấp hoặc kéo thả ảnh chụp bàn chân của bạn vào đây.
+                        </p>
+                      </div>
+                      <span className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
+                        Chọn ảnh
+                      </span>
                     </div>
-                    <div>
-                      <p className="font-bold text-gray-700 text-sm md:text-base">Tải ảnh chụp bàn chân lên</p>
-                      <p className="text-xs text-gray-400 mt-2 max-w-xs leading-relaxed">
-                        Hãy chụp bàn chân hoặc đôi chân của bạn từ trên xuống và tải lên đây để ướm giày thử.
+                    
+                    {/* Hướng dẫn góc chụp */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left shrink-0">
+                      <p className="text-xs font-bold text-amber-800 flex items-center gap-1.5 mb-1">
+                        <FiAlertCircle size={14} />
+                        Mẹo chụp ảnh để thử giày thật nhất:
                       </p>
+                      <ul className="text-[11px] text-amber-700 space-y-1 pl-4 list-decimal leading-relaxed">
+                        <li>
+                          Đôi giày đang xem được chụp từ <strong>góc nghiêng (side-view)</strong>.
+                        </li>
+                        <li>
+                          Bạn nên chụp ảnh bàn chân của mình từ <strong>góc nghiêng tương ứng</strong> (chụp từ bên hông bàn chân đặt trên sàn).
+                        </li>
+                        <li>
+                          Khi đó, bạn chỉ cần kéo giày đè lên chân, đôi giày sẽ tự động ôm lấy bàn chân trông y như bạn đang mang giày thật!
+                        </li>
+                      </ul>
                     </div>
-                    <span className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm">
-                      Chọn ảnh
-                    </span>
                   </div>
                 ) : (
                   /* Vùng Tương tác Ướm Giày */
