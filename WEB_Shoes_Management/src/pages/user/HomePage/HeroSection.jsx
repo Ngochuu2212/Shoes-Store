@@ -19,7 +19,7 @@ export const HeroSection = () => {
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
