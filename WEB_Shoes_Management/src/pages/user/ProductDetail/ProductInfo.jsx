@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { FiHeart, FiMinus, FiPlus, FiShoppingCart, FiTruck, FiRefreshCcw, FiZap, FiStar, FiCompass } from 'react-icons/fi'
+import { FiHeart, FiMinus, FiPlus, FiShoppingCart, FiTruck, FiRefreshCcw, FiZap, FiStar } from 'react-icons/fi'
 import { formatPrice, formatSold, calculateFinalPrice } from '~/utils/formatters'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
@@ -21,7 +21,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } }
 }
 
-export const ProductInfo = ({ product, onColorChangeFromGallery, onColorSelect, onOpenTryOn }) => {
+export const ProductInfo = ({ product, onColorChangeFromGallery, onColorSelect }) => {
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -328,17 +328,6 @@ export const ProductInfo = ({ product, onColorChangeFromGallery, onColorSelect, 
         >
           <FiShoppingCart size={18} />
           {isAddingToCart ? 'Đang xử lý...' : 'Thêm vào giỏ hàng'}
-        </motion.button>
-
-        <motion.button
-          type="button"
-          onClick={onOpenTryOn}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full xs:w-auto px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 sm:py-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer text-sm sm:text-base shadow-md shadow-purple-100"
-        >
-          <FiCompass size={18} />
-          <span>Thử giày AI</span>
         </motion.button>
       </motion.div>
 
