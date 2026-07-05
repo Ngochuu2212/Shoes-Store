@@ -8,9 +8,63 @@ import { LuFlipHorizontal } from 'react-icons/lu'
 import { aiApiService } from '~/services/ai/aiApiService'
 import { toast } from 'react-toastify'
 
+// Hàm tiện ích tự động xóa nền màu đơn sắc ở client-side
+const removeImageBackground = (imageUrl, tolerance = 25) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.src = imageUrl
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0)
+      
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const data = imgData.data
+        
+        // Lấy màu nền ở góc trên bên trái (0, 0) làm màu chủ đạo cần xóa
+        const rTarget = data[0]
+        const gTarget = data[1]
+        const bTarget = data[2]
+        
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i]
+          const g = data[i + 1]
+          const b = data[i + 2]
+          
+          // Tính khoảng cách màu Euclid
+          const diff = Math.sqrt(
+            Math.pow(r - rTarget, 2) +
+            Math.pow(g - gTarget, 2) +
+            Math.pow(b - bTarget, 2)
+          )
+          
+          if (diff < tolerance) {
+            data[i + 3] = 0 // Đặt độ trong suốt alpha = 0
+          }
+        }
+        
+        ctx.putImageData(imgData, 0, 0)
+        resolve(canvas.toDataURL('image/png'))
+      } catch (err) {
+        reject(err)
+      }
+    }
+    img.onerror = (e) => reject(new Error('Lỗi load ảnh'))
+  })
+}
+
 export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) => {
   const [uploadedImgUrl, setUploadedImgUrl] = useState(null)
   const [imageFile, setImageFile] = useState(null)
+  
+  // Trạng thái xóa nền ảnh giày
+  const [processedShoeImage, setProcessedShoeImage] = useState(null)
+  const [removeBgEnabled, setRemoveBgEnabled] = useState(true)
+  const [tolerance, setTolerance] = useState(25)
   
   // Các trạng thái điều chỉnh vị trí và kích thước giày
   const [position, setPosition] = useState({ x: 150, y: 220 })
@@ -26,6 +80,7 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
   const [aiLoading, setAiLoading] = useState(false)
   const [aiResult, setAiResult] = useState('')
   const [loadingText, setLoadingText] = useState('Đang khởi động AI Stylist...')
+  const [detectingFeet, setDetectingFeet] = useState(false)
 
   const fileInputRef = useRef(null)
   const containerRef = useRef(null)
@@ -39,9 +94,34 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
       setScale(1.0)
       setRotation(0)
       setIsFlipped(false)
+      setRemoveBgEnabled(true)
+      setTolerance(25)
+      setProcessedShoeImage(null)
       setPosition({ x: 150, y: 220 })
     }
   }, [isOpen])
+
+  // Tự động xóa nền khi nạp ảnh giày mới hoặc thay đổi tùy chọn
+  useEffect(() => {
+    if (!shoeImage) return
+    
+    if (!removeBgEnabled) {
+      setProcessedShoeImage(null)
+      return
+    }
+
+    const removeBg = async () => {
+      try {
+        const result = await removeImageBackground(shoeImage, tolerance)
+        setProcessedShoeImage(result)
+      } catch (err) {
+        console.error('Không thể tự động xóa nền giày:', err)
+        setProcessedShoeImage(null)
+      }
+    }
+    
+    removeBg()
+  }, [shoeImage, removeBgEnabled, tolerance, isOpen])
 
   // Xử lý kéo thả giày (Mouse Events)
   const handleMouseDown = (e) => {
@@ -86,18 +166,78 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
     setIsDragging(false)
   }
 
-  // Xử lý chọn hình ảnh chân
-  const handleFileChange = (e) => {
+  // Xử lý chọn hình ảnh chân và gọi AI nhận diện vị trí
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Kích thước ảnh vượt quá 5MB. Vui lòng chọn ảnh nhỏ hơn!')
         return
       }
+      
       setImageFile(file)
+      setDetectingFeet(true)
+      
+      // Đọc ảnh để hiển thị nền trước
       const reader = new FileReader()
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         setUploadedImgUrl(event.target.result)
+        
+        // Gọi AI nhận diện chân
+        try {
+          toast.info('🔍 AI đang quét ảnh chân để tự động đặt giày vào vị trí phù hợp...')
+          const data = await aiApiService.detectFeet(file)
+          
+          if (data && data.detections && data.detections.length > 0) {
+            // Lấy phát hiện đầu tiên
+            const firstDetection = data.detections[0]
+            const [ymin, xmin, ymax, xmax] = firstDetection.box_2d // tỷ lệ 0 đến 1000
+            
+            // Tính toán vị trí tâm (%)
+            const pctX = (xmin + xmax) / 2 / 1000
+            const pctY = (ymin + ymax) / 2 / 1000
+            
+            const container = containerRef.current
+            if (container) {
+              const rect = container.getBoundingClientRect()
+              const targetX = pctX * rect.width
+              const targetY = pctY * rect.height
+              setPosition({ x: targetX, y: targetY })
+              
+              // Điều chỉnh kích cỡ giày theo độ rộng của phát hiện
+              const detectWidthPct = (xmax - xmin) / 1000
+              const targetWidthOnUI = detectWidthPct * rect.width
+              // Giày mặc định rộng 192px trên UI
+              const calculatedScale = Math.max(0.4, Math.min(2.0, (targetWidthOnUI / 192) * 1.25)) // nhân 1.25 để giày phủ chân đẹp hơn
+              setScale(parseFloat(calculatedScale.toFixed(2)))
+            } else {
+              // Fallback nếu chưa render xong container
+              setTimeout(() => {
+                const container = containerRef.current
+                if (container) {
+                  const rect = container.getBoundingClientRect()
+                  const targetX = pctX * rect.width
+                  const targetY = pctY * rect.height
+                  setPosition({ x: targetX, y: targetY })
+                  
+                  const detectWidthPct = (xmax - xmin) / 1000
+                  const targetWidthOnUI = detectWidthPct * rect.width
+                  const calculatedScale = Math.max(0.4, Math.min(2.0, (targetWidthOnUI / 192) * 1.25))
+                  setScale(parseFloat(calculatedScale.toFixed(2)))
+                }
+              }, 300)
+            }
+            
+            toast.success('🎉 AI đã tự động phát hiện bàn chân và ướm giày đúng vị trí!')
+          } else {
+            toast.warn('AI không tìm thấy rõ bàn chân. Bạn có thể kéo thả giày thủ công.')
+          }
+        } catch (detectErr) {
+          console.error('Lỗi nhận dạng chân:', detectErr)
+          toast.warn('Không thể định vị tự động bằng AI. Bạn hãy kéo thả giày thủ công nhé.')
+        } finally {
+          setDetectingFeet(false)
+        }
       }
       reader.readAsDataURL(file)
     }
@@ -130,7 +270,7 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
       // Vẽ giày đè lên
       const shoeImg = new Image()
       shoeImg.crossOrigin = 'anonymous'
-      shoeImg.src = shoeImage
+      shoeImg.src = processedShoeImage || shoeImage
       
       shoeImg.onload = () => {
         const container = containerRef.current
@@ -345,6 +485,21 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
                       onTouchEnd={handleTouchEnd}
                       className="relative w-full aspect-[3/4] max-h-[480px] bg-slate-100 rounded-3xl overflow-hidden shadow-inner flex items-center justify-center select-none"
                     >
+                      {/* Loading overlay khi AI đang định vị */}
+                      {detectingFeet && (
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-20">
+                          <div className="relative w-12 h-12 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-purple-500/20 rounded-full animate-ping" />
+                            <div className="relative w-10 h-10 bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg">
+                              <FiCompass size={18} className="animate-spin" />
+                            </div>
+                          </div>
+                          <span className="text-xs font-black text-white animate-pulse">
+                            AI đang định vị bàn chân...
+                          </span>
+                        </div>
+                      )}
+
                       {/* Background (chân) */}
                       <img
                         src={uploadedImgUrl}
@@ -368,7 +523,7 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
                         className="select-none p-4"
                       >
                         <img
-                          src={shoeImage}
+                          src={processedShoeImage || shoeImage}
                           alt="Shoe try on"
                           className="w-48 h-auto object-contain pointer-events-none select-none drop-shadow-lg"
                         />
@@ -422,6 +577,39 @@ export const VirtualTryOnModal = ({ isOpen, onClose, shoeImage, productName }) =
                         <span className="text-xs font-mono font-bold text-gray-700 w-8 text-right">
                           {rotation}°
                         </span>
+                      </div>
+
+                      {/* Background Removal Controls */}
+                      <div className="pt-2 border-t border-gray-200 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-gray-500 uppercase">Tự động xóa nền giày:</span>
+                          <label className="relative inline-flex items-center cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={removeBgEnabled}
+                              onChange={(e) => setRemoveBgEnabled(e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-600"></div>
+                          </label>
+                        </div>
+                        {removeBgEnabled && (
+                          <div className="flex items-center gap-4 pl-1">
+                            <span className="text-[10px] font-bold text-gray-400 w-16 uppercase">Độ nhạy lọc:</span>
+                            <input
+                              type="range"
+                              min="5"
+                              max="120"
+                              step="1"
+                              value={tolerance}
+                              onChange={(e) => setTolerance(parseInt(e.target.value))}
+                              className="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                            />
+                            <span className="text-xs font-mono font-bold text-gray-500 w-8 text-right">
+                              {tolerance}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Action buttons */}

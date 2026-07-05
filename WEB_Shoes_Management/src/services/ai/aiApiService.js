@@ -39,5 +39,21 @@ export const aiApiService = {
       }
     )
     return response.data
+  },
+
+  detectFeet: async (imageFile) => {
+    const formData = new FormData()
+    formData.append('image', imageFile)
+
+    const response = await authorizedAxiosInstance.post(
+      `${DEV_API_URL}/api/ai/detect-feet`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+    return response.data
   }
 }
