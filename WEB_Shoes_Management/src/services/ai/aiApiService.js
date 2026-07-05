@@ -21,5 +21,23 @@ export const aiApiService = {
       }
     )
     return response.data
+  },
+
+  analyzeTryOn: async (imageFile, shoeImageUrl, productName) => {
+    const formData = new FormData()
+    formData.append('image', imageFile)
+    formData.append('shoeImageUrl', shoeImageUrl)
+    formData.append('productName', productName)
+
+    const response = await authorizedAxiosInstance.post(
+      `${DEV_API_URL}/api/ai/analyze-tryon`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+    return response.data
   }
 }

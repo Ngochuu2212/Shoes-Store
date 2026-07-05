@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { env } from '~/config/environment'
 import pool from '~/config/db'
+import axios from 'axios'
 
 const chatWithAI = async (req, res) => {
   try {
@@ -178,7 +179,72 @@ const searchByImage = async (req, res) => {
   }
 }
 
+const analyzeTryOn = async (req, res) => {
+  try {
+    const { shoeImageUrl, productName } = req.body
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp hình ảnh chụp chân của bạn' })
+    }
+    if (!shoeImageUrl) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp hình ảnh đôi giày' })
+    }
+
+    if (!env.GEMINI_API_KEY || env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+      return res.status(500).json({ message: 'Hệ thống chưa được cấu hình GEMINI_API_KEY. Vui lòng liên hệ quản trị viên!' })
+    }
+
+    // 1. Chuyển đổi ảnh chân của người dùng sang định dạng Gemini SDK yêu cầu
+    const footPart = fileToGenerativePart(req.file.buffer, req.file.mimetype)
+
+    // 2. Tải ảnh giày từ URL và chuyển thành buffer
+    let shoePart
+    try {
+      const response = await axios.get(shoeImageUrl, { responseType: 'arraybuffer' })
+      const contentType = response.headers['content-type'] || 'image/jpeg'
+      shoePart = fileToGenerativePart(Buffer.from(response.data), contentType)
+    } catch (fetchError) {
+      console.error('Lỗi khi tải ảnh giày từ URL:', fetchError.message)
+      return res.status(400).json({ message: 'Không thể tải hình ảnh giày từ hệ thống' })
+    }
+
+    // 3. Gọi Gemini API
+    const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+
+    const prompt = `
+Bạn là một Trợ lý thời trang ảo chuyên nghiệp (AI Stylist Advisor) của cửa hàng giày dép ShoesStore.
+Trước mặt bạn là hai hình ảnh:
+1. Hình ảnh bàn chân của khách hàng đang tải lên.
+2. Hình ảnh đôi giày "${productName || 'Giày thể thao cao cấp'}" mà họ đang ướm thử.
+
+Hãy phân tích kỹ lưỡng hai hình ảnh và đưa ra phản hồi tư vấn phong cách thời trang cá nhân hóa bằng tiếng Việt bao gồm các ý sau:
+1. **Nhận xét dáng chân & màu da**: Đánh giá dáng cổ chân, mu bàn chân (thô, thon, rộng...) và tông màu da của khách hàng có phù hợp với đôi giày này không (ví dụ: đôi giày tôn da sáng, hoặc kiểu dáng giày quai mảnh giúp cổ chân trông thon gọn hơn...).
+2. **Đánh giá thẩm mỹ chung**: Điểm cộng và tính thẩm mỹ tổng quan khi khách hàng đi đôi giày này.
+3. **Gợi ý phối đồ (Mix & Match)**: 
+   - Đưa ra các gợi ý cụ thể về trang phục (như quần jeans, quần shorts, chân váy, váy đầm dạ hội...) và màu sắc quần áo phù hợp nhất để đi kèm với đôi giày này.
+   - Gợi ý về loại tất/vớ đi kèm (nếu cần thiết).
+   - Đưa ra lời khuyên về dịp thích hợp để diện set đồ này (đi học, đi làm, đi tiệc, hay dã ngoại...).
+
+Hãy phản hồi bằng giọng điệu nhiệt tình, tinh tế, chia các phần rõ ràng bằng định dạng markdown (in đậm, danh sách) và sử dụng các emoji biểu cảm thích hợp (👟, ✨, 👗, 👖, 🌟). Tránh trả lời dài dòng không cần thiết.
+`
+
+    const result = await model.generateContent([prompt, footPart, shoePart])
+    const review = result.response.text()
+
+    return res.status(200).json({
+      review
+    })
+  } catch (error) {
+    console.error('Lỗi phân tích thử giày AI:', error)
+    return res.status(500).json({
+      message: `Đã xảy ra lỗi khi phân tích AI: ${error.message}`
+    })
+  }
+}
+
 export const aiController = {
   chatWithAI,
-  searchByImage
+  searchByImage,
+  analyzeTryOn
 }

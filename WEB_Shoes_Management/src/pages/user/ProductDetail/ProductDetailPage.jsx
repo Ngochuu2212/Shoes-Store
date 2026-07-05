@@ -9,6 +9,7 @@ import { ProductReview } from '~/pages/user/ProductDetail/ProductReview'
 import { productService } from '~/services/user/productService'
 import { BreadCrumb } from '~/components/user/BreadCrumb'
 import { usePageTitle } from '~/hooks/usePageTitle'
+import { VirtualTryOnModal } from '~/pages/user/ProductDetail/VirtualTryOnModal'
 
 export const ProductDetailPage = () => {
   const { slug } = useParams()
@@ -16,6 +17,7 @@ export const ProductDetailPage = () => {
   const [storeId, setStoreId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedColor, setSelectedColor] = useState('')
+  const [isTryOnOpen, setIsTryOnOpen] = useState(false)
   const galleryRef = useRef(null)
 
   usePageTitle(
@@ -119,6 +121,7 @@ export const ProductDetailPage = () => {
                 product={product}
                 onColorChangeFromGallery={selectedColor}
                 onColorSelect={handleColorSelectFromInfo}
+                onOpenTryOn={() => setIsTryOnOpen(true)}
               />
             </motion.div>
           </div>
@@ -129,6 +132,37 @@ export const ProductDetailPage = () => {
         <ProductReview product={product} />
         <RelatedProducts products={product.relatedProducts} />
       </main>
+
+      {/* Helper function to get active shoe image */}
+      {(() => {
+        const getActiveShoeImage = () => {
+          if (!product) return ''
+          if (product.variants && Array.isArray(product.variants)) {
+            const match = product.variants.find(v => v.color === selectedColor && v.image)
+            if (match) {
+              try {
+                const imgData = typeof match.image === 'string' ? JSON.parse(match.image) : match.image
+                if (imgData && imgData.secure_url) return imgData.secure_url
+              } catch (e) {
+                console.error(e)
+              }
+            }
+          }
+          if (product.images && product.images.length > 0) {
+            return product.images[0].secure_url || product.images[0]
+          }
+          return 'https://placehold.co/600x600/f6f9fc/a0aabf?text=Chưa+có+ảnh'
+        }
+
+        return (
+          <VirtualTryOnModal
+            isOpen={isTryOnOpen}
+            onClose={() => setIsTryOnOpen(false)}
+            shoeImage={getActiveShoeImage()}
+            productName={product.name}
+          />
+        )
+      })()}
     </div>
   )
 }
