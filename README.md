@@ -51,29 +51,70 @@ Sàn thương mại điện tử chuyên biệt về **giày dép** — một gi
 
 ---
 
-## ⚡ Các tính năng nổi bật mới tích hợp
+## ⚡ Các chức năng chính của sàn
 
-### 1. 🔐 Đăng nhập bằng Google (Google OAuth2)
-*   Cho phép người dùng đăng nhập tức thì thông qua tài khoản Google.
-*   **Tự động liên kết**: Nếu email Google đã tồn tại trong hệ thống dưới dạng tài khoản thường, hệ thống sẽ tự động liên kết Google ID vào tài khoản đó. Nếu chưa tồn tại, hệ thống tự động tạo tài khoản người dùng mới và lấy ảnh đại diện trực tiếp từ Google.
+### 🔐 Xác thực & Bảo mật (Auth & Security)
+*   **Đăng ký tài khoản mới**: Đăng ký và kích hoạt thông qua mã xác thực **OTP gửi trực tiếp qua Email**.
+*   **Đăng nhập đa phương thức**: Hỗ trợ đăng nhập thông thường (mật khẩu) hoặc **Đăng nhập nhanh bằng Google (Google OAuth2)**.
+*   **Cơ chế liên kết tài khoản tự động**: Khi đăng nhập Google, nếu email trùng khớp với tài khoản đã đăng ký trước đó, hệ thống sẽ tự động liên kết Google ID với tài khoản đó. Nếu chưa có, hệ thống tự động đăng ký tài khoản mới và đồng bộ ảnh đại diện từ Google.
+*   **Bảo mật nâng cao**: Mã xác thực JWT tokens lưu trữ an toàn trong **HttpOnly Cookie** chống tấn công đánh cắp phiên XSS. Áp dụng cơ chế xoay vòng Token tự động (Refresh Token Rotation).
+*   **Khôi phục mật khẩu**: Lấy lại mật khẩu dễ dàng qua cơ chế gửi OTP xác thực đến email đã đăng ký.
 
-### 2. 🤖 Trợ lý ảo AI & Tìm kiếm hình ảnh (Google Gemini 2.5 Flash)
-*   **AI Chatbot CSKH**: Trò chuyện thời gian thực với khách hàng, tư vấn phong cách, gợi ý mẫu mã phù hợp dựa trên ngữ cảnh là danh sách các sản phẩm bán chạy nhất được nạp trực tiếp vào bộ nhớ của AI.
-*   **Tìm kiếm bằng hình ảnh (AI Visual Search)**: Khách hàng chỉ cần tải lên 1 bức ảnh đôi giày. Gemini sẽ phân tích các chi tiết (màu sắc, kiểu dáng, thương hiệu) để trích xuất các từ khóa đặc trưng. Backend sẽ dựa trên các từ khóa này để truy vấn SQL tính điểm trùng khớp và xếp hạng các sản phẩm giống nhất trong DB để trả về cho người dùng.
+### 👟 Dành cho Người mua (User / Guest)
+*   **Giao diện Trang chủ**: Gợi ý các sản phẩm mới nhất, sản phẩm bán chạy nổi bật theo thời gian thực.
+*   **Tìm kiếm & Bộ lọc nâng cao**: Tìm kiếm từ khóa và lọc sản phẩm cực nhanh theo danh mục, giá cả, kích thước (size), màu sắc và số sao đánh giá.
+*   **Tìm kiếm bằng hình ảnh (AI Visual Search)**: Tải ảnh một đôi giày yêu thích của bạn lên. Trí tuệ nhân tạo Gemini sẽ tự động nhận diện và trích xuất các từ khóa đặc trưng (loại giày, màu sắc, thương hiệu) để truy vấn SQL xếp hạng sản phẩm tương tự có sẵn trong cơ sở dữ liệu.
+*   **Tương tác Trực tuyến**:
+    *   **Chat thời gian thực** với từng gian hàng để nhận tư vấn mua sắm.
+    *   **Trợ lý ảo thông minh (AI Chatbot CSKH)**: Trò chuyện và nhận đề xuất sản phẩm bán chạy trực tiếp từ trợ lý tư vấn Gemini AI hoạt động 24/7.
+*   **Giỏ hàng & Sản phẩm yêu thích**: Quản lý số lượng, màu sắc, kích thước sản phẩm trong giỏ hàng và lưu sản phẩm yêu thích vào danh sách cá nhân.
+*   **Thanh toán thông minh**: Hỗ trợ thanh toán linh hoạt qua 4 phương thức: **COD, Ví VNPay, Ví MoMo, Ví điện tử cá nhân (Wallet Balance)**. Áp dụng mã coupon giảm giá khi thanh toán đơn hàng.
+*   **Theo dõi & Yêu cầu hoàn trả**:
+    *   Theo dõi lộ trình trạng thái vận chuyển trực quan của đơn hàng.
+    *   Gửi yêu cầu hủy đơn hàng (khi đơn chưa được giao).
+    *   **Trả hàng & Hoàn tiền (Return & Refund)**: Gửi yêu cầu hoàn trả đối với đơn hàng đã hoàn thành (`completed`), cung cấp lý do hoàn trả cụ thể. Nhận tiền hoàn tự động trực tiếp vào ví sau khi Shipper hoàn tất giao hàng hoàn trả về shop.
+*   **Đánh giá sản phẩm & cửa hàng**: Viết đánh giá chất lượng sản phẩm (hỗ trợ kèm hình ảnh thực tế) và chấm sao gian hàng.
 
-### 3. 📦 Quy trình Trả hàng & Hoàn tiền tự động (Refund/Return Flow)
-*   **Yêu cầu trả hàng**: Khách hàng có thể gửi yêu cầu trả hàng đối với các đơn hàng ở trạng thái `completed`, bắt buộc nhập lý do trả hàng.
-*   **Vendor kiểm duyệt**: Nhà bán hàng xem xét lý do trả hàng để chọn **Chấp nhận** hoặc **Từ chối**.
-*   **Shipper thu hồi ngược**: Khi Vendor đồng ý, đơn hàng được chuyển vào danh sách đơn chờ của Shipper với loại đơn **"Trả hàng"**. Shipper đến lấy hàng từ Khách hàng, mang trả lại cho Shop và tải lên ảnh bằng chứng thu hồi.
-*   **Hoàn tiền tự động qua Ví**: Khi Shipper hoàn tất đơn trả hàng, hệ thống tự động:
-    1.  Trừ số tiền doanh thu tương ứng trong ví số dư của Cửa hàng (`stores.balance`).
-    2.  Cộng hoàn trả 100% giá trị đơn hàng vào ví người dùng của Khách hàng (`users.wallet_balance`).
-    3.  Tạo bản ghi lịch sử giao dịch ví dạng `REFUND`.
+### 🏬 Dành cho Người bán (Vendor)
+*   **Thiết lập Cửa hàng**: Đăng ký gian hàng mới và cấu hình hồ sơ cá nhân (Logo, banner, địa chỉ, mô tả cửa hàng).
+*   **Quản lý Sản phẩm**: Đăng bán sản phẩm mới, cập nhật giá cả, xóa sản phẩm, và quản lý danh mục biến thể phức tạp (Size × Màu sắc × Giá bán × Số lượng tồn kho tương ứng).
+*   **Xử lý Đơn hàng & Vận chuyển**:
+    *   Tiếp nhận đơn hàng mới của khách, chuẩn bị hàng và đưa đơn vào trạng thái chờ giao để Shipper đến lấy.
+    *   **Quản lý trả hàng**: Xem xét và phê duyệt hoặc từ chối các yêu cầu hoàn trả từ khách hàng. Khi chấp nhận, đơn tự động kết nối vào pool chờ Shipper đến lấy mang về cửa hàng.
+*   **Quản lý Khuyến mãi**: Tạo các chiến dịch ưu đãi bằng mã giảm giá cá nhân (giảm theo % hoặc giảm theo số tiền cụ thể).
+*   **Quản lý Tài chính**:
+    *   Theo dõi số dư ví tiền cửa hàng tích lũy từ doanh thu bán hàng sau khi khấu trừ phí sàn.
+    *   Tạo lệnh rút tiền về tài khoản ngân hàng cá nhân và xuất báo cáo lịch sử giao dịch ví ra file Excel.
+    *   Thống kê trực quan doanh thu bán hàng bằng biểu đồ trực quan (theo ngày, tháng, năm).
+*   **Chăm sóc khách hàng & Phản hồi**: Trò chuyện trực tiếp với khách hàng, phản hồi đánh giá của khách và gửi báo cáo vi phạm các đánh giá mang tính chất bôi nhọ, toxic lên Manager.
+*   **Gửi đơn cứu xét**: Soạn thảo đơn khiếu nại xin mở khóa kèm ảnh bằng chứng gửi lên Manager khi gian hàng bị tạm ngưng hoạt động.
 
-### 4. 🚚 Vai trò mới: Nhân viên giao hàng (Shipper)
-*   **Dashboard Thống kê**: Theo dõi trực quan tổng số đơn đã giao, doanh thu giao hàng nhận được và biểu đồ thu nhập theo thời gian.
-*   **Bể đơn hàng chờ nhận (Available Orders)**: Nhận các đơn giao hàng mới (từ Shop đến Khách) và các đơn thu hồi (từ Khách về Shop) trên cùng một giao diện.
-*   **Lộ trình giao hàng trực quan**: Cập nhật trạng thái từng bước kèm nút gọi điện nhanh cho Khách/Shop, tải ảnh minh chứng giao hàng thành công bằng Cloudinary.
+### 🚚 Dành cho Nhân viên giao hàng (Shipper)
+*   **Quản lý Vận chuyển**:
+    *   Xem danh sách tất cả các đơn hàng mới đang chờ giao (Giao hàng) và đơn hàng hoàn trả đang chờ thu hồi (Trả hàng) trên toàn hệ thống để nhận đơn.
+    *   Cập nhật trạng thái lộ trình giao hàng trực quan (Đã nhận -> Đang lấy hàng -> Đang giao -> Đã giao) để khách hàng và shop theo dõi trực tuyến.
+*   **Xác minh giao nhận**: Tải lên hình ảnh chụp bằng chứng thực tế tại nơi giao/nhận hàng để làm cơ sở hoàn tất đơn hàng.
+*   **Quản lý Thu nhập**:
+    *   Theo dõi số dư thu nhập từ phí giao nhận tích lũy trực tiếp.
+    *   Biểu đồ thống kê hiệu suất giao hàng và theo dõi lịch sử các đơn hàng đã vận chuyển thành công.
+
+### 🛡 Dành cho Điều hành viên (Manager)
+*   **Kiểm duyệt Gian hàng**: Xét duyệt các hồ sơ đăng ký kinh doanh của Vendor mới, thực hiện khóa các gian hàng vi phạm chính sách của sàn.
+*   **Kiểm duyệt Sản phẩm**: Duyệt chất lượng, hình ảnh sản phẩm của Vendor trước khi cho phép mở bán chính thức trên sàn.
+*   **Giải quyết tranh chấp**:
+    *   Xử lý các đánh giá sản phẩm bị Vendor báo cáo vi phạm (Duyệt ẩn đánh giá nếu vi phạm, hoặc khôi phục/giữ nguyên nếu hợp lệ).
+    *   Phê duyệt/từ chối các đơn khiếu nại cứu xét xin hoạt động lại của các cửa hàng bị khóa.
+
+### 👑 Dành cho Quản trị viên (Admin)
+*   **Quản trị Tài nguyên & Người dùng**: Thêm mới, chỉnh sửa thông tin, thay đổi trạng thái hoạt động hoặc phân quyền hàng loạt tài khoản người dùng trên hệ thống.
+*   **Quản lý Tài chính sàn**:
+    *   Thiết lập phần trăm phí hoa hồng sàn thu trên mỗi đơn hàng giao dịch thành công.
+    *   Xét duyệt (phê duyệt/từ chối) các yêu cầu rút tiền mặt về tài khoản ngân hàng của Vendor.
+    *   Cưỡng chế điều chỉnh tăng/giảm số dư ví của Vendor khi xảy ra gian lận hoặc phạt tài khoản.
+    *   Xem tổng quan báo cáo tài chính toàn hệ thống (Doanh thu sàn, phí hoa hồng thu được, top cửa hàng dẫn đầu).
+*   **Quản trị Danh mục toàn sàn**: Thiết lập cây danh mục sản phẩm gốc, danh mục biến thể chuẩn (Bảng size, Bảng màu sắc).
+*   **Kiểm soát giao dịch**: Xem toàn bộ danh sách đơn hàng giao dịch, can thiệp cưỡng chế hủy đơn khi có tranh chấp nghiêm trọng phát sinh.
+*   **Cấu hình hệ thống**: Cập nhật thông tin hỗ trợ và cấu hình bật/tắt trạng thái bảo trì hệ thống toàn sàn.
 
 ---
 
@@ -86,7 +127,7 @@ Dữ liệu dưới đây được tạo sẵn từ file khởi tạo cơ sở d
 | **Admin** | `23110233@student.hcmute.edu.vn` | `123456` | Quản lý người dùng, duyệt yêu cầu rút tiền, cấu hình phí sàn, quản lý ví hệ thống, xem báo cáo tài chính toàn sàn. |
 | **Manager** | `huu.pham.3101@gmail.com` | `123456` | Duyệt cửa hàng đăng ký mới, duyệt sản phẩm đăng bán, ẩn/hiện các đánh giá bị báo cáo vi phạm, giải quyết đơn cứu xét của Vendor. |
 | **Vendor** | `phamngochuu3101@gmail.com` | `123456` | Đăng sản phẩm và biến thể, xử lý đơn hàng/đơn hoàn trả, quản lý mã giảm giá cá nhân, yêu cầu rút tiền về ngân hàng. |
-| **Shipper** | `shipper@gmail.com` | `123456` | Nhận đơn giao hàng và đơn trả hàng, cập nhật lộ trình giao nhận, chụp ảnh bằng chứng giao hàng, theo dõi thu nhập. |
+| **Shipper** | `ngochuunaksss@gmail.com` | `123456` | Nhận đơn giao hàng và đơn trả hàng, cập nhật lộ trình giao nhận, chụp ảnh bằng chứng giao hàng, theo dõi thu nhập. |
 | **User** | `23110332@student.hcmute.edu.vn` | `123456` | Tìm kiếm, mua sắm sản phẩm, thanh toán VNPay/COD/Ví, yêu cầu trả hàng, trò chuyện với Shop và AI Chatbot. |
 
 ---
