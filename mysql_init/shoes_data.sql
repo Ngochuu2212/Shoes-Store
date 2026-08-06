@@ -751,3 +751,52 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-06-21 18:54:18
+
+
+-- =====================================================================
+-- Bổ sung cột/bảng cho tính năng Shipper + Ví điện tử (Wallet) + Đăng nhập Google
+-- (được gộp vào đây vì các tính năng này được thêm vào code SAU khi dữ liệu gốc phía trên được tạo)
+-- =====================================================================
+
+-- ===== orders: các cột cho luồng giao hàng Shipper =====
+ALTER TABLE `orders` ADD COLUMN `shipper_id` int DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `shipping_fee` decimal(15,2) DEFAULT '0.00';
+ALTER TABLE `orders` ADD COLUMN `shipping_method` varchar(50) DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `delivery_accepted_at` timestamp NULL DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `delivery_started_at` timestamp NULL DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `delivery_completed_at` timestamp NULL DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `delivery_proof_images` json DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `return_evidence_images` json DEFAULT NULL;
+ALTER TABLE `orders` ADD COLUMN `delivery_note` text;
+
+-- ===== orders: các cột cho luồng trả hàng + ví điện tử =====
+ALTER TABLE `orders` ADD COLUMN `wallet_amount_used` decimal(15,2) DEFAULT '0.00';
+ALTER TABLE `orders` ADD COLUMN `return_reason` text;
+ALTER TABLE `orders` ADD COLUMN `return_reject_reason` text;
+
+-- ===== orders: mở rộng status từ ENUM cứng sang VARCHAR để tránh lỗi truncate về sau =====
+ALTER TABLE `orders` MODIFY COLUMN `status` varchar(50) DEFAULT 'pending';
+
+-- ===== khóa ngoại cho shipper_id (an toàn vì cột vừa tạo, toàn bộ đang NULL) =====
+ALTER TABLE `orders` ADD CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`shipper_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+-- ===== users: ví điện tử + đăng nhập Google =====
+ALTER TABLE `users` ADD COLUMN `wallet_balance` decimal(15,2) NOT NULL DEFAULT '0.00';
+ALTER TABLE `users` ADD COLUMN `google_id` varchar(255) DEFAULT NULL;
+ALTER TABLE `users` ADD UNIQUE KEY `google_id` (`google_id`);
+
+-- ===== bảng mới: lịch sử giao dịch ví =====
+CREATE TABLE `wallet_transactions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `description` text,
+  `order_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `order_id` (`order_id`),
+  CONSTRAINT `wallet_transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `wallet_transactions_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
