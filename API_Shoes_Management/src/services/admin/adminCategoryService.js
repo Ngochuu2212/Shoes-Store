@@ -54,8 +54,8 @@ const getCategoriesList = async (filters) => {
 
   const filterParams = {
     search: filters.search || null,
-    limit: String(limit),
-    offset: String(offset)
+    limit: Number(limit),
+    offset: Number(offset)
   }
 
   const [categories, totalItems, overviewStats] = await Promise.all([

@@ -62,7 +62,7 @@ const getWalletTransactions = async (userId, page = 1, limit = 10) => {
   const offset = (page - 1) * limit
   const [transactions] = await pool.execute(
     'SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-    [userId, String(limit), String(offset)]
+    [userId, Number(limit), Number(offset)]
   )
   const [countResult] = await pool.execute(
     'SELECT COUNT(*) AS total FROM wallet_transactions WHERE user_id = ?',

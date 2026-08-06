@@ -13,8 +13,8 @@ const getPayoutList = async (filters) => {
   const filterParams = {
     status: filters.status || null,
     search: filters.search || null,
-    limit: String(limit),
-    offset: String(offset)
+    limit: Number(limit),
+    offset: Number(offset)
   }
 
   const [payouts, totalItems] = await Promise.all([

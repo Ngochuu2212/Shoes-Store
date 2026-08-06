@@ -35,7 +35,7 @@ const getStoresForManager = async ({ search, isActive, startDate, endDate, limit
   }
 
   query += ' ORDER BY s.created_at DESC LIMIT ? OFFSET ?'
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
   return rows

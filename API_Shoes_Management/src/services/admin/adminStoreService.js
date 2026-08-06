@@ -14,8 +14,8 @@ const getStoresList = async (filters) => {
     isActive: filters.isActive !== undefined ? filters.isActive : null,
     sortBy: filters.sortBy || 'created_at',
     sortOrder: filters.sortOrder || 'DESC',
-    limit: String(limit),
-    offset: String(offset)
+    limit: Number(limit),
+    offset: Number(offset)
   }
 
   const [stores, totalItems, overviewStats] = await Promise.all([

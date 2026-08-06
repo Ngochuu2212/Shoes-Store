@@ -55,8 +55,8 @@ const getVendorPayoutHistory = async (storeId, { limit, offset }) => {
   `
   const [rows] = await pool.execute(query, [
     storeId,
-    String(limit),
-    String(offset)
+    Number(limit),
+    Number(offset)
   ])
   return rows
 }

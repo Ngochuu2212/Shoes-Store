@@ -43,7 +43,7 @@ const getReportedProductReviews = async ({ search, rating, storeId, startDate, e
   const finalSortOrder = (sortOrder?.toUpperCase() === 'ASC') ? 'ASC' : 'DESC'
 
   query += ` ORDER BY pr.${finalSortBy} ${finalSortOrder} LIMIT ? OFFSET ?`
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
   return rows
@@ -165,7 +165,7 @@ const getReportedStoreReviews = async ({ search, rating, storeId, startDate, end
   const finalSortOrder = (sortOrder?.toUpperCase() === 'ASC') ? 'ASC' : 'DESC'
 
   query += ` ORDER BY sr.${finalSortBy} ${finalSortOrder} LIMIT ? OFFSET ?`
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
   return rows

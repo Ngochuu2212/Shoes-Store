@@ -17,7 +17,7 @@ const getAvailableOrders = async ({ limit, offset }) => {
   const [rows] = await pool.execute(query, [
     ORDER_STATUS.WAITING_FOR_SHIPPER,
     ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER,
-    String(limit), String(offset)
+    Number(limit), Number(offset)
   ])
   return rows
 }
@@ -94,7 +94,7 @@ const getMyDeliveries = async (shipperId, { limit, offset }) => {
     ORDER_STATUS.RETURN_ACCEPTED_BY_SHIPPER,
     ORDER_STATUS.RETURN_SHIPPING,
     ORDER_STATUS.RETURN_DELIVERED,
-    String(limit), String(offset)
+    Number(limit), Number(offset)
   ])
   return rows
 }
@@ -135,7 +135,7 @@ const getDeliveryHistory = async (shipperId, { limit, offset }) => {
     ORDER_STATUS.COMPLETED,
     ORDER_STATUS.CANCELLED,
     ORDER_STATUS.RETURN_COMPLETED,
-    String(limit), String(offset)
+    Number(limit), Number(offset)
   ])
   return rows
 }

@@ -29,7 +29,7 @@ const getOrderHistoryPaginated = async (userId, page, limit, status) => {
   const [countResult] = await pool.execute(queryCount, params)
   const total = countResult[0].total
 
-  const finalParams = [...params, String(limit), String(offset)]
+  const finalParams = [...params, Number(limit), Number(offset)]
   const [orders] = await pool.execute(queryData, finalParams)
 
   return { orders, total }

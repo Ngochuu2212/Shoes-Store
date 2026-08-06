@@ -55,7 +55,7 @@ const getVendorOrders = async (storeId, { status, searchOrderId, paymentMethod, 
 
   // Sắp xếp đơn hàng mới nhất lên đầu và phân trang
   query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?'
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
   return rows

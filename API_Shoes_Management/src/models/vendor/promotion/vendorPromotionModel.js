@@ -78,7 +78,7 @@ const getVendorPromotions = async (storeId, { search, isActive, startDate, endDa
 
   // Nối chuỗi sắp xếp động vào Query câu lệnh
   query += ` ORDER BY ${finalSortBy} ${finalSortOrder} LIMIT ? OFFSET ?`
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
   return rows

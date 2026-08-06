@@ -200,7 +200,7 @@ const getVendorProductsWithFilters = async (storeId, { search, categoryId, isAct
   }
   const orderOrder = allowedSortFields[sortBy] || 'p.created_at DESC'
   query += ` ORDER BY ${orderOrder} LIMIT ? OFFSET ?`
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
 

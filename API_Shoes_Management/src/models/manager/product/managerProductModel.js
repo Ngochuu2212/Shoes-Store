@@ -52,7 +52,7 @@ const getProductsForManager = async ({ search, categoryId, storeId, status, sort
   query += ` ORDER BY p.${finalSortBy === 'product_name' ? 'name' : finalSortBy} ${finalSortOrder}`
   query += ' LIMIT ? OFFSET ?'
 
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
 

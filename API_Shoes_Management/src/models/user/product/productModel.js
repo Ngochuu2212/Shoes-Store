@@ -45,7 +45,7 @@ const getFlashSaleProducts = async (limit = 8) => {
     LIMIT ?
   `
 
-  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, String(limit)])
+  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, Number(limit)])
   return rows
 }
 
@@ -84,7 +84,7 @@ const getTopSellingProducts = async (limit = 8) => {
     ORDER BY p.sold DESC 
     LIMIT ?
   `
-  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, String(limit)])
+  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, Number(limit)])
   return rows
 }
 
@@ -124,7 +124,7 @@ const getLatestProducts = async (limit = 8) => {
     ORDER BY p.created_at DESC 
     LIMIT ?
   `
-  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, String(limit)])
+  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, Number(limit)])
   return rows
 }
 
@@ -227,7 +227,7 @@ const getRelatedProducts = async (categoryId, currentProductId, limit = 4) => {
     LIMIT ?
   `
 
-  const [rows] = await pool.execute(query, [categoryId, currentProductId, PRODUCT_MODERATION_STATUS.APPROVED, String(limit)])
+  const [rows] = await pool.execute(query, [categoryId, currentProductId, PRODUCT_MODERATION_STATUS.APPROVED, Number(limit)])
   return rows
 }
 
@@ -404,7 +404,7 @@ const searchAndFilterProducts = async (filters) => {
   const [countRows] = await pool.execute(queryCount, params)
   const total = countRows[0].total
 
-  const finalParams = [...params, String(limit), String(offset)]
+  const finalParams = [...params, Number(limit), Number(offset)]
   const [products] = await pool.execute(queryData, finalParams)
 
   // Parse variants
@@ -463,7 +463,7 @@ const getEmptyCartRecommendations = async (limit = 8) => {
     ORDER BY p.sold DESC, p.rating_avg DESC 
     LIMIT ?
   `
-  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, String(limit)])
+  const [rows] = await pool.execute(query, [PRODUCT_MODERATION_STATUS.APPROVED, Number(limit)])
 
   // Parse variants
   return rows.map(product => {

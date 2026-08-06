@@ -51,7 +51,7 @@ const getProductReviews = async (storeId, { search, rating, isActive, isReported
   }
 
   query += ' ORDER BY pr.created_at DESC LIMIT ? OFFSET ?'
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
 
@@ -135,7 +135,7 @@ const getStoreReviews = async (storeId, { search, rating, isActive, isReported, 
   }
 
   query += ' ORDER BY sr.created_at DESC LIMIT ? OFFSET ?'
-  queryParams.push(String(limit), String(offset))
+  queryParams.push(Number(limit), Number(offset))
 
   const [rows] = await pool.execute(query, queryParams)
   return rows

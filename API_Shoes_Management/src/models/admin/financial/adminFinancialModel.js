@@ -58,7 +58,7 @@ const getTopStoresByCommission = async ({ startDate, endDate, limit = 5 }) => {
     ORDER BY commissionContributed DESC
     LIMIT ?
   `
-  const [rows] = await pool.execute(query, [startDate, endDate, String(limit)])
+  const [rows] = await pool.execute(query, [startDate, endDate, Number(limit)])
   return rows
 }
 
