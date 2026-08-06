@@ -23,7 +23,7 @@ const getAvailableOrders = async ({ limit, offset }) => {
 }
 
 const countAvailableOrders = async () => {
-  const [rows] = await pool.execute(
+  const [rows] = await pool.query(
     'SELECT COUNT(*) as total FROM orders WHERE status IN (?, ?) AND shipper_id IS NULL',
     [ORDER_STATUS.WAITING_FOR_SHIPPER, ORDER_STATUS.RETURN_WAITING_FOR_SHIPPER]
   )
@@ -100,7 +100,7 @@ const getMyDeliveries = async (shipperId, { limit, offset }) => {
 }
 
 const countMyDeliveries = async (shipperId) => {
-  const [rows] = await pool.execute(
+  const [rows] = await pool.query(
     'SELECT COUNT(*) as total FROM orders WHERE shipper_id = ? AND status IN (?,?,?,?,?,?)',
     [
       shipperId,
@@ -141,7 +141,7 @@ const getDeliveryHistory = async (shipperId, { limit, offset }) => {
 }
 
 const countDeliveryHistory = async (shipperId) => {
-  const [rows] = await pool.execute(
+  const [rows] = await pool.query(
     'SELECT COUNT(*) as total FROM orders WHERE shipper_id = ? AND status IN (?,?,?)',
     [shipperId, ORDER_STATUS.COMPLETED, ORDER_STATUS.CANCELLED, ORDER_STATUS.RETURN_COMPLETED]
   )

@@ -76,7 +76,7 @@ const countAppealsForManager = async ({ status, search, startDate, endDate }) =>
     queryParams.push(endDate)
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 

@@ -102,7 +102,7 @@ const countProductReviews = async (storeId, { search, rating, isActive, isReport
     queryParams.push(Number(isReported))
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 
@@ -163,7 +163,7 @@ const countStoreReviews = async (storeId, { search, rating, isActive, isReported
     queryParams.push(Number(isReported))
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 

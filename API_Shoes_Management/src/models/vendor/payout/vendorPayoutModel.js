@@ -64,7 +64,7 @@ const getVendorPayoutHistory = async (storeId, { limit, offset }) => {
 // D. Đếm tổng số lệnh rút tiền của riêng Shop để làm phân trang ở FE
 const countVendorPayoutHistory = async (storeId) => {
   const query = 'SELECT COUNT(*) AS total FROM payout_requests WHERE store_id = ?'
-  const [rows] = await pool.execute(query, [storeId])
+  const [rows] = await pool.query(query, [storeId])
   return rows[0]?.total || 0
 }
 

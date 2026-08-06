@@ -17,7 +17,7 @@ const chatWithAI = async (req, res) => {
     // 1. Lấy danh sách sản phẩm thực tế từ DB để cung cấp ngữ cảnh sản phẩm cho AI tư vấn
     let productsText = ''
     try {
-      const [products] = await pool.execute(
+      const [products] = await pool.query(
         "SELECT id, name, price, rating_avg, sold FROM products WHERE is_active = 1 AND status = 'approved' ORDER BY sold DESC LIMIT 25"
       )
       productsText = products

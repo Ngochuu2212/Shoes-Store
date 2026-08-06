@@ -70,7 +70,7 @@ const countStoresForManager = async ({ search, isActive, startDate, endDate }) =
     queryParams.push(`${endDate} 23:59:59`)
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 
@@ -181,7 +181,7 @@ const getStoreDetailForManager = async (storeId) => {
     JOIN users u ON s.owner_id = u.id
     WHERE s.id = ?
   `
-  const [rows] = await pool.execute(query, [storeId])
+  const [rows] = await pool.query(query, [storeId])
   return rows[0] || null
 }
 

@@ -60,7 +60,7 @@ const countUsersForAdmin = async ({ search, roleId, isActive }) => {
     queryParams.push(Number(isActive))
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 
@@ -109,7 +109,7 @@ const getUserDetailById = async (userId) => {
     ORDER BY created_at DESC
     LIMIT 5
   `
-  const [recentOrders] = await pool.execute(recentOrdersQuery, [userId])
+  const [recentOrders] = await pool.query(recentOrdersQuery, [userId])
 
   // 4. Lấy thông tin cửa hàng (nếu user là Vendor)
   const storeQuery = `

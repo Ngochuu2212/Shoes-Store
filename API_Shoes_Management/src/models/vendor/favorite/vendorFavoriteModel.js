@@ -100,7 +100,7 @@ const countFavoritedProductsUnique = async (storeId, { search, categoryId, isAct
     queryParams.push(Number(isActive))
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 
@@ -125,7 +125,7 @@ const getFavoritesOverviewStats = async (storeId) => {
   `
 
   const [[rowsStats], [rowsTop]] = await Promise.all([
-    pool.execute(queryStats, [storeId]),
+    pool.query(queryStats, [storeId]),
     pool.execute(queryTopProduct, [storeId])
   ])
 
@@ -154,7 +154,7 @@ const getUsersWhoFavoritedProduct = async (productId, { limit, offset }) => {
 // 5. Đếm tổng số lượng khách hàng đã thả tim vào sản phẩm đó để tính tổng số trang
 const countUsersWhoFavoritedProduct = async (productId) => {
   const query = 'SELECT COUNT(*) AS total FROM favorites WHERE product_id = ?'
-  const [rows] = await pool.execute(query, [productId])
+  const [rows] = await pool.query(query, [productId])
   return rows[0].total
 }
 

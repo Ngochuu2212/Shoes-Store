@@ -25,7 +25,7 @@ const updateSize = async (id, value) => {
 
 const checkSizeUsedInVariants = async (value) => {
   // Check xem chuỗi size này đã nằm trong biến thể sản phẩm nào chưa
-  const [rows] = await pool.execute('SELECT id FROM product_variants WHERE size = ? LIMIT 1', [value])
+  const [rows] = await pool.query('SELECT id FROM product_variants WHERE size = ? LIMIT 1', [value])
   return rows.length > 0
 }
 
@@ -63,7 +63,7 @@ const updateColor = async (id, name, code) => {
 }
 
 const checkColorUsedInVariants = async (name) => {
-  const [rows] = await pool.execute('SELECT id FROM product_variants WHERE color = ? LIMIT 1', [name])
+  const [rows] = await pool.query('SELECT id FROM product_variants WHERE color = ? LIMIT 1', [name])
   return rows.length > 0
 }
 

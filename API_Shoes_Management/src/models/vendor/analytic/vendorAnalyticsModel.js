@@ -132,7 +132,7 @@ const getTopSellingProducts = async (storeId, startDate, endDate) => {
       WHERE pv.product_id IN (${placeholders}) 
         AND p.store_id = ?  
     `
-    const [variantRows] = await pool.execute(vQuery, [...productIds, storeId])
+    const [variantRows] = await pool.query(vQuery, [...productIds, storeId])
 
     // Group variants theo product_id
     const variantsMap = {}

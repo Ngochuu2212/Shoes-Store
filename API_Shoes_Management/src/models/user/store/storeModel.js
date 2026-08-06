@@ -53,7 +53,7 @@ const getProductsByStoreId = async (storeId, page = 1, limit = 8) => {
 
   if (products.length > 0) {
     const productIds = products.map(p => p.id)
-    const [variants] = await pool.execute(
+    const [variants] = await pool.query(
       `SELECT id, product_id, size, color, stock 
        FROM product_variants 
        WHERE product_id IN (${productIds.join(',')})`

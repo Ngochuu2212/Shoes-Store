@@ -177,7 +177,7 @@ const getProductBySlug = async (slug) => {
 
 const getProductVariants = async (productId) => {
   const query = 'SELECT id, size, color, stock, image FROM product_variants WHERE product_id = ?'
-  const [rows] = await pool.execute(query, [productId])
+  const [rows] = await pool.query(query, [productId])
   return rows
 }
 
@@ -232,7 +232,7 @@ const getRelatedProducts = async (categoryId, currentProductId, limit = 4) => {
 }
 
 const increaseViewCount = async (productId) => {
-  await pool.execute('UPDATE products SET view_count = view_count + 1 WHERE id = ?', [productId])
+  await pool.query('UPDATE products SET view_count = view_count + 1 WHERE id = ?', [productId])
 }
 
 const searchAndFilterProducts = async (filters) => {
@@ -401,11 +401,11 @@ const searchAndFilterProducts = async (filters) => {
   queryData += whereClauses + orderByClause + ' LIMIT ? OFFSET ?'
   queryCount += whereClauses
 
-  const [countRows] = await pool.execute(queryCount, params)
+  const [countRows] = await pool.query(queryCount, params)
   const total = countRows[0].total
 
   const finalParams = [...params, Number(limit), Number(offset)]
-  const [products] = await pool.execute(queryData, finalParams)
+  const [products] = await pool.query(queryData, finalParams)
 
   // Parse variants
   const parsedProducts = products.map(product => {

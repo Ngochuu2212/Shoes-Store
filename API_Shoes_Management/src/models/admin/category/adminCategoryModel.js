@@ -113,7 +113,7 @@ const countCategoriesForAdmin = async ({ search }) => {
     queryParams.push(`%${search}%`, `%${search}%`)
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 

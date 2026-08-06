@@ -60,7 +60,7 @@ const refundToWallet = async (userId, amount, description, orderId = null) => {
 // 5. Lấy lịch sử giao dịch ví (có phân trang)
 const getWalletTransactions = async (userId, page = 1, limit = 10) => {
   const offset = (page - 1) * limit
-  const [transactions] = await pool.execute(
+  const [transactions] = await pool.query(
     'SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
     [userId, Number(limit), Number(offset)]
   )

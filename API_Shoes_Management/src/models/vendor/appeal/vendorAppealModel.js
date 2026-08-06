@@ -42,7 +42,7 @@ const getAppealsByStoreId = async (storeId, { limit, offset }) => {
 // Đếm số đơn của cửa hàng
 const countAppealsByStoreId = async (storeId) => {
   const query = 'SELECT COUNT(*) AS total FROM store_appeals WHERE store_id = ?'
-  const [rows] = await pool.execute(query, [storeId])
+  const [rows] = await pool.query(query, [storeId])
   return rows[0].total
 }
 

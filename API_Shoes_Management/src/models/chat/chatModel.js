@@ -77,7 +77,7 @@ const markMessagesAsRead = async (conversationId, userId) => {
     SET is_read = TRUE 
     WHERE conversation_id = ? AND sender_id != ? AND is_read = FALSE
   `
-  await pool.execute(query, [conversationId, userId])
+  await pool.query(query, [conversationId, userId])
 }
 
 const getConversationInfoById = async (conversationId) => {

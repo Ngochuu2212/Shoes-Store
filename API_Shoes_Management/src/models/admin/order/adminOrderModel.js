@@ -83,7 +83,7 @@ const countAllOrdersSystem = async ({ status, paymentStatus, searchOrderId, star
     queryParams.push(`${endDate} 23:59:59`)
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0]?.total || 0
 }
 

@@ -57,7 +57,7 @@ const countStoresForAdmin = async ({ search, isActive }) => {
     queryParams.push(isActive)
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 
@@ -121,7 +121,7 @@ const updateStoreActiveStatusBulk = async (storeIds, isActive) => {
   const placeholders = storeIds.map(() => '?').join(', ')
   const query = `UPDATE stores SET is_active = ? WHERE id IN (${placeholders})`
 
-  const [result] = await pool.execute(query, [isActive, ...storeIds])
+  const [result] = await pool.query(query, [isActive, ...storeIds])
   return result.affectedRows
 }
 
@@ -230,7 +230,7 @@ const getStoreOwnerInfo = async (storeId) => {
     JOIN stores s ON u.id = s.owner_id
     WHERE s.id = ?
   `
-  const [rows] = await pool.execute(query, [id])
+  const [rows] = await pool.query(query, [id])
   return rows[0] || null
 }
 

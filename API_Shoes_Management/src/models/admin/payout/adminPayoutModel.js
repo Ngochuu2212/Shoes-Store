@@ -73,7 +73,7 @@ const countPayoutRequests = async ({ status, search }) => {
     query += ')'
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0]?.total || 0
 }
 

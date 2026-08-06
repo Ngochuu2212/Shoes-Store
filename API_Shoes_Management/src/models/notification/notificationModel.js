@@ -32,7 +32,7 @@ const markAllAsRead = async (userId) => {
 
 const markAsRead = async (userId, notificationId) => {
   const query = 'UPDATE notifications SET is_read = TRUE WHERE user_id = ? AND id = ?'
-  const [result] = await pool.execute(query, [userId, notificationId])
+  const [result] = await pool.query(query, [userId, notificationId])
   return result.affectedRows
 }
 

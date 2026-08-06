@@ -87,7 +87,7 @@ const countVendorOrders = async (storeId, { status, searchOrderId, paymentMethod
     queryParams.push(`${endDate} 23:59:59`)
   }
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows[0].total
 }
 
