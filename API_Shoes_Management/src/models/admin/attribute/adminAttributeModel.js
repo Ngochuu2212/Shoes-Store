@@ -48,7 +48,7 @@ const checkColorExist = async (name, excludeId = null) => {
   let query = 'SELECT id FROM global_colors WHERE color_name = ?'
   const params = [name]
   if (excludeId) { query += ' AND id != ?'; params.push(excludeId) }
-  const [rows] = await pool.execute(query, params)
+  const [rows] = await pool.query(query, params)
   return rows.length > 0
 }
 

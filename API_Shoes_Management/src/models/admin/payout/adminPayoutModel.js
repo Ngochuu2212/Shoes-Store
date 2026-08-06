@@ -46,7 +46,7 @@ const getPayoutRequests = async ({ status, search, limit, offset }) => {
   query += ' ORDER BY pr.created_at DESC LIMIT ? OFFSET ?'
   queryParams.push(limit, offset)
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

@@ -68,7 +68,7 @@ const getSystemPromotions = async ({ search, isActive, startDate, endDate, sortB
   query += ` ORDER BY ${finalSortBy} ${finalSortOrder} LIMIT ? OFFSET ?`
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

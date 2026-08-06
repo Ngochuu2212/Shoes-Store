@@ -80,7 +80,7 @@ const getVendorPromotions = async (storeId, { search, isActive, startDate, endDa
   query += ` ORDER BY ${finalSortBy} ${finalSortOrder} LIMIT ? OFFSET ?`
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

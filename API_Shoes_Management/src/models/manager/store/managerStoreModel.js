@@ -37,7 +37,7 @@ const getStoresForManager = async ({ search, isActive, startDate, endDate, limit
   query += ' ORDER BY s.created_at DESC LIMIT ? OFFSET ?'
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 
@@ -156,7 +156,7 @@ const getStoresOverviewStats = async () => {
     FROM stores s
     JOIN users u ON s.owner_id = u.id
   `
-  const [rows] = await pool.execute(query)
+  const [rows] = await pool.query(query)
   return {
     totalStores: Number(rows[0].totalStores) || 0,
     activeStores: Number(rows[0].activeStores) || 0,

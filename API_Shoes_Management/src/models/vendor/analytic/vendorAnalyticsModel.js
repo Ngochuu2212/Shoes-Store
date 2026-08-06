@@ -119,7 +119,7 @@ const getTopSellingProducts = async (storeId, startDate, endDate) => {
     LIMIT 5
   `
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
 
   // 2. Lấy variants cho từng product (cũng kiểm tra store_id)
   if (rows.length > 0) {

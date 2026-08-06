@@ -26,7 +26,7 @@ const getNotificationsByUserId = async (userId, limit, offset) => {
 // Đánh dấu đã đọc toàn bộ thông báo
 const markAllAsRead = async (userId) => {
   const query = 'UPDATE notifications SET is_read = TRUE WHERE user_id = ?'
-  const [result] = await pool.execute(query, [userId])
+  const [result] = await pool.query(query, [userId])
   return result.affectedRows
 }
 

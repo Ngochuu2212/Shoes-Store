@@ -67,7 +67,7 @@ const getConversationsList = async (userId) => {
     WHERE c.user_id = ? OR s.owner_id = ?
     ORDER BY c.updated_at DESC
   `
-  const [rows] = await pool.execute(query, [userId, userId, userId])
+  const [rows] = await pool.query(query, [userId, userId, userId])
   return rows
 }
 

@@ -54,7 +54,7 @@ const getProductsForManager = async ({ search, categoryId, storeId, status, sort
 
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
 
   // Parse variants từ JSON string sang array
   return rows.map(row => {

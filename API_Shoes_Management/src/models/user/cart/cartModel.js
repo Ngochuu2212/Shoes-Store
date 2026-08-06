@@ -65,7 +65,7 @@ const getCartByUserId = async (userId) => {
     WHERE c.user_id = ?
     ORDER BY c.id DESC
   `
-  const [rows] = await pool.execute(query, [userId])
+  const [rows] = await pool.query(query, [userId])
   return rows
 }
 

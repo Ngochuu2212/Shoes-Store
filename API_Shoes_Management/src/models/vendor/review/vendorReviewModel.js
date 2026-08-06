@@ -53,7 +53,7 @@ const getProductReviews = async (storeId, { search, rating, isActive, isReported
   query += ' ORDER BY pr.created_at DESC LIMIT ? OFFSET ?'
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
 
   // Parse variants từ JSON string sang array
   return rows.map(row => {
@@ -137,7 +137,7 @@ const getStoreReviews = async (storeId, { search, rating, isActive, isReported, 
   query += ' ORDER BY sr.created_at DESC LIMIT ? OFFSET ?'
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

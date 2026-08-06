@@ -53,7 +53,7 @@ const getAllOrdersSystem = async ({ status, paymentStatus, searchOrderId, startD
   query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?'
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

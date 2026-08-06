@@ -202,7 +202,7 @@ const getVendorProductsWithFilters = async (storeId, { search, categoryId, isAct
   query += ` ORDER BY ${orderOrder} LIMIT ? OFFSET ?`
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
 
   // Parse variants từ JSON string sang array
   return rows.map(row => {

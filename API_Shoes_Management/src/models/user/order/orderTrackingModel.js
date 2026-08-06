@@ -56,7 +56,7 @@ const getOrderItemsByOrderId = async (orderId, conn = null) => {
     INNER JOIN products p ON pv.product_id = p.id
     WHERE oi.order_id = ?
   `
-  const [items] = await connection.execute(query, [orderId])
+  const [items] = await connection.query(query, [orderId])
 
   // Parse variant_image nếu là string JSON
   return items.map(item => {

@@ -60,7 +60,7 @@ const getMostFavoritedProducts = async (storeId, { search, categoryId, isActive,
   query += ' ORDER BY total_favorites DESC, p.created_at DESC LIMIT ? OFFSET ?'
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
 
   // Parse variants từ JSON string sang array
   return rows.map(row => {
@@ -147,7 +147,7 @@ const getUsersWhoFavoritedProduct = async (productId, { limit, offset }) => {
     ORDER BY u.fullname ASC
     LIMIT ? OFFSET ?
   `
-  const [rows] = await pool.execute(query, [productId, Number(limit), Number(offset)])
+  const [rows] = await pool.query(query, [productId, Number(limit), Number(offset)])
   return rows
 }
 

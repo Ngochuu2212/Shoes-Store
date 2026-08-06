@@ -38,7 +38,7 @@ const getUsersForAdmin = async ({ search, roleId, isActive, sortBy, sortOrder, l
   query += ` ORDER BY u.${finalSortBy} ${finalSortOrder} LIMIT ? OFFSET ?`
   queryParams.push(Number(limit), Number(offset))
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

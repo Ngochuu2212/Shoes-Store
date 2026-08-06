@@ -99,7 +99,7 @@ const getCategoriesForAdmin = async ({ search, limit, offset }) => {
   query += ' GROUP BY c1.id ORDER BY c1.id DESC LIMIT ? OFFSET ?'
   queryParams.push(limit, offset)
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 

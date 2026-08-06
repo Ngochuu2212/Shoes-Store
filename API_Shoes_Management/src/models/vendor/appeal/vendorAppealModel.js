@@ -35,7 +35,7 @@ const getAppealsByStoreId = async (storeId, { limit, offset }) => {
     ORDER BY created_at DESC
     LIMIT ? OFFSET ?
   `
-  const [rows] = await pool.execute(query, [storeId, Number(limit), Number(offset)])
+  const [rows] = await pool.query(query, [storeId, Number(limit), Number(offset)])
   return rows
 }
 

@@ -163,7 +163,7 @@ const searchByImage = async (req, res) => {
       LIMIT 20
     `
 
-    const [products] = await pool.execute(query, queryParams)
+    const [products] = await pool.query(query, queryParams)
 
     return res.status(200).json({
       keywords,

@@ -47,7 +47,7 @@ const getProductsByStoreId = async (storeId, page = 1, limit = 8) => {
     LIMIT ? OFFSET ?
   `
 
-  const [products] = await pool.execute(query, [storeId, Number(limit), Number(offset)])
+  const [products] = await pool.query(query, [storeId, Number(limit), Number(offset)])
 
   let productsWithVariants = []
 
@@ -97,7 +97,7 @@ const getStoreReviews = async (storeId, page = 1, limit = 8) => {
     ORDER BY sr.created_at DESC
     LIMIT ? OFFSET ?
   `
-  const [reviews] = await pool.execute(query, [storeId, Number(limit), Number(offset)])
+  const [reviews] = await pool.query(query, [storeId, Number(limit), Number(offset)])
 
   return {
     reviews,

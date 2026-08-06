@@ -39,7 +39,7 @@ const getStoresForAdmin = async ({ search, isActive, sortBy, sortOrder, limit, o
   query += orderClause + ' LIMIT ? OFFSET ?'
   queryParams.push(limit, offset)
 
-  const [rows] = await pool.execute(query, queryParams)
+  const [rows] = await pool.query(query, queryParams)
   return rows
 }
 
@@ -112,7 +112,7 @@ const getStoreDetailById = async (storeId) => {
     JOIN users u ON s.owner_id = u.id
     WHERE s.id = ?
   `
-  const [rows] = await pool.execute(query, [storeId])
+  const [rows] = await pool.query(query, [storeId])
   return rows[0] || null
 }
 
@@ -217,7 +217,7 @@ const getStoreRevenueStats = async (storeId, { startDate, endDate }) => {
     ORDER BY DATE(created_at) DESC
     LIMIT 30
   `
-  const [rows] = await pool.execute(query, [id, startDate, endDate])
+  const [rows] = await pool.query(query, [id, startDate, endDate])
   return rows
 }
 
