@@ -15,13 +15,22 @@ const pool = mysql.createPool({
   queueLimit: 0
 })
 
-// Hàm kiểm tra kết nối tới Database khi khởi động Server
-export const connectDB = async () => {
-  try {
-    const connection = await pool.getConnection()
-    connection.release()
-  } catch (error) {
-    throw new Error(`Kết nối Database thất bại: ${error.message}`)
+// Hàm kiểm tra kết nối tới Database khi khởi động Server (hỗ trợ thử lại 5 lần nếu kết nối chậm/bị ngắt)
+export const connectDB = async (retries = 5, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const connection = await pool.getConnection()
+      console.log('✅ Kết nối MySQL Database thành công!')
+      connection.release()
+      return
+    } catch (error) {
+      console.log(`⚠️ Thử kết nối Database lần ${i + 1}/${retries} thất bại: ${error.message}`)
+      if (i < retries - 1) {
+        await new Promise(res => setTimeout(res, delay))
+      } else {
+        throw new Error(`Kết nối Database thất bại sau ${retries} lần thử: ${error.message}`)
+      }
+    }
   }
 }
 
