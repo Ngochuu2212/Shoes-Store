@@ -16,36 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `cart`
---
-
-DROP TABLE IF EXISTS `cart`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `cart` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
-  `variant_id` int DEFAULT NULL,
-  `quantity` int DEFAULT '1',
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `variant_id` (`variant_id`),
-  CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `cart`
---
-
-LOCK TABLES `cart` WRITE;
-/*!40000 ALTER TABLE `cart` DISABLE KEYS */;
-INSERT INTO `cart` VALUES (89,6,1,1),(90,6,40,1);
-/*!40000 ALTER TABLE `cart` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `categories`
 --
 
@@ -76,64 +46,6 @@ LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
 INSERT INTO `categories` VALUES (1,NULL,'Giày Sneaker','giay-sneaker','Giày thể thao năng động, thời trang',NULL,1,'2026-05-25 14:16:24'),(2,NULL,'Giày Cao Gót','giay-cao-got','Dành cho các buổi tiệc và công sở',NULL,1,'2026-05-25 14:16:24'),(3,NULL,'Giày Tây Nam','giay-tay-nam','Sang trọng, lịch lãm cho phái mạnh',NULL,1,'2026-05-25 14:16:24'),(4,NULL,'Dép & Sandals','dep-and-sandals','Thoải mái, tiện lợi đi hàng ngày',NULL,1,'2026-05-25 14:16:24'),(6,1,'Sneaker Chạy Bộ (Running)','sneaker-chay-bo-running','Giày sneaker tối ưu cho chạy bộ thể thao, đệm êm.',NULL,1,'2026-05-25 14:19:43'),(7,1,'Sneaker Bóng Rổ','sneaker-bong-ro','Giày cổ cao, bảo vệ cổ chân chuyên dụng bóng rổ.',NULL,1,'2026-05-25 14:19:43'),(8,1,'Sneaker Thời Trang (Casual)','sneaker-thoi-trang-casual','Các mẫu sneaker quốc dân đi học, đi chơi hàng ngày.',NULL,1,'2026-05-25 14:19:43'),(9,2,'Giày Cao Gót Mũi Nhọn','giay-cao-got-mui-nhon','Thiết kế thanh lịch, hack dáng cho quý cô công sở.',NULL,1,'2026-05-25 14:19:43'),(10,2,'Sandal Cao Gót','sandal-cao-got','Sandal cao gót quai mảnh thoáng chân, đi tiệc.',NULL,1,'2026-05-25 14:19:43'),(11,3,'Giày Oxford / Derby','giay-oxford-derby','Mẫu giày tây buộc dây cổ điển chuẩn quý ông.',NULL,1,'2026-05-25 14:19:43'),(12,3,'Giày Lười (Loafers)','giay-luoi-loafers','Giày tây xỏ chân tiện lợi, trẻ trung lịch lãm.',NULL,1,'2026-05-25 14:19:43'),(13,4,'Sandal Quai Ngang','sandal-quai-ngang','Sandal học sinh, sinh viên năng động bền bỉ.',NULL,1,'2026-05-25 14:19:43'),(15,NULL,'Giày Đá Banh','giay-da-banh','Mẫu giày đinh dăm TF, đinh cao FG chuyên dụng','{\"public_id\": \"shoes_categories/h7p12ybsjgnbn9ztag7q\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1779719242/shoes_categories/h7p12ybsjgnbn9ztag7q.jpg\"}',1,'2026-05-25 14:27:23');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `conversations`
---
-
-DROP TABLE IF EXISTS `conversations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `conversations` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `store_id` int NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`,`store_id`),
-  KEY `store_id` (`store_id`),
-  CONSTRAINT `conversations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `conversations_ibfk_2` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `conversations`
---
-
-LOCK TABLES `conversations` WRITE;
-/*!40000 ALTER TABLE `conversations` DISABLE KEYS */;
-INSERT INTO `conversations` VALUES (1,7,2,'2026-05-29 12:15:55','2026-06-21 09:11:31'),(2,19,2,'2026-06-09 14:12:35','2026-06-13 10:21:46'),(3,6,2,'2026-06-12 13:03:06','2026-06-21 08:29:05'),(4,7,6,'2026-06-19 11:55:49','2026-06-19 11:55:49');
-/*!40000 ALTER TABLE `conversations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `favorites`
---
-
-DROP TABLE IF EXISTS `favorites`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `favorites` (
-  `user_id` int NOT NULL,
-  `product_id` int NOT NULL,
-  PRIMARY KEY (`user_id`,`product_id`),
-  KEY `product_id` (`product_id`),
-  CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `favorites`
---
-
-LOCK TABLES `favorites` WRITE;
-/*!40000 ALTER TABLE `favorites` DISABLE KEYS */;
-INSERT INTO `favorites` VALUES (6,1),(7,1),(11,1),(6,3),(7,3),(7,7),(6,8),(7,8),(6,9),(7,9);
-/*!40000 ALTER TABLE `favorites` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -190,39 +102,101 @@ INSERT INTO `global_sizes` VALUES (2,'36','2026-05-25 13:50:39'),(3,'37','2026-0
 UNLOCK TABLES;
 
 --
--- Table structure for table `messages`
+-- Table structure for table `roles`
 --
 
-DROP TABLE IF EXISTS `messages`;
+DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `messages` (
+CREATE TABLE `roles` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `conversation_id` int NOT NULL,
-  `sender_id` int NOT NULL,
-  `content` text,
-  `images` json DEFAULT NULL,
-  `is_read` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `conversation_id` (`conversation_id`),
-  KEY `sender_id` (`sender_id`),
-  CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `messages`
+-- Dumping data for table `roles`
 --
 
-LOCK TABLES `messages` WRITE;
-/*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-INSERT INTO `messages` VALUES (1,1,7,'Shop ơi giày này còn size 42 không?','[{\"public_id\": \"shoes_store_chats/w4n3ak3vduflccxj3r5h\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780056953/shoes_store_chats/w4n3ak3vduflccxj3r5h.jpg\"}]',1,'2026-05-29 12:15:55'),(2,1,7,'Chào shop','[]',1,'2026-06-08 17:01:22'),(3,1,7,'Chào shop nha','[]',1,'2026-06-09 09:24:00'),(4,1,7,'shop oi','[]',1,'2026-06-09 09:25:13'),(5,1,7,'shop còn onl không','[]',1,'2026-06-09 09:25:33'),(6,1,7,'chào shop nha','[]',1,'2026-06-09 09:28:08'),(7,1,7,'shop ơi','[]',1,'2026-06-09 09:53:13'),(8,1,7,'hello shop','[]',1,'2026-06-09 10:17:32'),(9,1,7,'Chào shop nha','[]',1,'2026-06-12 12:57:25'),(10,1,7,'chào shop','[]',1,'2026-06-12 12:58:21'),(11,3,6,'chào bạn','[]',0,'2026-06-12 13:03:06'),(12,3,6,'Chào bạn nha','[]',0,'2026-06-12 13:29:21'),(13,1,7,'Chào shop','[]',1,'2026-06-12 13:29:38'),(14,1,6,'Chào bạn nha','[]',1,'2026-06-12 13:51:45'),(15,1,7,'Chào shop nha','[]',1,'2026-06-12 13:52:15'),(16,1,6,'Chào bạn','[]',1,'2026-06-12 13:53:07'),(17,1,7,'Chào shop','[]',1,'2026-06-12 13:53:31'),(18,1,6,'Shop chào bạn nha','[]',1,'2026-06-12 14:06:51'),(19,1,6,'Chào bạn','[]',1,'2026-06-13 08:18:46'),(20,1,7,'Chào shop','[]',1,'2026-06-13 08:19:29'),(21,1,6,'Chào bạn','[]',1,'2026-06-13 08:23:02'),(22,1,7,'Chào shop','[]',1,'2026-06-13 08:23:17'),(23,1,6,'Chào bạn','[]',1,'2026-06-13 08:24:01'),(24,1,6,'Chào b','[]',1,'2026-06-13 08:26:08'),(25,1,6,'Chào bạn nha','[]',1,'2026-06-13 08:26:42'),(26,1,6,'Chào b','[]',1,'2026-06-13 08:27:40'),(27,1,6,'Chào bạn','[]',1,'2026-06-13 08:42:38'),(28,1,7,'Chào shop','[]',1,'2026-06-13 08:43:06'),(29,1,6,'Chào bạn','[]',1,'2026-06-13 08:43:36'),(30,1,7,'Chào shop nha','[]',1,'2026-06-13 08:43:44'),(31,1,7,'Chào bạn','[]',1,'2026-06-13 08:49:12'),(32,1,6,'Shop chào bạn nha','[]',1,'2026-06-13 08:49:22'),(33,1,6,'Chào bạn','[]',1,'2026-06-13 08:49:44'),(34,1,6,'Chào bnaj','[]',1,'2026-06-13 08:54:43'),(35,1,6,'Oke bạn','[]',1,'2026-06-13 08:56:12'),(36,1,7,'Chào shop','[]',1,'2026-06-13 09:23:43'),(37,1,7,'Shop ơi','[]',1,'2026-06-13 10:12:10'),(38,1,7,'Shop còn sản phẩm Giày sneaker đen không','[]',1,'2026-06-13 10:12:20'),(39,1,7,'Shop ơi','[]',1,'2026-06-13 10:12:48'),(40,1,7,'Hello shop','[]',1,'2026-06-13 10:12:54'),(41,1,7,'Shop có còn không','[]',1,'2026-06-13 10:13:06'),(42,2,19,'Chào shop nha','[]',1,'2026-06-13 10:14:00'),(43,2,19,'chào shop','[]',1,'2026-06-13 10:21:37'),(44,2,19,'Shop có sản phẩm nào kh','[]',1,'2026-06-13 10:21:46'),(45,1,7,'Chào shop','[]',1,'2026-06-13 10:22:14'),(46,1,6,'Shop chào bạn','[]',1,'2026-06-13 10:25:55'),(47,1,6,'Shop còn sản phẩm','[]',1,'2026-06-13 10:26:08'),(48,1,6,'helo bạn','[]',1,'2026-06-13 10:27:16'),(49,1,6,'Chào bạn','[]',1,'2026-06-21 08:28:39'),(50,3,6,'Chào shop nha','[]',0,'2026-06-21 08:29:05'),(51,1,7,'Chào shop','[]',1,'2026-06-21 08:29:59'),(52,1,6,'chào bạn','[]',1,'2026-06-21 08:30:14'),(53,1,7,'Chào hsop','[]',1,'2026-06-21 08:30:20'),(54,1,6,'Chào bạn','[]',1,'2026-06-21 08:30:28'),(55,1,7,'Chào shop','[]',1,'2026-06-21 08:30:36'),(56,1,6,'Chào bạn','[]',1,'2026-06-21 09:01:09'),(57,1,6,'Bạn có cần gì không','[]',1,'2026-06-21 09:01:14'),(58,1,7,'Bạn còn sản phẩm này không','[{\"public_id\": \"shoes_store_chats/kc0f0j2j2oxxoslxhboz\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782033087/shoes_store_chats/kc0f0j2j2oxxoslxhboz.jpg\"}]',1,'2026-06-21 09:11:29'),(59,1,7,'Bạn còn sản phẩm này không','[{\"public_id\": \"shoes_store_chats/ebczcpyimnfr9mois5fh\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782033089/shoes_store_chats/ebczcpyimnfr9mois5fh.jpg\"}]',1,'2026-06-21 09:11:31');
-/*!40000 ALTER TABLE `messages` ENABLE KEYS */;
+LOCK TABLES `roles` WRITE;
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'ADMIN'),(2,'MANAGER'),(4,'USER'),(3,'VENDOR'),(5,'SHIPPER');
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `system_settings`
+--
+
+DROP TABLE IF EXISTS `system_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `system_settings` (
+  `id` int NOT NULL DEFAULT '1',
+  `is_maintenance` tinyint(1) DEFAULT '0',
+  `maintenance_message` text,
+  `global_commission_rate` decimal(5,2) DEFAULT '10.00',
+  `hotline` varchar(20) DEFAULT '19001000',
+  `support_email` varchar(100) DEFAULT 'support@shoesshop.com',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `check_single_row` CHECK ((`id` = 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `system_settings`
+--
+
+LOCK TABLES `system_settings` WRITE;
+/*!40000 ALTER TABLE `system_settings` DISABLE KEYS */;
+INSERT INTO `system_settings` VALUES (1,0,'Sàn bảo trì nâng cấp hệ thống',10.00,'19001000','admin@shoesshop.com','2026-05-26 02:12:44','2026-06-18 13:37:38');
+/*!40000 ALTER TABLE `system_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `role_id` int DEFAULT NULL,
+  `fullname` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `avatar` json DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `is_verified` tinyint(1) DEFAULT '0',
+  `otp_code` varchar(10) DEFAULT NULL,
+  `otp_expiry` datetime DEFAULT NULL,
+  `refresh_token` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_online` tinyint(1) DEFAULT '0',
+  `last_active` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `role_id` (`role_id`),
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,1,'Tổng Quản Trị','admin@gmail.com','hash_pass_123','0123456789',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(2,2,'Quản Lý Hệ Thống','manager@gmail.com','hash_pass_123','0987654321',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(3,3,'Chủ Shop Sneaker','vendor_giay@gmail.com','hash_pass_123','0911223344',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(4,4,'Nguyễn Văn Khách','khachhang@gmail.com','hash_pass_123','0900112233',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(6,3,'Vendor Huu','phamngochuu3101@gmail.com','$2b$08$Og4Z99qBauBxNwbMXj75NOdjCx0tX1/FGDR9qSvA07NifBVww/X.e','0378240911','Ngọc Lãng 1, Tuy Hòa, Phú Yên','{\"public_id\": \"shoes_store_avatars/oqmvmcpuflfbdwxy696x\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781264481/shoes_store_avatars/oqmvmcpuflfbdwxy696x.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-19 12:08:23',0,'2026-06-21 11:09:48'),(7,4,'Ngọc Thiênnn','23110332@student.hcmute.edu.vn','$2b$08$dz8FL2w..YwyipOu5chWbO.peUejPYvTk9yFvgoShhGIWJ3mBsYBS','0123456789','99 Lê Đại Hành, Phường 11, Quận 11, TP. HCM','{\"public_id\": \"shoes_store_avatars/xc4xeqzyeyfqbcqximpt\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780862310/shoes_store_avatars/xc4xeqzyeyfqbcqximpt.webp\"}',1,1,NULL,NULL,NULL,'2026-05-21 05:55:31',0,'2026-06-21 11:38:05'),(10,2,'Manager 1','manager1@gmail.com','$2b$10$AzR7yD8bZ2mOm0CefmXpG.Z7MdB7UoKj4D3QvZ9gqYm6Y9H6hK2gq','0987654321',NULL,'{\"public_id\": \"avatars/manager_default\", \"secure_url\": \"https://res.cloudinary.com/demo/image/upload/v123456/sample.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-23 11:38:29',0,'2026-05-29 11:10:52'),(11,2,'Manager Huu','huu.pham.3101@gmail.com','$2b$10$iHog8Ft12XKoDeswZh9cr.5wE4.k3MsJHePNHdMNITMLNgf/cApvq','0987654323','31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM','{\"public_id\": \"shoes_store_avatars/n78tyzpuw5g9iszeo0ws\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781442576/shoes_store_avatars/n78tyzpuw5g9iszeo0ws.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-23 11:39:59',0,'2026-06-21 11:11:54'),(12,5,'Shipper Ý','ngochuunaksss@gmail.com','$2b$10$aPSveGIQgHhlrQp7fgWBqe12otG6Q5kwVcZTSvPJ8xPLOsSWZ0Ev.','0987654321','31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM','{\"public_id\": \"shoes_store_avatars/frwdw7r4qut5nrd5hs7b\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781444787/shoes_store_avatars/frwdw7r4qut5nrd5hs7b.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-23 12:03:42',0,'2026-06-21 09:00:38'),(13,1,'Admin Huu','23110233@student.hcmute.edu.vn','$2b$08$A9UppNO/9pYL2XiRqW9gyeJ6lN9wQfnzT7BIEVnHMJwECPaUZzViS','0987654321','31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM','{\"public_id\": \"shoes_store_avatars/keocawopzufqr9el4y0z\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781791821/shoes_store_avatars/keocawopzufqr9el4y0z.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-25 06:36:59',0,'2026-06-21 11:14:08'),(17,3,'User1','user1@gmail.com','$2b$08$rPVENyWerX/FBIfQeVCxte3U3CDB7DU39bhnKPHvJImKJ.VjV/tL.','0911223344','Ngọc Lãng 2, Tuy Hòa, Phú Yên','{\"public_id\": \"shoes_store_avatars/gswx1v0acgrls77zicze\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781444868/shoes_store_avatars/gswx1v0acgrls77zicze.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-29 18:59:59',0,'2026-06-14 13:53:30'),(19,4,'Hà Y Như Ý','nhuyhay2005@gmail.com','$2b$08$SvKWjVG.IMb7lIHTreTXnODw5P/x1pp4p4fiY5cEgdooA0x6Jik1G','0123456789','331 Lê Duẩn, Phường 12, Quận Tân Bình, TP. HCM','{\"public_id\": \"shoes_store_avatars/ifasbbvygzbk4omygjzz\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781013015/shoes_store_avatars/ifasbbvygzbk4omygjzz.jpg\"}',1,1,NULL,NULL,NULL,'2026-06-04 10:33:59',0,'2026-06-20 08:14:21'),(23,4,'test','test@gmail.com','$2b$08$XwVXbO5J3UtVWS8RmccQ4.5wH9IL1K33DfqHx6h1JD3xZ2yKV9SU6','0987654321','466 Đường Lê Văn Việt, Phường Tăng Nhơn Phú A, Thành phố Thủ Đức, TP.HCM',NULL,1,1,NULL,NULL,NULL,'2026-06-20 08:29:25',0,'2026-06-20 08:30:31');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;--
 -- Table structure for table `notifications`
 --
 
@@ -255,34 +229,104 @@ INSERT INTO `notifications` VALUES (17,10,'Có đơn tố cáo đánh giá mới
 UNLOCK TABLES;
 
 --
--- Table structure for table `order_items`
+-- Table structure for table `stores`
 --
 
-DROP TABLE IF EXISTS `order_items`;
+DROP TABLE IF EXISTS `stores`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `order_items` (
+CREATE TABLE `stores` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `order_id` int DEFAULT NULL,
-  `variant_id` int DEFAULT NULL,
-  `quantity` int NOT NULL,
-  `price` decimal(10,2) NOT NULL,
+  `owner_id` int DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `bio` text,
+  `logo` json DEFAULT NULL,
+  `banner` json DEFAULT NULL,
+  `address` text,
+  `balance` decimal(15,2) DEFAULT '0.00',
+  `is_active` tinyint(1) DEFAULT '1',
+  `rating_average` decimal(3,2) DEFAULT '0.00',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `commission_rate` decimal(5,2) NOT NULL DEFAULT '10.00' COMMENT 'Tỷ lệ % chiết khấu hoa hồng sàn thu trên mỗi đơn hàng thành công',
+  `reject_reason` text,
   PRIMARY KEY (`id`),
-  KEY `order_id` (`order_id`),
-  KEY `variant_id` (`variant_id`),
-  CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `owner_id` (`owner_id`),
+  CONSTRAINT `stores_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `order_items`
+-- Dumping data for table `stores`
 --
 
-LOCK TABLES `order_items` WRITE;
-/*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
-INSERT INTO `order_items` VALUES (1,3,1,2,3500000.00),(2,4,1,3,3500000.00),(3,5,1,4,3500000.00),(9,9,4,1,1950000.00),(10,9,5,2,1950000.00),(14,12,4,1,1950000.00),(20,18,4,1,1950000.00),(21,19,4,1,1950000.00),(28,25,2,1,3500000.00),(30,27,2,1,3500000.00),(33,30,2,1,3500000.00),(38,35,2,1,3500000.00),(39,36,1,1,3500000.00),(42,39,2,2,3500000.00),(43,40,2,1,3500000.00),(44,41,18,1,750000.00),(45,42,42,1,750000.00),(51,48,1,1,3500000.00),(52,49,23,1,465000.00);
-/*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
+LOCK TABLES `stores` WRITE;
+/*!40000 ALTER TABLE `stores` DISABLE KEYS */;
+INSERT INTO `stores` VALUES (1,3,'Sneaker World','Chuyên cung cấp giày chính hãng',NULL,NULL,NULL,5000000.00,1,4.75,'2026-05-19 03:58:28',10.00,NULL),(2,6,'Sneaker World Siêu Cấp Vip Pro','Chuyên phân phối các dòng giày Sneaker chính hãng Nike, Adidas, Jordan uy tín số 1.','{\"public_id\": \"shoes_store_profiles/kgvkrtulwb8cmughhrxv\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032175/shoes_store_profiles/kgvkrtulwb8cmughhrxv.jpg\"}','{\"public_id\": \"shoes_store_profiles/d7qix9wfw3m7eczaidov\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032176/shoes_store_profiles/d7qix9wfw3m7eczaidov.jpg\"}','466 Đường Lê Văn Việt, Phường Tăng Nhơn Phú A, Thành phố Thủ Đức, TP.HCM',7221250.00,1,4.88,'2026-05-21 02:40:02',10.00,NULL),(6,12,'Sneaker World Premium (huu)','Chuyên phân phối các dòng giày Sneaker chính hãng Nike, Adidas số n.','{\"public_id\": \"shoes_store_profiles/nw38tqkma3e8uqba2jcs\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032237/shoes_store_profiles/nw38tqkma3e8uqba2jcs.jpg\"}','{\"public_id\": \"shoes_store_profiles/vuafcnbkbis7zt9ctmfr\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032236/shoes_store_profiles/vuafcnbkbis7zt9ctmfr.jpg\"}','Quận Thủ Đức 1',0.00,1,0.00,'2026-05-23 12:55:35',10.00,NULL),(11,17,'Sneaker World Premium (tesst1)','Chuyên phân phối các dòng giày Sneaker chính hãng Nike, Adidas số n.','{\"public_id\": \"shoes_store_profiles/wg1wjsxvp85wl7umqhsv\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781445032/shoes_store_profiles/wg1wjsxvp85wl7umqhsv.jpg\"}','{\"public_id\": \"shoes_store_profiles/uiaot2cayvdglsqec4ay\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780081243/shoes_store_profiles/uiaot2cayvdglsqec4ay.jpg\"}','Quận Thủ Đức 3',0.00,1,0.00,'2026-05-29 19:00:46',10.00,NULL),(12,19,'Sneaker Heavy','Chuyên cung cấp các dòng sản phẩm Sneaker','{\"public_id\": \"shoes_store_profiles/eatie09hz6sunriewlad\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781013058/shoes_store_profiles/eatie09hz6sunriewlad.jpg\"}','{\"public_id\": \"shoes_store_profiles/pkxjabvth2kzzutdwanq\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781013059/shoes_store_profiles/pkxjabvth2kzzutdwanq.jpg\"}','331 Lê Duẩn, Phường 12, Quận Tân Bình, TP. HCM',0.00,1,0.00,'2026-06-09 13:51:01',8.00,NULL),(13,4,'Sneaker World Siêu Cấp Vip Pro 11111','',NULL,NULL,'31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM',0.00,1,0.00,'2026-06-17 17:52:07',10.00,NULL);
+/*!40000 ALTER TABLE `stores` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `conversations`
+--
+
+DROP TABLE IF EXISTS `conversations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `conversations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `store_id` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`store_id`),
+  KEY `store_id` (`store_id`),
+  CONSTRAINT `conversations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `conversations_ibfk_2` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `conversations`
+--
+
+LOCK TABLES `conversations` WRITE;
+/*!40000 ALTER TABLE `conversations` DISABLE KEYS */;
+INSERT INTO `conversations` VALUES (1,7,2,'2026-05-29 12:15:55','2026-06-21 09:11:31'),(2,19,2,'2026-06-09 14:12:35','2026-06-13 10:21:46'),(3,6,2,'2026-06-12 13:03:06','2026-06-21 08:29:05'),(4,7,6,'2026-06-19 11:55:49','2026-06-19 11:55:49');
+/*!40000 ALTER TABLE `conversations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `messages`
+--
+
+DROP TABLE IF EXISTS `messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `messages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `conversation_id` int NOT NULL,
+  `sender_id` int NOT NULL,
+  `content` text,
+  `images` json DEFAULT NULL,
+  `is_read` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `conversation_id` (`conversation_id`),
+  KEY `sender_id` (`sender_id`),
+  CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `messages`
+--
+
+LOCK TABLES `messages` WRITE;
+/*!40000 ALTER TABLE `messages` DISABLE KEYS */;
+INSERT INTO `messages` VALUES (1,1,7,'Shop ơi giày này còn size 42 không?','[{\"public_id\": \"shoes_store_chats/w4n3ak3vduflccxj3r5h\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780056953/shoes_store_chats/w4n3ak3vduflccxj3r5h.jpg\"}]',1,'2026-05-29 12:15:55'),(2,1,7,'Chào shop','[]',1,'2026-06-08 17:01:22'),(3,1,7,'Chào shop nha','[]',1,'2026-06-09 09:24:00'),(4,1,7,'shop oi','[]',1,'2026-06-09 09:25:13'),(5,1,7,'shop còn onl không','[]',1,'2026-06-09 09:25:33'),(6,1,7,'chào shop nha','[]',1,'2026-06-09 09:28:08'),(7,1,7,'shop ơi','[]',1,'2026-06-09 09:53:13'),(8,1,7,'hello shop','[]',1,'2026-06-09 10:17:32'),(9,1,7,'Chào shop nha','[]',1,'2026-06-12 12:57:25'),(10,1,7,'chào shop','[]',1,'2026-06-12 12:58:21'),(11,3,6,'chào bạn','[]',0,'2026-06-12 13:03:06'),(12,3,6,'Chào bạn nha','[]',0,'2026-06-12 13:29:21'),(13,1,7,'Chào shop','[]',1,'2026-06-12 13:29:38'),(14,1,6,'Chào bạn nha','[]',1,'2026-06-12 13:51:45'),(15,1,7,'Chào shop nha','[]',1,'2026-06-12 13:52:15'),(16,1,6,'Chào bạn','[]',1,'2026-06-12 13:53:07'),(17,1,7,'Chào shop','[]',1,'2026-06-12 13:53:31'),(18,1,6,'Shop chào bạn nha','[]',1,'2026-06-12 14:06:51'),(19,1,6,'Chào bạn','[]',1,'2026-06-13 08:18:46'),(20,1,7,'Chào shop','[]',1,'2026-06-13 08:19:29'),(21,1,6,'Chào bạn','[]',1,'2026-06-13 08:23:02'),(22,1,7,'Chào shop','[]',1,'2026-06-13 08:23:17'),(23,1,6,'Chào bạn','[]',1,'2026-06-13 08:24:01'),(24,1,6,'Chào b','[]',1,'2026-06-13 08:26:08'),(25,1,6,'Chào bạn nha','[]',1,'2026-06-13 08:26:42'),(26,1,6,'Chào b','[]',1,'2026-06-13 08:27:40'),(27,1,6,'Chào bạn','[]',1,'2026-06-13 08:42:38'),(28,1,7,'Chào shop','[]',1,'2026-06-13 08:43:06'),(29,1,6,'Chào bạn','[]',1,'2026-06-13 08:43:36'),(30,1,7,'Chào shop nha','[]',1,'2026-06-13 08:43:44'),(31,1,7,'Chào bạn','[]',1,'2026-06-13 08:49:12'),(32,1,6,'Shop chào bạn nha','[]',1,'2026-06-13 08:49:22'),(33,1,6,'Chào bạn','[]',1,'2026-06-13 08:49:44'),(34,1,6,'Chào bnaj','[]',1,'2026-06-13 08:54:43'),(35,1,6,'Oke bạn','[]',1,'2026-06-13 08:56:12'),(36,1,7,'Chào shop','[]',1,'2026-06-13 09:23:43'),(37,1,7,'Shop ơi','[]',1,'2026-06-13 10:12:10'),(38,1,7,'Shop còn sản phẩm Giày sneaker đen không','[]',1,'2026-06-13 10:12:20'),(39,1,7,'Shop ơi','[]',1,'2026-06-13 10:12:48'),(40,1,7,'Hello shop','[]',1,'2026-06-13 10:12:54'),(41,1,7,'Shop có còn không','[]',1,'2026-06-13 10:13:06'),(42,2,19,'Chào shop nha','[]',1,'2026-06-13 10:14:00'),(43,2,19,'chào shop','[]',1,'2026-06-13 10:21:37'),(44,2,19,'Shop có sản phẩm nào kh','[]',1,'2026-06-13 10:21:46'),(45,1,7,'Chào shop','[]',1,'2026-06-13 10:22:14'),(46,1,6,'Shop chào bạn','[]',1,'2026-06-13 10:25:55'),(47,1,6,'Shop còn sản phẩm','[]',1,'2026-06-13 10:26:08'),(48,1,6,'helo bạn','[]',1,'2026-06-13 10:27:16'),(49,1,6,'Chào bạn','[]',1,'2026-06-21 08:28:39'),(50,3,6,'Chào shop nha','[]',0,'2026-06-21 08:29:05'),(51,1,7,'Chào shop','[]',1,'2026-06-21 08:29:59'),(52,1,6,'chào bạn','[]',1,'2026-06-21 08:30:14'),(53,1,7,'Chào hsop','[]',1,'2026-06-21 08:30:20'),(54,1,6,'Chào bạn','[]',1,'2026-06-21 08:30:28'),(55,1,7,'Chào shop','[]',1,'2026-06-21 08:30:36'),(56,1,6,'Chào bạn','[]',1,'2026-06-21 09:01:09'),(57,1,6,'Bạn có cần gì không','[]',1,'2026-06-21 09:01:14'),(58,1,7,'Bạn còn sản phẩm này không','[{\"public_id\": \"shoes_store_chats/kc0f0j2j2oxxoslxhboz\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782033087/shoes_store_chats/kc0f0j2j2oxxoslxhboz.jpg\"}]',1,'2026-06-21 09:11:29'),(59,1,7,'Bạn còn sản phẩm này không','[{\"public_id\": \"shoes_store_chats/ebczcpyimnfr9mois5fh\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782033089/shoes_store_chats/ebczcpyimnfr9mois5fh.jpg\"}]',1,'2026-06-21 09:11:31');
+/*!40000 ALTER TABLE `messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -358,6 +402,183 @@ LOCK TABLES `payout_requests` WRITE;
 /*!40000 ALTER TABLE `payout_requests` DISABLE KEYS */;
 INSERT INTO `payout_requests` VALUES (1,2,2000000.00,'Vietcombank','0071001234567','NGUYEN VAN A','approved','Đã chuyển khoản thành công qua Vietcombank Bank - Mã GD: MB888999','2026-05-25 17:57:18','2026-05-25 17:59:40'),(2,2,1000000.00,'Vietcombank','0071001234567','NGUYEN VAN A','approved','Đã chuyển khoản thành công qua MB Bank - Mã GD: MB999999','2026-05-29 20:18:44','2026-05-29 20:19:28'),(3,2,230000.00,'Vietcombank','124124124','CỐ NHÂN ','approved','Đã chuyển khoản ','2026-06-12 08:52:46','2026-06-18 12:54:07'),(4,2,543750.00,'Techcombank','0378240914','CAO NGOC THIEN','rejected',NULL,'2026-06-18 12:58:45','2026-06-18 12:59:16');
 /*!40000 ALTER TABLE `payout_requests` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `products` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `store_id` int DEFAULT NULL,
+  `category_id` int DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `description` text,
+  `price` decimal(10,2) NOT NULL,
+  `sold` int DEFAULT '0',
+  `rating_avg` decimal(3,2) DEFAULT '0.00',
+  `view_count` int DEFAULT '0',
+  `images` json DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `status` varchar(50) DEFAULT 'approved',
+  `reject_reason` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `store_id` (`store_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (1,2,1,'Nike Air Jordan 1 Low','nike-air-jordan-1-low','Phối màu Panda kinh điển',3500000.00,117,4.83,806,'[{\"public_id\": \"shoes_store_products/lygqvntkvo00gubn5tvb\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963179/shoes_store_products/lygqvntkvo00gubn5tvb.png\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-21 09:40:16'),(2,2,1,'Adidas Forum Low White','adidas-forum-low-white','Phong cách retro thập niên 80',2100000.00,35,0.00,831,'[{\"public_id\": \"shoes_store_products/f2iaq6zpctavshhlii3u\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963221/shoes_store_products/f2iaq6zpctavshhlii3u.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 16:30:57'),(3,2,1,'New Balance 550 Blue','new-balance-550-blue','Sự kết hợp hoàn hảo thể thao thời trang',3200000.00,20,0.00,130,'[{\"public_id\": \"shoes_store_products/a8noqo6n7rkogoakmwo2\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963335/shoes_store_products/a8noqo6n7rkogoakmwo2.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 18:06:15'),(4,2,2,'Biti’s Hunter Heels','bitis-hunter-heels','Êm ái, tôn dáng cho phái đẹp',750000.00,121,0.00,8,'[{\"public_id\": \"shoes_store_products/kgb5jcjbskifehavos1w\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963556/shoes_store_products/kgb5jcjbskifehavos1w.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 19:15:04'),(5,2,2,'Stiletto Cao Gót 9cm','stiletto-cao-got-9cm','Màu đỏ mận quý phái, gót nhọn',1200000.00,15,0.00,13,'[{\"public_id\": \"shoes_store_products/pdpa2dgdk1je4kakwmdb\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963527/shoes_store_products/pdpa2dgdk1je4kakwmdb.webp\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:52:08'),(6,2,3,'Oxford Classic Leather','oxford-classic-leather','Da bò thật nguyên tấm, khâu tay',1850000.00,5,5.00,8,'[{\"public_id\": \"shoes_store_products/dnojtwmabu9u5a6atbma\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963578/shoes_store_products/dnojtwmabu9u5a6atbma.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:52:59'),(7,2,3,'Chelsea Boot Suede','chelsea-boot-suede','Da lộn màu nâu đất, phong cách bụi bặm',1600000.00,45,0.00,22,'[{\"public_id\": \"shoes_store_products/yr6fb6hipqpulf60f8ub\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963607/shoes_store_products/yr6fb6hipqpulf60f8ub.webp\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:53:28'),(8,2,4,'Dép Yeezy Slide','dep-yeezy-slide-bone','Chất liệu bọt EVA siêu nhẹ, cực êm',1950000.00,230,5.00,34,'[{\"public_id\": \"shoes_store_products/l8ac8jclkwq0fjmq67ig\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963014/shoes_store_products/l8ac8jclkwq0fjmq67ig.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-21 08:26:12'),(9,2,4,'Sandals Quai Hậu Học Sinh','sandals-quai-hau-hoc-sinh','Thiết kế đơn giản, bền bỉ',250000.00,500,0.00,37,'[{\"public_id\": \"shoes_store_products/nnkzktodcggpdapt0w8g\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963627/shoes_store_products/nnkzktodcggpdapt0w8g.png\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:53:49'),(31,2,10,'Sandals Cao Gót Biti\'s Nữ','sandals-cao-got-bitis-nu-1781948801777','Mang thoải mái, đẹp và dễ chịu',465000.00,1,0.00,0,'[{\"public_id\": \"shoes_store_products/p5wsg9bdd51gfh8uied4\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963095/shoes_store_products/p5wsg9bdd51gfh8uied4.jpg\"}]',1,'approved',NULL,'2026-06-20 09:46:41','2026-06-21 10:39:48'),(33,6,15,'Adidas Predator Elite','adidas-predator-elite-1781982401135','Giày kiểm soát bóng với các gân cao su dọc thân giày tăng độ xoáy và kiểm soát khi sút. Đế cá tính cho sân cỏ tự nhiên, công nghệ HybridTouch 2.0 mang lại cảm giác bóng mượt mà.',750000.00,1,0.00,12,'[{\"public_id\": \"shoes_store_products/hwu5mu6ykknlvntgix9n\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781982525/shoes_store_products/hwu5mu6ykknlvntgix9n.jpg\"}]',1,'approved',NULL,'2026-06-20 19:06:41','2026-06-21 09:10:57');
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `promotions`
+--
+
+DROP TABLE IF EXISTS `promotions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `promotions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `store_id` int DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `discount_value` decimal(10,2) NOT NULL,
+  `min_order_value` decimal(10,2) DEFAULT '0.00',
+  `max_discount_amount` decimal(10,2) DEFAULT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `store_id` (`store_id`),
+  CONSTRAINT `promotions_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `promotions`
+--
+
+LOCK TABLES `promotions` WRITE;
+/*!40000 ALTER TABLE `promotions` DISABLE KEYS */;
+INSERT INTO `promotions` VALUES (1,1,'CLEARANCE SALE - GIÀY CHÍNH HÃNG',NULL,30.00,0.00,500000.00,'2026-05-13 00:00:00','2026-06-13 23:59:59',1,'2026-05-19 03:59:23','2026-05-19 03:59:23'),(7,2,'FLASHSALE25','Mã giảm giá cực sâu 25% áp dụng cho toàn bộ các dòng sản phẩm giày Sneaker dịp hè 2026.',25.00,600000.00,150000.00,'2026-06-01 00:00:00','2026-06-15 00:00:00',1,'2026-05-23 19:03:14','2026-06-11 20:22:43'),(8,2,'FLASHSALE30','Mã giảm giá cực sâu 30% áp dụng cho toàn bộ các dòng sản phẩm giày Sneaker dịp hè 2026.',30.00,600000.00,150000.00,'2026-06-01 00:00:00','2026-06-15 00:00:00',1,'2026-05-23 19:13:03','2026-06-12 06:52:43'),(11,2,'KM2026',NULL,15.00,50000.00,2000000.00,'2026-06-18 00:00:00','2026-12-30 00:00:00',1,'2026-06-18 15:07:40','2026-06-21 09:03:24'),(12,6,'KMM2106',NULL,20.00,100000.00,NULL,'2026-06-20 00:00:00','2026-12-30 00:00:00',1,'2026-06-20 10:21:41','2026-06-20 10:21:41'),(13,2,'KM1902','Giảm giá 1902 cực mạnh',25.00,200000.00,NULL,'2026-06-21 00:00:00','2026-12-20 00:00:00',1,'2026-06-21 09:04:55','2026-06-21 09:04:55');
+/*!40000 ALTER TABLE `promotions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `store_appeals`
+--
+
+DROP TABLE IF EXISTS `store_appeals`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `store_appeals` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `store_id` int NOT NULL,
+  `appeal_reason` text NOT NULL,
+  `evidence_images` json DEFAULT NULL,
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `manager_note` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `store_id` (`store_id`),
+  CONSTRAINT `store_appeals_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `store_appeals`
+--
+
+LOCK TABLES `store_appeals` WRITE;
+/*!40000 ALTER TABLE `store_appeals` DISABLE KEYS */;
+INSERT INTO `store_appeals` VALUES (1,2,'Tôi xin cam kết gỡ bỏ toàn bộ mẫu giày Nike fake ra khỏi cửa hàng, mong ban quản trị mở lại shop.','[{\"public_id\": \"shoes_store_appeals/rjxmigex5m4fpz5zaf3z\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1779714094/shoes_store_appeals/rjxmigex5m4fpz5zaf3z.jpg\"}]','approved','Hồ sơ hóa đơn đối soát chính hãng hợp lệ. Cảnh cáo Vendor không được tái phạm đăng bán sản phẩm không rõ nguồn gốc.','2026-05-25 13:01:35','2026-05-25 13:04:13'),(2,2,'Tôi xin cam kết gỡ bỏ toàn bộ mẫu giày Nike fake ra khỏi cửa hàng, mong ban quản trị mở lại shop.','[{\"public_id\": \"shoes_store_appeals/bszlhb2oe8gpccnil4lt\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1779716378/shoes_store_appeals/bszlhb2oe8gpccnil4lt.jpg\"}]','approved','Hồ sơ hóa đơn đối soát chính hãng hợp lệ. Cảnh cáo Vendor không được tái phạm đăng bán sản phẩm không rõ nguồn gốc.','2026-05-25 13:39:39','2026-05-25 13:40:22'),(3,2,'Tôi xin cam kết gỡ bỏ toàn bộ mẫu giày Nike fake ra khỏi cửa hàng, mong ban quản trị mở lại shop.','[{\"public_id\": \"shoes_store_appeals/moux5rw32xbnc2cxfivh\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780086603/shoes_store_appeals/moux5rw32xbnc2cxfivh.jpg\"}]','approved','Hồ sơ hóa đơn đối soát chính hãng hợp lệ. Cảnh cáo Vendor không được tái phạm đăng bán sản phẩm không rõ nguồn gốc.','2026-05-29 20:30:04','2026-05-29 20:30:50'),(4,2,'Xin phép gỡ khóa','[{\"public_id\": \"shoes_store_appeals/fvczbspznsg7ob64xxun\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781600823/shoes_store_appeals/fvczbspznsg7ob64xxun.jpg\"}]','approved','Hãy xem kỹ lưỡng ','2026-06-16 09:07:05','2026-06-16 09:27:15');
+/*!40000 ALTER TABLE `store_appeals` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `store_reviews`
+--
+
+DROP TABLE IF EXISTS `store_reviews`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `store_reviews` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `store_id` int DEFAULT NULL,
+  `order_id` int DEFAULT NULL,
+  `rating` int DEFAULT NULL,
+  `comment` text,
+  `is_active` tinyint(1) DEFAULT '1',
+  `is_reported` tinyint(1) DEFAULT '0',
+  `report_reason` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `store_id` (`store_id`),
+  KEY `fk_store_reviews_order` (`order_id`),
+  CONSTRAINT `fk_store_reviews_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `store_reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `store_reviews_ibfk_2` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `store_reviews_chk_1` CHECK ((`rating` between 1 and 5))
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `store_reviews`
+--
+
+LOCK TABLES `store_reviews` WRITE;
+/*!40000 ALTER TABLE `store_reviews` DISABLE KEYS */;
+INSERT INTO `store_reviews` VALUES (5,7,2,NULL,5,'Shop hỗ trợ tuyệt vời',1,0,NULL,'2026-06-08 12:58:48'),(6,7,2,NULL,5,'Shop hỗ trợ tuyệt vời',1,0,NULL,'2026-06-08 12:58:53'),(7,7,2,NULL,5,'Shop hỗ trợ tuyệt vời',1,1,'Nội dung không phù hợp, thiếu văn hóa','2026-06-08 13:04:38'),(8,7,2,NULL,5,'Chủ shop tư vấn size siêu nhiệt tình, đóng gói kỹ càng, 10 điểm không có nhưng!',1,1,'Đánh giá sai sự thật, mang tính vu khống','2026-06-08 15:12:41');
+/*!40000 ALTER TABLE `store_reviews` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `favorites`
+--
+
+DROP TABLE IF EXISTS `favorites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `favorites` (
+  `user_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  PRIMARY KEY (`user_id`,`product_id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `favorites`
+--
+
+LOCK TABLES `favorites` WRITE;
+/*!40000 ALTER TABLE `favorites` DISABLE KEYS */;
+INSERT INTO `favorites` VALUES (6,1),(7,1),(11,1),(6,3),(7,3),(7,7),(6,8),(7,8),(6,9),(7,9);
+/*!40000 ALTER TABLE `favorites` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -458,288 +679,67 @@ INSERT INTO `product_variants` VALUES (1,1,'39','Đỏ (Red)',48,'{\"public_id\"
 UNLOCK TABLES;
 
 --
--- Table structure for table `products`
+-- Table structure for table `cart`
 --
 
-DROP TABLE IF EXISTS `products`;
+DROP TABLE IF EXISTS `cart`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `products` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `store_id` int DEFAULT NULL,
-  `category_id` int DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `slug` varchar(255) NOT NULL,
-  `description` text,
-  `price` decimal(10,2) NOT NULL,
-  `sold` int DEFAULT '0',
-  `rating_avg` decimal(3,2) DEFAULT '0.00',
-  `view_count` int DEFAULT '0',
-  `images` json DEFAULT NULL,
-  `is_active` tinyint(1) DEFAULT '1',
-  `status` varchar(50) DEFAULT 'approved',
-  `reject_reason` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`),
-  KEY `store_id` (`store_id`),
-  KEY `category_id` (`category_id`),
-  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `products_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `products`
---
-
-LOCK TABLES `products` WRITE;
-/*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,2,1,'Nike Air Jordan 1 Low','nike-air-jordan-1-low','Phối màu Panda kinh điển',3500000.00,117,4.83,806,'[{\"public_id\": \"shoes_store_products/lygqvntkvo00gubn5tvb\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963179/shoes_store_products/lygqvntkvo00gubn5tvb.png\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-21 09:40:16'),(2,2,1,'Adidas Forum Low White','adidas-forum-low-white','Phong cách retro thập niên 80',2100000.00,35,0.00,831,'[{\"public_id\": \"shoes_store_products/f2iaq6zpctavshhlii3u\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963221/shoes_store_products/f2iaq6zpctavshhlii3u.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 16:30:57'),(3,2,1,'New Balance 550 Blue','new-balance-550-blue','Sự kết hợp hoàn hảo thể thao thời trang',3200000.00,20,0.00,130,'[{\"public_id\": \"shoes_store_products/a8noqo6n7rkogoakmwo2\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963335/shoes_store_products/a8noqo6n7rkogoakmwo2.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 18:06:15'),(4,2,2,'Biti’s Hunter Heels','bitis-hunter-heels','Êm ái, tôn dáng cho phái đẹp',750000.00,121,0.00,8,'[{\"public_id\": \"shoes_store_products/kgb5jcjbskifehavos1w\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963556/shoes_store_products/kgb5jcjbskifehavos1w.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 19:15:04'),(5,2,2,'Stiletto Cao Gót 9cm','stiletto-cao-got-9cm','Màu đỏ mận quý phái, gót nhọn',1200000.00,15,0.00,13,'[{\"public_id\": \"shoes_store_products/pdpa2dgdk1je4kakwmdb\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963527/shoes_store_products/pdpa2dgdk1je4kakwmdb.webp\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:52:08'),(6,2,3,'Oxford Classic Leather','oxford-classic-leather','Da bò thật nguyên tấm, khâu tay',1850000.00,5,5.00,8,'[{\"public_id\": \"shoes_store_products/dnojtwmabu9u5a6atbma\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963578/shoes_store_products/dnojtwmabu9u5a6atbma.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:52:59'),(7,2,3,'Chelsea Boot Suede','chelsea-boot-suede','Da lộn màu nâu đất, phong cách bụi bặm',1600000.00,45,0.00,22,'[{\"public_id\": \"shoes_store_products/yr6fb6hipqpulf60f8ub\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963607/shoes_store_products/yr6fb6hipqpulf60f8ub.webp\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:53:28'),(8,2,4,'Dép Yeezy Slide','dep-yeezy-slide-bone','Chất liệu bọt EVA siêu nhẹ, cực êm',1950000.00,230,5.00,34,'[{\"public_id\": \"shoes_store_products/l8ac8jclkwq0fjmq67ig\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963014/shoes_store_products/l8ac8jclkwq0fjmq67ig.jpg\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-21 08:26:12'),(9,2,4,'Sandals Quai Hậu Học Sinh','sandals-quai-hau-hoc-sinh','Thiết kế đơn giản, bền bỉ',250000.00,500,0.00,37,'[{\"public_id\": \"shoes_store_products/nnkzktodcggpdapt0w8g\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963627/shoes_store_products/nnkzktodcggpdapt0w8g.png\"}]',1,'approved',NULL,'2026-05-19 03:58:37','2026-06-20 13:53:49'),(31,2,10,'Sandals Cao Gót Biti\'s Nữ','sandals-cao-got-bitis-nu-1781948801777','Mang thoải mái, đẹp và dễ chịu',465000.00,1,0.00,0,'[{\"public_id\": \"shoes_store_products/p5wsg9bdd51gfh8uied4\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781963095/shoes_store_products/p5wsg9bdd51gfh8uied4.jpg\"}]',1,'approved',NULL,'2026-06-20 09:46:41','2026-06-21 10:39:48'),(33,6,15,'Adidas Predator Elite','adidas-predator-elite-1781982401135','Giày kiểm soát bóng với các gân cao su dọc thân giày tăng độ xoáy và kiểm soát khi sút. Đế cá tính cho sân cỏ tự nhiên, công nghệ HybridTouch 2.0 mang lại cảm giác bóng mượt mà.',750000.00,1,0.00,12,'[{\"public_id\": \"shoes_store_products/hwu5mu6ykknlvntgix9n\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781982525/shoes_store_products/hwu5mu6ykknlvntgix9n.jpg\"}]',1,'approved',NULL,'2026-06-20 19:06:41','2026-06-21 09:10:57');
-/*!40000 ALTER TABLE `products` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `promotions`
---
-
-DROP TABLE IF EXISTS `promotions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `promotions` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `store_id` int DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` text,
-  `discount_value` decimal(10,2) NOT NULL,
-  `min_order_value` decimal(10,2) DEFAULT '0.00',
-  `max_discount_amount` decimal(10,2) DEFAULT NULL,
-  `start_date` datetime NOT NULL,
-  `end_date` datetime NOT NULL,
-  `is_active` tinyint(1) DEFAULT '1',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `store_id` (`store_id`),
-  CONSTRAINT `promotions_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `promotions`
---
-
-LOCK TABLES `promotions` WRITE;
-/*!40000 ALTER TABLE `promotions` DISABLE KEYS */;
-INSERT INTO `promotions` VALUES (1,1,'CLEARANCE SALE - GIÀY CHÍNH HÃNG',NULL,30.00,0.00,500000.00,'2026-05-13 00:00:00','2026-06-13 23:59:59',1,'2026-05-19 03:59:23','2026-05-19 03:59:23'),(7,2,'FLASHSALE25','Mã giảm giá cực sâu 25% áp dụng cho toàn bộ các dòng sản phẩm giày Sneaker dịp hè 2026.',25.00,600000.00,150000.00,'2026-06-01 00:00:00','2026-06-15 00:00:00',1,'2026-05-23 19:03:14','2026-06-11 20:22:43'),(8,2,'FLASHSALE30','Mã giảm giá cực sâu 30% áp dụng cho toàn bộ các dòng sản phẩm giày Sneaker dịp hè 2026.',30.00,600000.00,150000.00,'2026-06-01 00:00:00','2026-06-15 00:00:00',1,'2026-05-23 19:13:03','2026-06-12 06:52:43'),(11,2,'KM2026',NULL,15.00,50000.00,2000000.00,'2026-06-18 00:00:00','2026-12-30 00:00:00',1,'2026-06-18 15:07:40','2026-06-21 09:03:24'),(12,6,'KMM2106',NULL,20.00,100000.00,NULL,'2026-06-20 00:00:00','2026-12-30 00:00:00',1,'2026-06-20 10:21:41','2026-06-20 10:21:41'),(13,2,'KM1902','Giảm giá 1902 cực mạnh',25.00,200000.00,NULL,'2026-06-21 00:00:00','2026-12-20 00:00:00',1,'2026-06-21 09:04:55','2026-06-21 09:04:55');
-/*!40000 ALTER TABLE `promotions` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `roles`
---
-
-DROP TABLE IF EXISTS `roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `roles` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `roles`
---
-
-LOCK TABLES `roles` WRITE;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (1,'ADMIN'),(2,'MANAGER'),(4,'USER'),(3,'VENDOR');
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `store_appeals`
---
-
-DROP TABLE IF EXISTS `store_appeals`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `store_appeals` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `store_id` int NOT NULL,
-  `appeal_reason` text NOT NULL,
-  `evidence_images` json DEFAULT NULL,
-  `status` enum('pending','approved','rejected') DEFAULT 'pending',
-  `manager_note` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `store_id` (`store_id`),
-  CONSTRAINT `store_appeals_ibfk_1` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_appeals`
---
-
-LOCK TABLES `store_appeals` WRITE;
-/*!40000 ALTER TABLE `store_appeals` DISABLE KEYS */;
-INSERT INTO `store_appeals` VALUES (1,2,'Tôi xin cam kết gỡ bỏ toàn bộ mẫu giày Nike fake ra khỏi cửa hàng, mong ban quản trị mở lại shop.','[{\"public_id\": \"shoes_store_appeals/rjxmigex5m4fpz5zaf3z\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1779714094/shoes_store_appeals/rjxmigex5m4fpz5zaf3z.jpg\"}]','approved','Hồ sơ hóa đơn đối soát chính hãng hợp lệ. Cảnh cáo Vendor không được tái phạm đăng bán sản phẩm không rõ nguồn gốc.','2026-05-25 13:01:35','2026-05-25 13:04:13'),(2,2,'Tôi xin cam kết gỡ bỏ toàn bộ mẫu giày Nike fake ra khỏi cửa hàng, mong ban quản trị mở lại shop.','[{\"public_id\": \"shoes_store_appeals/bszlhb2oe8gpccnil4lt\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1779716378/shoes_store_appeals/bszlhb2oe8gpccnil4lt.jpg\"}]','approved','Hồ sơ hóa đơn đối soát chính hãng hợp lệ. Cảnh cáo Vendor không được tái phạm đăng bán sản phẩm không rõ nguồn gốc.','2026-05-25 13:39:39','2026-05-25 13:40:22'),(3,2,'Tôi xin cam kết gỡ bỏ toàn bộ mẫu giày Nike fake ra khỏi cửa hàng, mong ban quản trị mở lại shop.','[{\"public_id\": \"shoes_store_appeals/moux5rw32xbnc2cxfivh\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780086603/shoes_store_appeals/moux5rw32xbnc2cxfivh.jpg\"}]','approved','Hồ sơ hóa đơn đối soát chính hãng hợp lệ. Cảnh cáo Vendor không được tái phạm đăng bán sản phẩm không rõ nguồn gốc.','2026-05-29 20:30:04','2026-05-29 20:30:50'),(4,2,'Xin phép gỡ khóa','[{\"public_id\": \"shoes_store_appeals/fvczbspznsg7ob64xxun\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781600823/shoes_store_appeals/fvczbspznsg7ob64xxun.jpg\"}]','approved','Hãy xem kỹ lưỡng ','2026-06-16 09:07:05','2026-06-16 09:27:15');
-/*!40000 ALTER TABLE `store_appeals` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `store_reviews`
---
-
-DROP TABLE IF EXISTS `store_reviews`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `store_reviews` (
+CREATE TABLE `cart` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
-  `store_id` int DEFAULT NULL,
-  `order_id` int DEFAULT NULL,
-  `rating` int DEFAULT NULL,
-  `comment` text,
-  `is_active` tinyint(1) DEFAULT '1',
-  `is_reported` tinyint(1) DEFAULT '0',
-  `report_reason` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `variant_id` int DEFAULT NULL,
+  `quantity` int DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
-  KEY `store_id` (`store_id`),
-  KEY `fk_store_reviews_order` (`order_id`),
-  CONSTRAINT `fk_store_reviews_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `store_reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `store_reviews_ibfk_2` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `store_reviews_chk_1` CHECK ((`rating` between 1 and 5))
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `variant_id` (`variant_id`),
+  CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `store_reviews`
+-- Dumping data for table `cart`
 --
 
-LOCK TABLES `store_reviews` WRITE;
-/*!40000 ALTER TABLE `store_reviews` DISABLE KEYS */;
-INSERT INTO `store_reviews` VALUES (5,7,2,NULL,5,'Shop hỗ trợ tuyệt vời',1,0,NULL,'2026-06-08 12:58:48'),(6,7,2,NULL,5,'Shop hỗ trợ tuyệt vời',1,0,NULL,'2026-06-08 12:58:53'),(7,7,2,NULL,5,'Shop hỗ trợ tuyệt vời',1,1,'Nội dung không phù hợp, thiếu văn hóa','2026-06-08 13:04:38'),(8,7,2,NULL,5,'Chủ shop tư vấn size siêu nhiệt tình, đóng gói kỹ càng, 10 điểm không có nhưng!',1,1,'Đánh giá sai sự thật, mang tính vu khống','2026-06-08 15:12:41');
-/*!40000 ALTER TABLE `store_reviews` ENABLE KEYS */;
+LOCK TABLES `cart` WRITE;
+/*!40000 ALTER TABLE `cart` DISABLE KEYS */;
+INSERT INTO `cart` VALUES (89,6,1,1),(90,6,40,1);
+/*!40000 ALTER TABLE `cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `stores`
+-- Table structure for table `order_items`
 --
 
-DROP TABLE IF EXISTS `stores`;
+DROP TABLE IF EXISTS `order_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `stores` (
+CREATE TABLE `order_items` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `owner_id` int DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `bio` text,
-  `logo` json DEFAULT NULL,
-  `banner` json DEFAULT NULL,
-  `address` text,
-  `balance` decimal(15,2) DEFAULT '0.00',
-  `is_active` tinyint(1) DEFAULT '1',
-  `rating_average` decimal(3,2) DEFAULT '0.00',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `commission_rate` decimal(5,2) NOT NULL DEFAULT '10.00' COMMENT 'Tỷ lệ % chiết khấu hoa hồng sàn thu trên mỗi đơn hàng thành công',
-  `reject_reason` text,
+  `order_id` int DEFAULT NULL,
+  `variant_id` int DEFAULT NULL,
+  `quantity` int NOT NULL,
+  `price` decimal(10,2) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `owner_id` (`owner_id`),
-  CONSTRAINT `stores_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `order_id` (`order_id`),
+  KEY `variant_id` (`variant_id`),
+  CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `stores`
+-- Dumping data for table `order_items`
 --
 
-LOCK TABLES `stores` WRITE;
-/*!40000 ALTER TABLE `stores` DISABLE KEYS */;
-INSERT INTO `stores` VALUES (1,3,'Sneaker World','Chuyên cung cấp giày chính hãng',NULL,NULL,NULL,5000000.00,1,4.75,'2026-05-19 03:58:28',10.00,NULL),(2,6,'Sneaker World Siêu Cấp Vip Pro','Chuyên phân phối các dòng giày Sneaker chính hãng Nike, Adidas, Jordan uy tín số 1.','{\"public_id\": \"shoes_store_profiles/kgvkrtulwb8cmughhrxv\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032175/shoes_store_profiles/kgvkrtulwb8cmughhrxv.jpg\"}','{\"public_id\": \"shoes_store_profiles/d7qix9wfw3m7eczaidov\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032176/shoes_store_profiles/d7qix9wfw3m7eczaidov.jpg\"}','466 Đường Lê Văn Việt, Phường Tăng Nhơn Phú A, Thành phố Thủ Đức, TP.HCM',7221250.00,1,4.88,'2026-05-21 02:40:02',10.00,NULL),(6,12,'Sneaker World Premium (huu)','Chuyên phân phối các dòng giày Sneaker chính hãng Nike, Adidas số n.','{\"public_id\": \"shoes_store_profiles/nw38tqkma3e8uqba2jcs\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032237/shoes_store_profiles/nw38tqkma3e8uqba2jcs.jpg\"}','{\"public_id\": \"shoes_store_profiles/vuafcnbkbis7zt9ctmfr\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1782032236/shoes_store_profiles/vuafcnbkbis7zt9ctmfr.jpg\"}','Quận Thủ Đức 1',0.00,1,0.00,'2026-05-23 12:55:35',10.00,NULL),(11,17,'Sneaker World Premium (tesst1)','Chuyên phân phối các dòng giày Sneaker chính hãng Nike, Adidas số n.','{\"public_id\": \"shoes_store_profiles/wg1wjsxvp85wl7umqhsv\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781445032/shoes_store_profiles/wg1wjsxvp85wl7umqhsv.jpg\"}','{\"public_id\": \"shoes_store_profiles/uiaot2cayvdglsqec4ay\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780081243/shoes_store_profiles/uiaot2cayvdglsqec4ay.jpg\"}','Quận Thủ Đức 3',0.00,1,0.00,'2026-05-29 19:00:46',10.00,NULL),(12,19,'Sneaker Heavy','Chuyên cung cấp các dòng sản phẩm Sneaker','{\"public_id\": \"shoes_store_profiles/eatie09hz6sunriewlad\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781013058/shoes_store_profiles/eatie09hz6sunriewlad.jpg\"}','{\"public_id\": \"shoes_store_profiles/pkxjabvth2kzzutdwanq\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781013059/shoes_store_profiles/pkxjabvth2kzzutdwanq.jpg\"}','331 Lê Duẩn, Phường 12, Quận Tân Bình, TP. HCM',0.00,1,0.00,'2026-06-09 13:51:01',8.00,NULL),(13,4,'Sneaker World Siêu Cấp Vip Pro 11111','',NULL,NULL,'31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM',0.00,1,0.00,'2026-06-17 17:52:07',10.00,NULL);
-/*!40000 ALTER TABLE `stores` ENABLE KEYS */;
+LOCK TABLES `order_items` WRITE;
+/*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
+INSERT INTO `order_items` VALUES (1,3,1,2,3500000.00),(2,4,1,3,3500000.00),(3,5,1,4,3500000.00),(9,9,4,1,1950000.00),(10,9,5,2,1950000.00),(14,12,4,1,1950000.00),(20,18,4,1,1950000.00),(21,19,4,1,1950000.00),(28,25,2,1,3500000.00),(30,27,2,1,3500000.00),(33,30,2,1,3500000.00),(38,35,2,1,3500000.00),(39,36,1,1,3500000.00),(42,39,2,2,3500000.00),(43,40,2,1,3500000.00),(44,41,18,1,750000.00),(45,42,42,1,750000.00),(51,48,1,1,3500000.00),(52,49,23,1,465000.00);
+/*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `system_settings`
---
 
-DROP TABLE IF EXISTS `system_settings`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `system_settings` (
-  `id` int NOT NULL DEFAULT '1',
-  `is_maintenance` tinyint(1) DEFAULT '0',
-  `maintenance_message` text,
-  `global_commission_rate` decimal(5,2) DEFAULT '10.00',
-  `hotline` varchar(20) DEFAULT '19001000',
-  `support_email` varchar(100) DEFAULT 'support@shoesshop.com',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `check_single_row` CHECK ((`id` = 1))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `system_settings`
---
-
-LOCK TABLES `system_settings` WRITE;
-/*!40000 ALTER TABLE `system_settings` DISABLE KEYS */;
-INSERT INTO `system_settings` VALUES (1,0,'Sàn bảo trì nâng cấp hệ thống',10.00,'19001000','admin@shoesshop.com','2026-05-26 02:12:44','2026-06-18 13:37:38');
-/*!40000 ALTER TABLE `system_settings` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `role_id` int DEFAULT NULL,
-  `fullname` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `avatar` json DEFAULT NULL,
-  `is_active` tinyint(1) DEFAULT '1',
-  `is_verified` tinyint(1) DEFAULT '0',
-  `otp_code` varchar(10) DEFAULT NULL,
-  `otp_expiry` datetime DEFAULT NULL,
-  `refresh_token` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_online` tinyint(1) DEFAULT '0',
-  `last_active` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`),
-  KEY `role_id` (`role_id`),
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,1,'Tổng Quản Trị','admin@gmail.com','hash_pass_123','0123456789',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(2,2,'Quản Lý Hệ Thống','manager@gmail.com','hash_pass_123','0987654321',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(3,3,'Chủ Shop Sneaker','vendor_giay@gmail.com','hash_pass_123','0911223344',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(4,4,'Nguyễn Văn Khách','khachhang@gmail.com','hash_pass_123','0900112233',NULL,NULL,1,1,NULL,NULL,NULL,'2026-05-19 03:58:25',0,'2026-05-29 11:10:52'),(6,3,'Vendor Huu','phamngochuu3101@gmail.com','$2b$08$Og4Z99qBauBxNwbMXj75NOdjCx0tX1/FGDR9qSvA07NifBVww/X.e','0378240911','Ngọc Lãng 1, Tuy Hòa, Phú Yên','{\"public_id\": \"shoes_store_avatars/oqmvmcpuflfbdwxy696x\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781264481/shoes_store_avatars/oqmvmcpuflfbdwxy696x.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-19 12:08:23',0,'2026-06-21 11:09:48'),(7,4,'Ngọc Thiênnn','23110332@student.hcmute.edu.vn','$2b$08$dz8FL2w..YwyipOu5chWbO.peUejPYvTk9yFvgoShhGIWJ3mBsYBS','0123456789','99 Lê Đại Hành, Phường 11, Quận 11, TP. HCM','{\"public_id\": \"shoes_store_avatars/xc4xeqzyeyfqbcqximpt\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1780862310/shoes_store_avatars/xc4xeqzyeyfqbcqximpt.webp\"}',1,1,NULL,NULL,NULL,'2026-05-21 05:55:31',0,'2026-06-21 11:38:05'),(10,2,'Manager 1','manager1@gmail.com','$2b$10$AzR7yD8bZ2mOm0CefmXpG.Z7MdB7UoKj4D3QvZ9gqYm6Y9H6hK2gq','0987654321',NULL,'{\"public_id\": \"avatars/manager_default\", \"secure_url\": \"https://res.cloudinary.com/demo/image/upload/v123456/sample.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-23 11:38:29',0,'2026-05-29 11:10:52'),(11,2,'Manager Huu','huu.pham.3101@gmail.com','$2b$10$iHog8Ft12XKoDeswZh9cr.5wE4.k3MsJHePNHdMNITMLNgf/cApvq','0987654323','31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM','{\"public_id\": \"shoes_store_avatars/n78tyzpuw5g9iszeo0ws\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781442576/shoes_store_avatars/n78tyzpuw5g9iszeo0ws.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-23 11:39:59',0,'2026-06-21 11:11:54'),(12,3,'Manager Ý','ngochuunaksss@gmail.com','$2b$10$aPSveGIQgHhlrQp7fgWBqe12otG6Q5kwVcZTSvPJ8xPLOsSWZ0Ev.','0987654321','31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM','{\"public_id\": \"shoes_store_avatars/frwdw7r4qut5nrd5hs7b\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781444787/shoes_store_avatars/frwdw7r4qut5nrd5hs7b.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-23 12:03:42',0,'2026-06-21 09:00:38'),(13,1,'Admin Huu','23110233@student.hcmute.edu.vn','$2b$08$A9UppNO/9pYL2XiRqW9gyeJ6lN9wQfnzT7BIEVnHMJwECPaUZzViS','0987654321','31 Đống Đa, Phường 1, Quận Thủ Đức, TP. HCM','{\"public_id\": \"shoes_store_avatars/keocawopzufqr9el4y0z\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781791821/shoes_store_avatars/keocawopzufqr9el4y0z.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-25 06:36:59',0,'2026-06-21 11:14:08'),(17,3,'User1','user1@gmail.com','$2b$08$rPVENyWerX/FBIfQeVCxte3U3CDB7DU39bhnKPHvJImKJ.VjV/tL.','0911223344','Ngọc Lãng 2, Tuy Hòa, Phú Yên','{\"public_id\": \"shoes_store_avatars/gswx1v0acgrls77zicze\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781444868/shoes_store_avatars/gswx1v0acgrls77zicze.jpg\"}',1,1,NULL,NULL,NULL,'2026-05-29 18:59:59',0,'2026-06-14 13:53:30'),(19,4,'Hà Y Như Ý','nhuyhay2005@gmail.com','$2b$08$SvKWjVG.IMb7lIHTreTXnODw5P/x1pp4p4fiY5cEgdooA0x6Jik1G','0123456789','331 Lê Duẩn, Phường 12, Quận Tân Bình, TP. HCM','{\"public_id\": \"shoes_store_avatars/ifasbbvygzbk4omygjzz\", \"secure_url\": \"https://res.cloudinary.com/dkat9o7kf/image/upload/v1781013015/shoes_store_avatars/ifasbbvygzbk4omygjzz.jpg\"}',1,1,NULL,NULL,NULL,'2026-06-04 10:33:59',0,'2026-06-20 08:14:21'),(23,4,'test','test@gmail.com','$2b$08$XwVXbO5J3UtVWS8RmccQ4.5wH9IL1K33DfqHx6h1JD3xZ2yKV9SU6','0987654321','466 Đường Lê Văn Việt, Phường Tăng Nhơn Phú A, Thành phố Thủ Đức, TP.HCM',NULL,1,1,NULL,NULL,NULL,'2026-06-20 08:29:25',0,'2026-06-20 08:30:31');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
