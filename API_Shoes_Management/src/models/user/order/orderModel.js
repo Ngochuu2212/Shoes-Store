@@ -1,9 +1,20 @@
 import pool from '~/config/db'
 
 // 1. Lấy thông tin chi tiết các item trong giỏ kèm giá, tồn kho và store_id (Có bốc thêm commission_rate hiện tại của shop)
+// discount_percentage: % khuyến mãi theo sản phẩm đang hiệu lực (cùng công thức với giỏ hàng) để server tự tính tiền giảm
 const getCartItemsForCheckout = async (userId) => {
   const query = `
-    SELECT c.variant_id, c.quantity, pv.stock, pv.product_id, p.price, p.store_id, s.commission_rate
+    SELECT c.variant_id, c.quantity, pv.stock, pv.product_id, p.price, p.store_id, s.commission_rate,
+      (
+        SELECT pr.discount_value
+        FROM promotions pr
+        JOIN product_promotions pp ON pr.id = pp.promotion_id
+        WHERE pp.product_id = p.id
+          AND pr.is_active = TRUE
+          AND NOW() BETWEEN pr.start_date AND pr.end_date
+        ORDER BY pr.discount_value DESC
+        LIMIT 1
+      ) AS discount_percentage
     FROM cart c
     INNER JOIN product_variants pv ON c.variant_id = pv.id
     INNER JOIN products p ON pv.product_id = p.id
@@ -64,6 +75,14 @@ const decreaseVariantStock = async (conn, variantId, quantity) => {
   await connection.execute(query, [quantity, variantId])
 }
 
+// 4b. Trừ kho có điều kiện "stock >= quantity" ngay trong câu UPDATE (atomic)
+// Tránh bán vượt tồn kho khi 2 người cùng mua món cuối cùng. Trả về false nếu không đủ hàng
+const decreaseVariantStockIfAvailable = async (connection, variantId, quantity) => {
+  const query = 'UPDATE product_variants SET stock = stock - ? WHERE id = ? AND stock >= ?'
+  const [result] = await connection.execute(query, [quantity, variantId, quantity])
+  return result.affectedRows === 1
+}
+
 // 5. Tăng số lượng đã bán (sold) ở bảng sản phẩm tổng quát - Giữ nguyên của b
 const increaseProductSold = async (connection, productId, quantity) => {
   const query = 'UPDATE products SET sold = sold + ? WHERE id = ?'
@@ -121,6 +140,7 @@ export const orderModel = {
   createOrder,
   createOrderItem,
   decreaseVariantStock,
+  decreaseVariantStockIfAvailable,
   increaseProductSold,
   clearUserCart,
   updatePaymentStatusBulk,

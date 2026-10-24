@@ -3,11 +3,13 @@ import { adminCategoryController } from '~/controllers/admin/adminCategoryContro
 import { adminCategoryValidation } from '~/validations/admin/adminCategoryValidation'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 import multer from 'multer'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.ADMIN))
 
 router.get('/', adminCategoryController.getCategoryTree)
 

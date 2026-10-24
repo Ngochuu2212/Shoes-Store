@@ -2,10 +2,12 @@ import express from 'express'
 import { managerAppealController } from '~/controllers/manager/managerAppealController'
 import { managerAppealValidation } from '~/validations/manager/managerAppealValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.MANAGER, ROLE_ID.ADMIN))
 
 // 1. GET /api/manager/appeals -> Danh sách đơn cứu xét
 router.get('/', managerAppealController.getAppealsList)

@@ -6,8 +6,29 @@ import { orderModel } from '~/models/user/order/orderModel'
 import { orderTrackingModel } from '~/models/user/order/orderTrackingModel'
 import { walletModel } from '~/models/user/wallet/walletModel'
 import { PaymentProvider } from '~/providers/PaymentProvider'
-import { PAYMENT_METHODS, PAYMENT_STATUS, ORDER_STATUS, NOTIFICATION_TYPES } from '~/utils/constants'
+import { promotionModel } from '~/models/user/promotion/promotionModel'
+import { PAYMENT_METHODS, PAYMENT_STATUS, ORDER_STATUS, NOTIFICATION_TYPES, SHIPPING_FEES } from '~/utils/constants'
 import { notificationService } from '~/services/notification/notificationService'
+
+// Lấy mã voucher hợp lệ từ payload ({ code, amount? }) - bỏ qua mọi số tiền client gửi lên
+const getVoucherCode = (voucherInput) => {
+  const code = voucherInput?.code
+  return typeof code === 'string' && code.trim() ? code.trim() : null
+}
+
+// Tính tiền giảm của 1 voucher (%) trên giá trị đơn, áp dụng đơn tối thiểu và mức giảm tối đa
+const calcVoucherDiscount = (voucher, orderValue) => {
+  const minOrderValue = Number(voucher.min_order_value || 0)
+  if (orderValue < minOrderValue) {
+    throw new Error(`Mã "${voucher.name}" chỉ áp dụng cho đơn từ ${minOrderValue.toLocaleString('vi-VN')}đ.`)
+  }
+
+  let discount = orderValue * (Number(voucher.discount_value) / 100)
+  if (voucher.max_discount_amount && discount > Number(voucher.max_discount_amount)) {
+    discount = Number(voucher.max_discount_amount)
+  }
+  return Math.round(discount)
+}
 
 // Tạo đơn hàng và trừ kho (Dùng chung cho cả COD và Online)
 const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, skipStockDecrease = false) => {
@@ -36,13 +57,18 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
       return sum + items.reduce((s, item) => s + (Number(item.price) * item.quantity), 0)
     }, 0)
 
-    const systemDiscount = data.systemDiscount || null
-    const systemDiscountTotal = Number(systemDiscount?.amount) || 0
-    const systemVoucherCode = systemDiscount?.code || null
+    // Client chỉ gửi MÃ voucher, số tiền giảm do server tự tính từ DB (chống sửa số tiền từ phía client)
+    const systemVoucherCode = getVoucherCode(data.systemDiscount)
+    let systemDiscountTotal = 0
+    if (systemVoucherCode) {
+      const systemVoucher = await promotionModel.getActiveVoucherForCheckout(systemVoucherCode, null)
+      if (!systemVoucher) throw new Error(`Mã giảm giá toàn sàn "${systemVoucherCode}" không tồn tại hoặc đã hết hạn.`)
+      systemDiscountTotal = calcVoucherDiscount(systemVoucher, totalSubtotalAllStores)
+    }
 
-    // Lấy phí vận chuyển
-    const shippingFeePerOrder = Number(data.shippingFee) || 20000
-    const shippingMethod = data.shippingMethod || 'standard'
+    // Phí vận chuyển tra theo phương thức, không nhận số tiền từ client
+    const shippingMethod = SHIPPING_FEES[data.shippingMethod] ? data.shippingMethod : 'standard'
+    const shippingFeePerOrder = SHIPPING_FEES[shippingMethod]
 
     // Xử lý số tiền ví
     const walletAmountTotal = Number(data.walletAmount) || 0
@@ -60,9 +86,20 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
       const storeItems = itemsByStore[storeId]
       const subTotal = storeItems.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0)
 
-      const specificStoreDiscount = data.storeDiscounts ? data.storeDiscounts[storeId] : { amount: 0, code: null }
-      const storeDiscountAmount = Number(specificStoreDiscount?.amount) || 0
-      const appliedVoucher = specificStoreDiscount?.code || null
+      // Giảm giá theo sản phẩm (khuyến mãi đang chạy) + voucher riêng của shop, cùng công thức với giỏ hàng
+      const productDiscount = storeItems.reduce((sum, item) => {
+        return sum + Number(item.price) * item.quantity * (Number(item.discount_percentage || 0) / 100)
+      }, 0)
+
+      const appliedVoucher = getVoucherCode(data.storeDiscounts?.[storeId])
+      let storeVoucherDiscount = 0
+      if (appliedVoucher) {
+        const storeVoucher = await promotionModel.getActiveVoucherForCheckout(appliedVoucher, Number(storeId))
+        if (!storeVoucher) throw new Error(`Mã giảm giá "${appliedVoucher}" không tồn tại, đã hết hạn hoặc không thuộc cửa hàng này.`)
+        storeVoucherDiscount = calcVoucherDiscount(storeVoucher, subTotal)
+      }
+
+      const storeDiscountAmount = Math.round(productDiscount + storeVoucherDiscount)
 
       // Phân bổ mã giảm giá hệ thống theo tỉ lệ subTotal của từng store
       const systemDiscountShare = totalSubtotalAllStores > 0
@@ -115,7 +152,8 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
         })
 
         if (!skipStockDecrease) {
-          await orderModel.decreaseVariantStock(connection, item.variant_id, item.quantity)
+          const isStockDecreased = await orderModel.decreaseVariantStockIfAvailable(connection, item.variant_id, item.quantity)
+          if (!isStockDecreased) throw new Error('Sản phẩm trong kho vừa hết hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng.')
           await orderModel.increaseProductSold(connection, item.product_id, item.quantity)
         }
       }
@@ -123,10 +161,12 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
 
     // Trừ ví trong cùng transaction
     if (totalWalletDeducted > 0) {
-      await connection.execute(
-        'UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?',
-        [totalWalletDeducted, userId]
+      // Điều kiện "wallet_balance >= ?" chặn tiêu 1 khoản tiền 2 lần khi gửi 2 request đặt hàng cùng lúc
+      const [walletResult] = await connection.execute(
+        'UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ? AND wallet_balance >= ?',
+        [totalWalletDeducted, userId, totalWalletDeducted]
       )
+      if (walletResult.affectedRows !== 1) throw new Error('Số dư ví không đủ để thanh toán.')
       await connection.execute(
         'INSERT INTO wallet_transactions (user_id, type, amount, description, order_id) VALUES (?, ?, ?, ?, ?)',
         [userId, 'SPEND', totalWalletDeducted,
@@ -143,6 +183,10 @@ const coreCreateOrderTransaction = async (userId, data, skipClearCart = false, s
     return { createdOrderIds, totalAllShops, itemsByStore, walletAmountUsed: totalWalletDeducted }
   } catch (error) {
     await connection.rollback()
+    // 2 request đặt hàng cùng lúc tranh khóa dòng (kho / ví) -> MySQL hủy 1 transaction, dữ liệu vẫn an toàn
+    if (error.code === 'ER_LOCK_DEADLOCK' || error.code === 'ER_LOCK_WAIT_TIMEOUT') {
+      throw new Error('Đơn hàng khác của bạn đang được xử lý cùng lúc. Vui lòng thử lại sau giây lát.')
+    }
     throw error
   } finally {
     connection.release()

@@ -2,11 +2,13 @@ import express from 'express'
 import { managerProductController } from '~/controllers/manager/managerProductController'
 import { managerProductValidation } from '~/validations/manager/managerProductValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 // Chốt chặn token yêu cầu đăng nhập tài khoản có quyền Điều hành viên (Manager)
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.MANAGER, ROLE_ID.ADMIN))
 
 // 1. GET /api/manager/products -> Xem danh sách sản phẩm toàn sàn phục vụ trang kiểm duyệt (Có Widgets)
 router.get('/', managerProductValidation.validateGetProductsFilters, managerProductController.getProductsList)

@@ -3,10 +3,12 @@ import { adminStoreController } from '~/controllers/admin/adminStoreController'
 import { adminStoreValidation } from '~/validations/admin/adminStoreValidation'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.ADMIN))
 
 // 1. GET /api/admin/stores -> Danh sách cửa hàng
 router.get('/', adminStoreController.getStoresList)

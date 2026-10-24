@@ -87,7 +87,7 @@ export const CartSystemVoucherPicker = ({ orderTotal, onSelectVoucher, currentSe
                         <p className="text-[9px] font-black text-green-600 uppercase px-2.5 py-0.5">Đủ điều kiện áp dụng</p>
                         {eligibleVouchers.map((v) => (
                           <button key={v.id} type="button"
-                            onClick={() => { onSelectVoucher(v.name, Number(v.discount_value)); setOpen(false) }}
+                            onClick={() => { onSelectVoucher(v.name, Number(v.discount_value), v); setOpen(false) }}
                             className={`w-full text-left px-2.5 py-2 text-[11px] rounded-lg transition-colors cursor-pointer flex flex-col gap-0.5
                               ${currentSelectedVoucher === v.name ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-gray-50 text-gray-700'}`}>
                             <span className="font-bold tracking-wide flex items-center justify-between gap-2">

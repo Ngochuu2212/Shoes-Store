@@ -10,6 +10,16 @@ const getSystemSettings = async (req, res) => {
   }
 }
 
+// Trạng thái bảo trì công khai cho mọi người dùng (chỉ trả về 2 trường, không lộ cấu hình tài chính)
+const getMaintenanceStatus = async (req, res) => {
+  try {
+    const { is_maintenance, maintenance_message } = await systemSettingService.getSystemSettings()
+    return res.status(200).json({ is_maintenance, maintenance_message })
+  } catch (error) {
+    return res.status(500).json({ message: `Lỗi lấy trạng thái bảo trì: ${error.message}` })
+  }
+}
+
 // Cập nhật cấu hình
 const updateSystemSettings = async (req, res) => {
   try {
@@ -22,5 +32,6 @@ const updateSystemSettings = async (req, res) => {
 
 export const systemSettingController = {
   getSystemSettings,
+  getMaintenanceStatus,
   updateSystemSettings
 }

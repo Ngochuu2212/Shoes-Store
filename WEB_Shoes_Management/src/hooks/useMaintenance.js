@@ -23,7 +23,7 @@ export const useMaintenance = (skipCheck = false) => {
 
   const checkMaintenance = async () => {
     try {
-      const response = await authorizedAxiosInstance.get(`${DEV_API_URL}/api/admin/system-settings`)
+      const response = await authorizedAxiosInstance.get(`${DEV_API_URL}/api/admin/system-settings/maintenance-status`)
       const data = response.data
       const isActive = data.is_maintenance === 1
 

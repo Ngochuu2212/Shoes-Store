@@ -2,6 +2,7 @@ import { Server } from 'socket.io'
 import jwt from 'jsonwebtoken'
 import { env } from '~/config/environment'
 import { userModel } from '~/models/user/userModel'
+import { corsOptions } from '~/config/corsOptions'
 
 const userSocketMap = {}
 let io = null
@@ -9,7 +10,8 @@ let io = null
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: '*',
+      // Dùng chung danh sách origin với REST API thay vì '*'
+      origin: corsOptions.origin,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
       credentials: true
     }

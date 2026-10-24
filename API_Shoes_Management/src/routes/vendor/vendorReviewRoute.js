@@ -2,10 +2,12 @@ import express from 'express'
 import { vendorReviewController } from '~/controllers/vendor/vendorReviewController.js'
 import { vendorReviewValidation } from '~/validations/vendor/vendorReviewValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.VENDOR))
 
 // 1. GET /api/vendor/reviews -> Lấy danh sách review của Shop có phân trang, bộ lọc Tab sản phẩm/cửa hàng
 router.get('/', vendorReviewValidation.validateGetReviewsFilters, vendorReviewController.getVendorReviews)

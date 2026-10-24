@@ -38,6 +38,13 @@ export const ORDER_STATUS = {
   RETURN_COMPLETED: 'return_completed'
 }
 
+// Phí vận chuyển mỗi đơn (mỗi shop) theo phương thức - Server tự tra, KHÔNG nhận số tiền từ client
+export const SHIPPING_FEES = {
+  standard: 20000,
+  express: 40000,
+  same_day: 60000
+}
+
 export const PAYMENT_STATUS = {
   UNPAID: 'unpaid',
   PAID: 'paid',

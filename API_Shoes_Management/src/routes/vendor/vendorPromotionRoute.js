@@ -2,10 +2,12 @@ import express from 'express'
 import { vendorPromotionController } from '~/controllers/vendor/vendorPromotionController'
 import { vendorPromotionValidation } from '~/validations/vendor/vendorPromotionValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.VENDOR))
 
 // 1. GET /api/vendor/promotions -> Danh sách khuyến mãi phân trang kèm bộ lọc
 router.get('/', vendorPromotionValidation.validateGetPromotionsFilters, vendorPromotionController.getVendorPromotions)

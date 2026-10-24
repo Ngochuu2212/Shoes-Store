@@ -4,16 +4,16 @@ import { env } from '~/config/environment'
 const createOrderCOD = async (req, res) => {
   try {
     const userId = req.jwtDecoded?.id
-    const { recipientName, recipientPhone, shippingAddress, discountAmount, paymentMethod, storeDiscounts, systemDiscount, walletAmount } = req.body
+    const { recipientName, recipientPhone, shippingAddress, paymentMethod, storeDiscounts, systemDiscount, walletAmount, shippingMethod } = req.body
     const result = await orderService.createOrderCOD(userId, {
       recipientName,
       recipientPhone,
       shippingAddress,
-      discountAmount: Number(discountAmount) || 0,
       paymentMethod,
       storeDiscounts,
       systemDiscount: systemDiscount || null,
-      walletAmount: Number(walletAmount) || 0
+      walletAmount: Number(walletAmount) || 0,
+      shippingMethod
     })
 
     return res.status(201).json(result)
@@ -25,18 +25,18 @@ const createOrderCOD = async (req, res) => {
 const createOrderOnline = async (req, res) => {
   try {
     const userId = req.jwtDecoded?.id
-    const { recipientName, recipientPhone, shippingAddress, discountAmount, paymentMethod, storeDiscounts, systemDiscount, walletAmount } = req.body
+    const { recipientName, recipientPhone, shippingAddress, paymentMethod, storeDiscounts, systemDiscount, walletAmount, shippingMethod } = req.body
     const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
     const result = await orderService.createOrderOnline(userId, {
       recipientName,
       recipientPhone,
       shippingAddress,
-      discountAmount: Number(discountAmount) || 0,
       paymentMethod,
       storeDiscounts,
       systemDiscount: systemDiscount || null,
-      walletAmount: Number(walletAmount) || 0
+      walletAmount: Number(walletAmount) || 0,
+      shippingMethod
     }, ipAddr)
 
     return res.status(201).json(result)

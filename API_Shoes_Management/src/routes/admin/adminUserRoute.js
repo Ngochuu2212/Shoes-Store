@@ -3,11 +3,13 @@ import { adminUserController } from '~/controllers/admin/adminUserController'
 import { adminUserValidation } from '~/validations/admin/adminUserValidation'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 // Bắt buộc đi qua middleware kiểm tra đăng nhập (Chỉ duy nhất ADMIN mới có quyền sờ vào)
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.ADMIN))
 
 router.get('/', adminUserController.getUsersList)
 

@@ -268,15 +268,23 @@ export const CartPage = () => {
     }
   }
 
-  const handleStoreVoucherSelect = (storeId, code, discountValue) => {
+  // Lưu kèm điều kiện đơn tối thiểu & mức giảm tối đa để tính giống hệt server
+  const toVoucherState = (code, discountValue, voucher) => ({
+    code,
+    discountValue,
+    minOrderValue: Number(voucher?.min_order_value || 0),
+    maxDiscount: voucher?.max_discount_amount ? Number(voucher.max_discount_amount) : null
+  })
+
+  const handleStoreVoucherSelect = (storeId, code, discountValue, voucher) => {
     setStoreVouchers(prev => ({
       ...prev,
-      [storeId]: { code, discountValue }
+      [storeId]: toVoucherState(code, discountValue, voucher)
     }))
   }
 
-  const handleSystemVoucherSelect = (code, discountValue) => {
-    setSystemVoucher({ code, discountValue })
+  const handleSystemVoucherSelect = (code, discountValue, voucher) => {
+    setSystemVoucher(toVoucherState(code, discountValue, voucher))
   }
 
   const safeSelectedItems = Array.isArray(selectedItems) ? selectedItems : []
@@ -290,21 +298,33 @@ export const CartPage = () => {
     return sum + (Number(item.base_price) * item.cart_quantity)
   }, 0)
 
-  const storeDiscountAmount = selectedCartObjects.reduce((sum, item) => {
+  // Voucher chỉ có hiệu lực khi đơn đạt mức tối thiểu
+  const isVoucherEligible = (voucher, orderValue) =>
+    Boolean(voucher?.code) && orderValue >= (voucher.minOrderValue || 0)
+
+  // Tiền giảm của 1 voucher % trên giá trị đơn, có chặn mức giảm tối đa (khớp calcVoucherDiscount ở server)
+  const calcVoucherDiscount = (voucher, orderValue) => {
+    if (!isVoucherEligible(voucher, orderValue)) return 0
+    const discount = orderValue * (voucher.discountValue / 100)
+    return voucher.maxDiscount ? Math.min(discount, voucher.maxDiscount) : discount
+  }
+
+  // Gom theo shop: tạm tính, giảm giá theo sản phẩm, giảm giá voucher của shop
+  const storeSummaries = selectedCartObjects.reduce((acc, item) => {
     const itemRowPrice = Number(item.base_price) * item.cart_quantity
-
     const backendPromoPercent = Number(item.discount_percentage || 0)
-    const productItemDiscount = itemRowPrice * (backendPromoPercent / 100)
 
-    const voucherRowPercent = storeVouchers[item.store_id]?.discountValue || 0
-    const voucherRowDiscount = itemRowPrice * (voucherRowPercent / 100)
+    if (!acc[item.store_id]) acc[item.store_id] = { subTotal: 0, productDiscount: 0 }
+    acc[item.store_id].subTotal += itemRowPrice
+    acc[item.store_id].productDiscount += itemRowPrice * (backendPromoPercent / 100)
+    return acc
+  }, {})
 
-    return sum + productItemDiscount + voucherRowDiscount
+  const storeDiscountAmount = Object.entries(storeSummaries).reduce((sum, [storeId, summary]) => {
+    return sum + summary.productDiscount + calcVoucherDiscount(storeVouchers[storeId], summary.subTotal)
   }, 0)
 
-  const systemVoucherDiscountAmount = systemVoucher.code
-    ? Math.round(subTotal * (systemVoucher.discountValue / 100))
-    : 0
+  const systemVoucherDiscountAmount = Math.round(calcVoucherDiscount(systemVoucher, subTotal))
 
   // Phí vận chuyển theo số cửa hàng khác nhau
   const SHIPPING_FEES = { standard: 20000, express: 40000, same_day: 60000 }
@@ -315,8 +335,6 @@ export const CartPage = () => {
   // Cap wallet amount: can't exceed available balance or remaining payable amount
   const preWalletTotal = Math.max(0, subTotal - storeDiscountAmount - systemVoucherDiscountAmount + totalShippingFee)
   const effectiveWalletAmount = Math.min(walletAmountToUse, walletBalance, preWalletTotal)
-
-  const totalDiscountAmount = storeDiscountAmount + systemVoucherDiscountAmount
 
   const finalTotal = Math.max(0, preWalletTotal - effectiveWalletAmount)
 
@@ -329,41 +347,26 @@ export const CartPage = () => {
 
     setLoadingOrder(true)
 
+    // Chỉ gửi MÃ voucher, server tự tính số tiền giảm. Bỏ mã nếu đơn của shop chưa đạt mức tối thiểu
     const storeDiscounts = {}
-
-    selectedCartObjects.forEach(item => {
-      const storeId = item.store_id
-
-      if (!storeDiscounts[storeId]) {
-        storeDiscounts[storeId] = {
-          amount: 0,
-          code: storeVouchers[storeId]?.code || null
-        }
+    Object.entries(storeSummaries).forEach(([storeId, summary]) => {
+      const voucher = storeVouchers[storeId]
+      storeDiscounts[storeId] = {
+        code: isVoucherEligible(voucher, summary.subTotal) ? voucher.code : null
       }
-
-      const itemRowPrice = Number(item.base_price) * item.cart_quantity
-      const backendPromoPercent = Number(item.discount_percentage || 0)
-      const productItemDiscount = itemRowPrice * (backendPromoPercent / 100)
-
-      const voucherRowPercent = storeVouchers[storeId]?.discountValue || 0
-      const voucherRowDiscount = itemRowPrice * (voucherRowPercent / 100)
-
-      storeDiscounts[storeId].amount += (productItemDiscount + voucherRowDiscount)
     })
 
     const orderPayload = {
       recipientName: formData.recipientName,
       recipientPhone: formData.recipientPhone,
       shippingAddress: formData.shippingAddress,
-      discountAmount: totalDiscountAmount,
       paymentMethod: effectiveWalletAmount >= preWalletTotal && preWalletTotal > 0 ? 'WALLET' : paymentMethod,
       storeDiscounts: storeDiscounts,
-      systemDiscount: systemVoucher.code
-        ? { code: systemVoucher.code, amount: systemVoucherDiscountAmount }
+      systemDiscount: isVoucherEligible(systemVoucher, subTotal)
+        ? { code: systemVoucher.code }
         : null,
       walletAmount: effectiveWalletAmount > 0 ? effectiveWalletAmount : 0,
-      shippingMethod: shippingMethod,
-      shippingFee: shippingFeePerOrder
+      shippingMethod: shippingMethod
     }
 
     try {

@@ -30,9 +30,10 @@ const validateCheckout = async (req, res, next) => {
 
     storeDiscounts: Joi.object().optional(),
 
+    // amount chỉ để hiển thị phía client, server bỏ qua và tự tính lại từ mã voucher
     systemDiscount: Joi.object({
       code: Joi.string().trim().required(),
-      amount: Joi.number().min(0).required()
+      amount: Joi.number().min(0).optional()
     }).optional().allow(null),
 
     walletAmount: Joi.number().min(0).precision(2).optional().default(0).messages({

@@ -90,7 +90,7 @@ export const CartVoucherPicker = ({ item, onSelectVoucher, currentSelectedVouche
                         key={v.id}
                         type="button"
                         onClick={() => {
-                          onSelectVoucher(item.store_id, v.name, Number(v.discount_value))
+                          onSelectVoucher(item.store_id, v.name, Number(v.discount_value), v)
                           setOpen(false)
                         }}
                         className={`w-full text-left px-2.5 py-1.5 text-[11px] rounded-lg transition-colors cursor-pointer flex flex-col gap-0.5

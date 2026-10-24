@@ -2,10 +2,12 @@ import express from 'express'
 import { adminAttributeController } from '~/controllers/admin/adminAttributeController'
 import { adminAttributeValidation } from '~/validations/admin/adminAttributeValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.ADMIN))
 
 router.get('/sizes', adminAttributeController.getSizesList)
 router.post('/sizes/add', adminAttributeValidation.handleSize, adminAttributeController.createSize)

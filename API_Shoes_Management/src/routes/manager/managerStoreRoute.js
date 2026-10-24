@@ -2,11 +2,13 @@ import express from 'express'
 import { managerStoreController } from '~/controllers/manager/managerStoreController'
 import { managerStoreValidation } from '~/validations/manager/managerStoreValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 // Yêu cầu quyền hạn tài khoản đăng nhập Điều hành viên (Manager)
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.MANAGER, ROLE_ID.ADMIN))
 
 // 1. GET /api/manager/stores -> Tải danh sách cửa hàng toàn sàn phân trang + Widgets
 router.get('/', managerStoreValidation.validateGetStoresFilters, managerStoreController.getStoresList)

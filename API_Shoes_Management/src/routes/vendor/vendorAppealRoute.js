@@ -3,10 +3,12 @@ import { vendorAppealController } from '~/controllers/vendor/vendorAppealControl
 import { vendorAppealValidation } from '~/validations/vendor/vendorAppealValidation'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.VENDOR))
 
 // 1. POST /api/vendor/appeals/submit -> Gửi đơn cứu xét
 router.post(

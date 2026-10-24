@@ -1,11 +1,13 @@
 import express from 'express'
 import { shipperController } from '~/controllers/shipper/shipperController'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.SHIPPER))
 
 // Dashboard
 router.get('/dashboard', shipperController.getDashboard)

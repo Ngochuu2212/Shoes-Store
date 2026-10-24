@@ -2,10 +2,12 @@ import express from 'express'
 import { managerPromotionController } from '~/controllers/manager/managerPromotionController'
 import { managerPromotionValidation } from '~/validations/manager/managerPromotionValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.MANAGER, ROLE_ID.ADMIN))
 
 // 1. GET /api/manager/promotions -> Danh sách mã khuyến mãi hệ thống
 router.get('/', managerPromotionValidation.validateGetPromotionsFilters, managerPromotionController.getSystemPromotions)

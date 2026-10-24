@@ -2,12 +2,14 @@ import express from 'express'
 import { vendorStoreController } from '~/controllers/vendor/vendorStoreController'
 import { vendorStoreValidation } from '~/validations/vendor/vendorStoreValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const router = express.Router()
 
 // Chốt chặn bảo mật tài khoản yêu cầu quyền hạn Vendor
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.VENDOR, ROLE_ID.USER))
 
 // 1. POST /api/vendor/stores/register -> Đăng ký mở shop
 router.post('/register', CloudinaryProvider.uploadStoreFiles, vendorStoreValidation.validateRegisterStoreBody, vendorStoreController.registerStore)

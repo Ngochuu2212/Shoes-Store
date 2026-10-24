@@ -2,11 +2,13 @@ import express from 'express'
 import { managerReviewController } from '~/controllers/manager/managerReviewController'
 import { managerReviewValidation } from '~/validations/manager/managerReviewValidation'
 import { authGuard } from '~/middlewares/authGuard'
+import { ROLE_ID } from '~/utils/constants'
 
 const router = express.Router()
 
 // Yêu cầu quyền hạn tài khoản đăng nhập Điều hành viên (Manager) cho toàn phân hệ
 router.use(authGuard.isAuthorized)
+router.use(authGuard.authorizeRoles(ROLE_ID.MANAGER, ROLE_ID.ADMIN))
 
 // 1. GET /api/manager/reviews -> Lấy danh sách đánh giá bị tố cáo + Phân trang + Widgets
 router.get('/', managerReviewValidation.validateGetReportedReviewsFilters, managerReviewController.getReportedReviews)

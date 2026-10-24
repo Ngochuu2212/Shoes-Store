@@ -44,8 +44,25 @@ const getActiveSystemPromotions = async () => {
   return rows
 }
 
+// Tra mã giảm giá khi chốt đơn: storeId = null -> chỉ nhận mã toàn sàn, có storeId -> chỉ nhận mã của đúng shop đó
+const getActiveVoucherForCheckout = async (code, storeId) => {
+  const query = `
+    SELECT id, store_id, name, discount_value, min_order_value, max_discount_amount
+    FROM promotions
+    WHERE name = ?
+      AND ${storeId ? 'store_id = ?' : 'store_id IS NULL'}
+      AND is_active = TRUE
+      AND NOW() BETWEEN start_date AND end_date
+    LIMIT 1
+  `
+  const params = storeId ? [code, storeId] : [code]
+  const [rows] = await pool.execute(query, params)
+  return rows[0]
+}
+
 export const promotionModel = {
   getActivePromotionByCode,
+  getActiveVoucherForCheckout,
   getActivePromotionsByStoreId,
   getActiveSystemPromotions
 }
